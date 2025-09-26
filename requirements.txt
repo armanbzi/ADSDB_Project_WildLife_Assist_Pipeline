@@ -1,0 +1,1 @@
+"boto3\nwildlife-datasets\npandas\ntqdm\npillow\nopencv-python\nchromadb\ntransformers\ntorch\njupyterlab" 
