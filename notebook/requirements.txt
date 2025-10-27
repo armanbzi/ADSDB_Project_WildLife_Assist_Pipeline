@@ -1,0 +1,32 @@
+# WildLife Data Management Pipeline Requirements
+# Core dependencies
+psutil>=5.9.0
+requests>=2.28.0
+Pillow>=9.0.0
+pandas>=1.5.0
+tqdm>=4.64.0
+
+# MinIO client
+minio>=7.1.0
+
+# Data processing
+datasets>=2.0.0
+numpy>=1.21.0
+# opencv-python>=4.6.0  # Optional: only needed for license plate anonymization
+
+# Machine Learning embeddings
+langchain-experimental>=0.0.30
+
+# API and environment
+python-dotenv>=1.0.0
+openai>=1.0.0
+
+# Visualization
+matplotlib>=3.5.0
+
+# Vector database
+chromadb>=0.4.0
+
+# Quality control and testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
