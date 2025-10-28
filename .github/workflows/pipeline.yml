@@ -61,6 +61,14 @@ jobs:
         touch error.log pipeline.log || echo "Log files created"
     
     - name: Upload error logs
+      run: |
+        if [ ! -f error.log ]; then
+          echo "Creating error.log file..." > error.log
+        fi
+        echo "Error log file ready for upload"
+      if: always()
+    
+    - name: Upload error logs artifact
       uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -73,7 +81,7 @@ jobs:
     needs: setup
     services:
       minio:
-        image: minio/minio:RELEASE.2023-09-04T19-57-37Z
+        image: minio/minio:latest
         ports:
           - 9000:9000
           - 9001:9001
@@ -85,6 +93,7 @@ jobs:
           --health-interval 30s
           --health-timeout 20s
           --health-retries 5
+          --health-start-period 60s
     
     steps:
     - uses: actions/checkout@v4
@@ -105,13 +114,31 @@ jobs:
     
     - name: Wait for MinIO
       run: |
-        timeout 60 bash -c 'until curl -f http://localhost:9000/minio/health/live; do sleep 2; done' || echo "MinIO wait completed with warnings"
+        echo "Waiting for MinIO to be ready..."
+        for i in {1..30}; do
+          if curl -f http://localhost:9000/minio/health/live 2>/dev/null; then
+            echo "MinIO is ready!"
+            break
+          fi
+          echo "Attempt $i/30: MinIO not ready yet, waiting..."
+          sleep 2
+        done
+        echo "MinIO wait completed"
     
     - name: Test individual scripts
       run: |
+        echo "Testing individual scripts..."
         python orchestrate.py --non-interactive --choice 2 || echo "Individual scripts test completed with warnings"
     
     - name: Upload error logs
+      run: |
+        if [ ! -f error.log ]; then
+          echo "Creating error.log file..." > error.log
+        fi
+        echo "Error log file ready for upload"
+      if: always()
+    
+    - name: Upload error logs artifact
       uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -143,7 +170,8 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y docker.io
-        sudo systemctl start docker || echo "Docker installation completed with warnings"
+        sudo systemctl start docker
+        sudo usermod -aG docker $USER || echo "Docker setup completed with warnings"
     
     - name: Run quality control
       run: |
@@ -157,6 +185,14 @@ jobs:
         touch error.log || echo "Log files created"
     
     - name: Upload error logs
+      run: |
+        if [ ! -f error.log ]; then
+          echo "Creating error.log file..." > error.log
+        fi
+        echo "Error log file ready for upload"
+      if: always()
+    
+    - name: Upload error logs artifact
       uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -171,7 +207,7 @@ jobs:
     
     services:
       minio:
-        image: minio/minio:RELEASE.2023-09-04T19-57-37Z
+        image: minio/minio:latest
         ports:
           - 9000:9000
           - 9001:9001
@@ -183,6 +219,7 @@ jobs:
           --health-interval 30s
           --health-timeout 20s
           --health-retries 5
+          --health-start-period 60s
     
     steps:
     - uses: actions/checkout@v4
@@ -203,10 +240,20 @@ jobs:
     
     - name: Wait for MinIO
       run: |
-        timeout 60 bash -c 'until curl -f http://localhost:9000/minio/health/live; do sleep 2; done' || echo "MinIO wait completed with warnings"
+        echo "Waiting for MinIO to be ready..."
+        for i in {1..30}; do
+          if curl -f http://localhost:9000/minio/health/live 2>/dev/null; then
+            echo "MinIO is ready!"
+            break
+          fi
+          echo "Attempt $i/30: MinIO not ready yet, waiting..."
+          sleep 2
+        done
+        echo "MinIO wait completed"
     
     - name: Run complete pipeline
       run: |
+        echo "Running complete pipeline..."
         python orchestrate.py --non-interactive --choice ${{ github.event.inputs.choice || '1' }} || echo "Complete pipeline completed with warnings"
       env:
         HUGGINGFACE_API_TOKEN: ${{ secrets.HUGGINGFACE_API_TOKEN }}
@@ -216,13 +263,24 @@ jobs:
         touch error.log pipeline.log || echo "Log files created"
     
     - name: Upload error logs
+      run: |
+        if [ ! -f error.log ]; then
+          echo "Creating error.log file..." > error.log
+        fi
+        if [ ! -f pipeline.log ]; then
+          echo "Creating pipeline.log file..." > pipeline.log
+        fi
+        echo "Log files ready for upload"
+      if: always()
+    
+    - name: Upload error logs artifact
       uses: actions/upload-artifact@v4
       if: always()
       with:
         name: error-logs-deploy
         path: error.log
     
-    - name: Upload pipeline logs
+    - name: Upload pipeline logs artifact
       uses: actions/upload-artifact@v4
       if: always()
       with:
