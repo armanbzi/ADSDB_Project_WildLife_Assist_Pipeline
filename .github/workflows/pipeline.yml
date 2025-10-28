@@ -64,7 +64,9 @@ on:
       
       # MinIO Configuration (separated back to individual inputs)
       minio_endpoint:
-        description: 'MinIO Endpoint (e.g., localhost:9000)'
+        description: |
+          MinIO Endpoint (for reference only - service runs on localhost:9000 in CI/CD)
+          (e.g., localhost:9000)
         required: false
         default: 'localhost:9000'
         type: string
@@ -117,7 +119,8 @@ env:
   SUB_CHOICE: ${{ github.event.inputs.sub_choice || '1' }}
   
   # MinIO Configuration (individual inputs)
-  MINIO_ENDPOINT: ${{ github.event.inputs.minio_endpoint || 'localhost:9000' }}
+  # Note: MinIO service always runs on port 9000 in GitHub Actions
+  MINIO_ENDPOINT: localhost:9000
   MINIO_ACCESS_KEY: ${{ github.event.inputs.minio_access_key || 'admin' }}
   MINIO_SECRET_KEY: ${{ github.event.inputs.minio_secret_key || 'password123' }}
   
@@ -172,6 +175,21 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     
+    services:
+      minio:
+        image: minio/minio:latest
+        ports:
+          - 9000:9000
+          - 9001:9001
+        env:
+          MINIO_ROOT_USER: ${{ github.event.inputs.minio_access_key || 'admin' }}
+          MINIO_ROOT_PASSWORD: ${{ github.event.inputs.minio_secret_key || 'password123' }}
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
+          --health-interval 30s
+          --health-timeout 20s
+          --health-retries 3
+    
     steps:
     - uses: actions/checkout@v4
     
@@ -184,6 +202,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    
+    - name: Wait for MinIO to be ready
+      run: |
+        echo "Waiting for MinIO to be ready..."
+        timeout 60 bash -c 'until curl -f http://localhost:9000/minio/health/live; do sleep 2; done'
+        echo "MinIO is ready!"
     
     - name: Create log files early
       run: |
@@ -274,6 +298,21 @@ jobs:
     needs: [setup, test-scripts]
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     
+    services:
+      minio:
+        image: minio/minio:latest
+        ports:
+          - 9000:9000
+          - 9001:9001
+        env:
+          MINIO_ROOT_USER: ${{ github.event.inputs.minio_access_key || 'admin' }}
+          MINIO_ROOT_PASSWORD: ${{ github.event.inputs.minio_secret_key || 'password123' }}
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
+          --health-interval 30s
+          --health-timeout 20s
+          --health-retries 3
+    
     steps:
     - uses: actions/checkout@v4
     
@@ -286,6 +325,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    
+    - name: Wait for MinIO to be ready
+      run: |
+        echo "Waiting for MinIO to be ready..."
+        timeout 60 bash -c 'until curl -f http://localhost:9000/minio/health/live; do sleep 2; done'
+        echo "MinIO is ready!"
     
     - name: Create log files early
       run: |
