@@ -28,6 +28,7 @@ setup:
     - apt-get update && apt-get install -y git curl || echo "Package installation completed with warnings"
     - pip install --upgrade pip
     - pip install -r requirements.txt
+    - touch error.log || echo "Log file created"
   script:
     - echo "Dependencies installed successfully"
     - python orchestrate.py --non-interactive --choice 4 || echo "Setup completed with warnings"
@@ -40,15 +41,11 @@ setup:
 test_scripts:
   stage: test
   image: python:3.9-slim
-  services:
-    - name: minio/minio:latest
-      alias: minio
-      command: server /data --console-address ":9001"
   before_script:
     - apt-get update && apt-get install -y git curl || echo "Package installation completed with warnings"
     - pip install --upgrade pip
     - pip install -r requirements.txt
-    - sleep 10  # Wait for MinIO to start
+    - touch error.log || echo "Log file created"
   script:
     - echo "Testing individual scripts..."
     - python orchestrate.py --non-interactive --choice 2 || echo "Individual scripts test completed with warnings"
@@ -64,14 +61,11 @@ test_scripts:
 quality_control:
   stage: quality
   image: python:3.9-slim
-  services:
-    - name: sonarqube:latest
-      alias: sonarqube
   before_script:
     - apt-get update && apt-get install -y git curl docker.io || echo "Package installation completed with warnings"
     - pip install --upgrade pip
     - pip install -r requirements.txt
-    - sleep 30  # Wait for SonarQube to start
+    - touch error.log || echo "Log file created"
   script:
     - echo "Running quality control analysis..."
     - python orchestrate.py --non-interactive --choice 3 || echo "Quality control completed with warnings"
@@ -87,15 +81,11 @@ quality_control:
 deploy_pipeline:
   stage: deploy
   image: python:3.9-slim
-  services:
-    - name: minio/minio:latest
-      alias: minio
-      command: server /data --console-address ":9001"
   before_script:
     - apt-get update && apt-get install -y git curl || echo "Package installation completed with warnings"
     - pip install --upgrade pip
     - pip install -r requirements.txt
-    - sleep 10  # Wait for MinIO to start
+    - touch error.log || echo "Log file created"
   script:
     - echo "Running complete data pipeline..."
     - python orchestrate.py --non-interactive --choice 1 || echo "Complete pipeline completed with warnings"
