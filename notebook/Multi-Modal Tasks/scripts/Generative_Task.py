@@ -61,9 +61,14 @@ def get_huggingface_token():
     for _ in range(max_attempts):
         token = input("Enter Hugging Face API token (or press Enter to skip): ").strip()
         if token:
+            # Save token to .env file
+            env_file_path = ".env"
+            with open(env_file_path, "a") as f:
+                f.write(f"\nHUGGINGFACE_API_TOKEN={token}\n")
+            
             # Save token to environment variable
             os.environ['HUGGINGFACE_API_TOKEN'] = token
-            print(" Hugging Face token saved to environment variables")
+            print(f" Hugging Face token saved to {env_file_path}")
             return token
         else:
             print(" No token provided.")
@@ -741,6 +746,9 @@ def process_generative_task(
     
     print(" Starting Generative Tasks...")
     print("=" * 60)
+    
+    # Get HuggingFace token
+    get_huggingface_token()
     
     # Setup connections
     client = setup_minio_connection(minio, access_key, secret_key, trusted_bucket)

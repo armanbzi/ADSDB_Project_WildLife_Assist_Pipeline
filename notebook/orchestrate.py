@@ -168,11 +168,23 @@ class PipelineOrchestrator:
         token = input("Enter SonarQube token (or press Enter to use anonymous access): ").strip()
         
         if token:
+            # Save URL and token to .env file
+            env_file_path = ".env"
+            with open(env_file_path, "a") as f:
+                f.write(f"\nSONAR_HOST_URL={url}\n")
+                f.write(f"SONAR_LOGIN={token}\n")
+            
             os.environ['SONAR_HOST_URL'] = url
             os.environ['SONAR_LOGIN'] = token
-            print(" SonarQube URL and token saved to environment variables")
+            print(f" SonarQube URL and token saved to {env_file_path}")
             return url, token
         else:
+            # Save only URL to .env file
+            env_file_path = ".env"
+            with open(env_file_path, "a") as f:
+                f.write(f"\nSONAR_HOST_URL={url}\n")
+            
+            print(f" SonarQube URL saved to {env_file_path}")
             print(" Using anonymous access to SonarQube")
             return url, None
 
