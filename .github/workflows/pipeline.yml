@@ -11,12 +11,12 @@ on:
   workflow_dispatch:
     inputs:
       choice:
-        description: 'Pipeline choice (1-4): /n
-         1. Complete Data Pipeline (Store All Data)
-         2. Individual Scripts (Choose specific scripts)
-         3. Quality Control & Code Analysis
-         4. View Pipeline Status
-         '
+        description: |
+          Pipeline choice (1-4):
+          1. Complete Data Pipeline (Store All Data)
+          2. Individual Scripts (Choose specific scripts)
+          3. Quality Control & Code Analysis
+          4. View Pipeline Status
         required: true
         default: '1'
         type: choice
@@ -29,22 +29,22 @@ on:
       
       # Sub-choice for option 2 (individual scripts)
       sub_choice:
-        description: 'Script/Task choice for option 2 (1-12):/n
-          1. Temporal Landing /n
-          2. Persistent Landing /n
-          3. Formatted Metadata /n
-          4. Formatted Images /n
-          5. Trusted Metadata /n
-          6. Trusted Images /n
-          7. Exploitation Metadata /n
-          8. Exploitation Images /n
-          9. Exploitation Multimodal /n
+        description: |
+          Script/Task choice for option 2 (1-12):
+          1. Temporal Landing
+          2. Persistent Landing
+          3. Formatted Metadata
+          4. Formatted Images
+          5. Trusted Metadata
+          6. Trusted Images
+          7. Exploitation Metadata
+          8. Exploitation Images
+          9. Exploitation Multimodal
           
-          Task Scripts :
-          10. Same Modality Search /n
-          11. Multimodal Similarity /n
-          12. Generative Task /n
-          '
+          Task Scripts:
+          10. Same Modality Search
+          11. Multimodal Similarity
+          12. Generative Task
         required: false
         default: '10'
         type: choice
@@ -90,8 +90,9 @@ on:
       
       # User Query (needed for option 2 with multimodal tasks)
       user_query:
-        description: 'User Query for Multimodal Tasks /n 
-         (e.g., "What is a rattlesnake?", "take image and what color is the snake?")'
+        description: |
+          User Query for Multimodal Tasks
+          (e.g., "What is a rattlesnake?", "take image and what color is the snake?")
         required: false
         default: 'What is a rattlesnake?'
         type: string
