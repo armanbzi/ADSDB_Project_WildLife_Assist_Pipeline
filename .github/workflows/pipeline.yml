@@ -22,42 +22,18 @@ on:
         - '4'
         - '5'
       
-      # MinIO Configuration (needed for options 1, 2)
-      minio_endpoint:
-        description: 'MinIO Endpoint (e.g., localhost:9000)'
+      # MinIO Configuration (JSON format: {"endpoint":"localhost:9000","access_key":"admin","secret_key":"password123"})
+      minio_config:
+        description: 'MinIO Configuration (JSON format)'
         required: false
-        default: 'localhost:9000'
+        default: '{"endpoint":"localhost:9000","access_key":"admin","secret_key":"password123"}'
         type: string
       
-      minio_access_key:
-        description: 'MinIO Access Key'
+      # Temporal Landing Parameters (comma-separated: max_per_species,max_species_per_family,max_samples)
+      temporal_params:
+        description: 'Temporal Parameters (comma-separated: max_per_species,max_species_per_family,max_samples)'
         required: false
-        default: 'admin'
-        type: string
-      
-      minio_secret_key:
-        description: 'MinIO Secret Key'
-        required: false
-        default: 'password123'
-        type: string
-      
-      # Temporal Landing Parameters (needed for option 1, and option 2 with temporal scripts)
-      max_per_species:
-        description: 'MAX_PER_SPECIES (e.g., 30)'
-        required: false
-        default: '30'
-        type: string
-      
-      max_species_per_family:
-        description: 'MAX_SPECIES_PER_FAMILY (e.g., 11)'
-        required: false
-        default: '11'
-        type: string
-      
-      max_samples:
-        description: 'MAX_SAMPLES (e.g., 3000000)'
-        required: false
-        default: '3000000'
+        default: '30,11,3000000'
         type: string
       
       # User Query (needed for option 2 with multimodal tasks)
@@ -74,39 +50,20 @@ on:
         default: ''
         type: string
       
-      # SonarQube Configuration (needed for option 3)
-      sonar_url:
-        description: 'SonarQube URL (e.g., http://localhost:9002)'
+      # SonarQube Configuration (comma-separated: url,token)
+      sonar_config:
+        description: 'SonarQube Configuration (comma-separated: url,token)'
         required: false
-        default: 'http://localhost:9002'
-        type: string
-      
-      sonar_token:
-        description: 'SonarQube Token (optional)'
-        required: false
-        default: ''
+        default: 'http://localhost:9002,'
         type: string
 
 env:
-  # MinIO Configuration (from workflow inputs)
-  MINIO_ENDPOINT: ${{ github.event.inputs.minio_endpoint || 'localhost:9000' }}
-  MINIO_ACCESS_KEY: ${{ github.event.inputs.minio_access_key || 'admin' }}
-  MINIO_SECRET_KEY: ${{ github.event.inputs.minio_secret_key || 'password123' }}
-  
-  # Temporal Landing Parameters (from workflow inputs)
-  MAX_PER_SPECIES: ${{ github.event.inputs.max_per_species || '30' }}
-  MAX_SPECIES_PER_FAMILY: ${{ github.event.inputs.max_species_per_family || '11' }}
-  MAX_SAMPLES: ${{ github.event.inputs.max_samples || '3000000' }}
-  
-  # User Query (from workflow inputs)
+  # Consolidated inputs (will be parsed by scripts)
+  MINIO_CONFIG: ${{ github.event.inputs.minio_config || '{"endpoint":"localhost:9000","access_key":"admin","secret_key":"password123"}' }}
+  TEMPORAL_PARAMS: ${{ github.event.inputs.temporal_params || '30,11,3000000' }}
   USER_QUERY: ${{ github.event.inputs.user_query || 'What is a rattlesnake?' }}
-  
-  # HuggingFace Configuration (from workflow inputs)
   HUGGINGFACE_API_TOKEN: ${{ github.event.inputs.huggingface_token || '' }}
-  
-  # SonarQube Configuration (from workflow inputs)
-  SONAR_HOST_URL: ${{ github.event.inputs.sonar_url || 'http://localhost:9002' }}
-  SONAR_LOGIN: ${{ github.event.inputs.sonar_token || '' }}
+  SONAR_CONFIG: ${{ github.event.inputs.sonar_config || 'http://localhost:9002,' }}
 
 jobs:
   # Setup and test dependencies

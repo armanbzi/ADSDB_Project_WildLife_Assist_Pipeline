@@ -62,9 +62,18 @@ def get_user_parameters():
         # Use environment variables or defaults for CI/CD
         print("Running in non-interactive mode - using environment variables or defaults")
         
-        max_per_species = int(os.getenv('MAX_PER_SPECIES', '30'))
-        max_species_per_family = int(os.getenv('MAX_SPECIES_PER_FAMILY', '11'))
-        max_samples = int(os.getenv('MAX_SAMPLES', '3000000'))
+        # Parse consolidated temporal parameters
+        temporal_params_str = os.getenv('TEMPORAL_PARAMS', '30,11,3000000')
+        try:
+            params = temporal_params_str.split(',')
+            max_per_species = int(params[0].strip())
+            max_species_per_family = int(params[1].strip())
+            max_samples = int(params[2].strip())
+        except (ValueError, IndexError):
+            print(f"Warning: Invalid TEMPORAL_PARAMS format '{temporal_params_str}', using defaults")
+            max_per_species = 30
+            max_species_per_family = 11
+            max_samples = 3000000
         
         print(f"Using parameters: MAX_PER_SPECIES={max_per_species}, MAX_SPECIES_PER_FAMILY={max_species_per_family}, MAX_SAMPLES={max_samples}")
         

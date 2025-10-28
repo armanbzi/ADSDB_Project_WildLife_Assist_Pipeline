@@ -105,12 +105,29 @@ class PipelineOrchestrator:
         print("="*60)
         
         # Check for environment variables first (for CI/CD and automated runs)
+        # Try consolidated JSON format first
+        minio_config_json = os.getenv('MINIO_CONFIG')
+        if minio_config_json:
+            try:
+                import json
+                config = json.loads(minio_config_json)
+                if all(key in config for key in ['endpoint', 'access_key', 'secret_key']):
+                    print(" MinIO configuration found in consolidated environment variable")
+                    # Persist configuration for use by individual pipeline scripts
+                    with open("minio_config.json", "w") as f:
+                        json.dump(config, f, indent=2)
+                    print(" MinIO configuration saved to minio_config.json")
+                    return config
+            except json.JSONDecodeError:
+                print(f" Warning: Invalid JSON format in MINIO_CONFIG: {minio_config_json}")
+        
+        # Fallback to individual environment variables
         endpoint = os.getenv('MINIO_ENDPOINT')
         access_key = os.getenv('MINIO_ACCESS_KEY')
         secret_key = os.getenv('MINIO_SECRET_KEY')
         
         if endpoint and access_key and secret_key:
-            print(" MinIO configuration found in environment variables")
+            print(" MinIO configuration found in individual environment variables")
             config = {
                 "endpoint": endpoint,
                 "access_key": access_key,
@@ -167,12 +184,26 @@ class PipelineOrchestrator:
         print(" SonarQube Configuration")
         print("="*60)
         
+        # Check for consolidated configuration first
+        sonar_config_str = os.getenv('SONAR_CONFIG')
+        if sonar_config_str:
+            try:
+                parts = sonar_config_str.split(',')
+                sonar_url = parts[0].strip()
+                sonar_token = parts[1].strip() if len(parts) > 1 else ''
+                
+                if sonar_url:
+                    print(" SonarQube configuration found in consolidated environment variable")
+                    return sonar_url, sonar_token
+            except Exception as e:
+                print(f" Warning: Invalid SONAR_CONFIG format: {sonar_config_str}")
+        
         # Check for existing URL and token in environment variables
         sonar_url = os.getenv('SONAR_HOST_URL')
         sonar_token = os.getenv('SONAR_LOGIN')
         
         if sonar_url and sonar_token:
-            print(" SonarQube URL and token found in environment variables")
+            print(" SonarQube URL and token found in individual environment variables")
             return sonar_url, sonar_token
         
         # Request URL from user
