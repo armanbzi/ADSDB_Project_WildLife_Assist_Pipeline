@@ -18,7 +18,7 @@ A comprehensive DataOps orchestration system for wildlife data processing, featu
 ### Data Processing Zones (Recommended Workflow):
 
 1. **Temporal Landing** - Initial data ingestion from TreeOfLife-200M dataset
-   - Streams wildlife data (snake families) from HuggingFace
+   - Streams wildlife data (snake families only for now but can be upgraded) from HuggingFace
    - User-configurable sample limits and species constraints
    - Stores raw images and metadata in MinIO temporal-zone
 
@@ -26,10 +26,10 @@ A comprehensive DataOps orchestration system for wildlife data processing, featu
    - Ensures data durability and availability
 
 3. **Formatted Metadata** - Metadata standardization and cleaning
-   - Standardizes data formats and structures
+   - Standardizes data formats and structures 
 
 4. **Formatted Images** - Image processing and standardization
-   - Image format validation and optimization
+   - Image format validation and optimization (only JPEG images)
 
 5. **Trusted Metadata** - Data quality assurance for metadata
    - Validates and cleans metadata for reliability
@@ -48,15 +48,15 @@ A comprehensive DataOps orchestration system for wildlife data processing, featu
 
 ### AI/ML Task Options:
 - **Same Modality Search** - Similarity search within data types (text-to-text, image-to-image)
-- **Multimodal Similarity** - Cross-modal similarity analysis (text-to-image, image-to-text)
-- **Generative Task** - AI-powered data generation using OpenAI API
+- **Multimodal Similarity** - Cross-modal similarity analysis (text-to-image&text, image-to-text&image)
+- **Generative Task** - AI-powered data generation using OpenAI API(Qwen3-VL, Llama-4-Scout) 
 
 ## 🛠️ Installation
 
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/<your_username>/ADSDB_Project_WildLife_Assist_Pipeline.git
-   cd WildLife/notebook
+   cd ADSDB_Project_WildLife_Assist_Pipeline/WildLife
    ```
 
 2. **Install dependencies**:
@@ -277,7 +277,8 @@ GitLab CI configuration (`.gitlab-ci.yml`) provides:
 - **ChromaDB**: Vector database for embeddings and similarity search
 - **HuggingFace**: TreeOfLife-200M dataset access
 - **SonarQube**: Code quality analysis (optional, requires Docker)
-- **OpenAI**: AI generation capabilities (for Generative Task)
+- **OpenAI**: AI generation capabilities (for Generative Tasks using models 
+    "Qwen/Qwen3-VL-8B" & as fallback "Llama-4-Scout-17B-16E")
 
 ## 🤝 Contributing
 
@@ -297,4 +298,4 @@ This project is part of the ADSDB academic course.
 
 ---
 
-*This orchestration system provides a complete DataOps environment for the WildLife Data Management Pipeline, ensuring reliable, monitored, and quality-controlled data processing operations.*
+*This orchestration system provides a complete DataOps environment for the WildLife Data Management Pipeline, while maintaining reliable, monitored, and quality-controlled data processing from storing raw data to apply similarity search and generative tasks.*
