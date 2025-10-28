@@ -56,9 +56,9 @@ jobs:
       run: |
         python orchestrate.py --non-interactive --choice 4 || echo "Setup test completed with warnings"
     
-    - name: Ensure log files exist
+    - name: Create log files before upload
       run: |
-        touch error.log pipeline.log || echo "Log files ensured"
+        touch error.log pipeline.log || echo "Log files created"
     
     - name: Upload error logs
       uses: actions/upload-artifact@v4
@@ -73,7 +73,7 @@ jobs:
     needs: setup
     services:
       minio:
-        image: minio/minio:latest
+        image: minio/minio:RELEASE.2023-09-04T19-57-37Z
         ports:
           - 9000:9000
           - 9001:9001
@@ -84,7 +84,7 @@ jobs:
           --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
           --health-interval 30s
           --health-timeout 20s
-          --health-retries 3
+          --health-retries 5
     
     steps:
     - uses: actions/checkout@v4
@@ -99,6 +99,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
+    - name: Create log files early
+      run: |
+        touch error.log pipeline.log || echo "Log files created early"
+    
     - name: Wait for MinIO
       run: |
         timeout 60 bash -c 'until curl -f http://localhost:9000/minio/health/live; do sleep 2; done' || echo "MinIO wait completed with warnings"
@@ -106,10 +110,6 @@ jobs:
     - name: Test individual scripts
       run: |
         python orchestrate.py --non-interactive --choice 2 || echo "Individual scripts test completed with warnings"
-    
-    - name: Ensure log files exist
-      run: |
-        touch error.log || echo "Log files ensured"
     
     - name: Upload error logs
       uses: actions/upload-artifact@v4
@@ -152,9 +152,9 @@ jobs:
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         SONAR_LOGIN: ${{ secrets.SONAR_LOGIN }}
     
-    - name: Ensure log files exist
+    - name: Create log files before upload
       run: |
-        touch error.log || echo "Log files ensured"
+        touch error.log || echo "Log files created"
     
     - name: Upload error logs
       uses: actions/upload-artifact@v4
@@ -171,7 +171,7 @@ jobs:
     
     services:
       minio:
-        image: minio/minio:latest
+        image: minio/minio:RELEASE.2023-09-04T19-57-37Z
         ports:
           - 9000:9000
           - 9001:9001
@@ -182,7 +182,7 @@ jobs:
           --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
           --health-interval 30s
           --health-timeout 20s
-          --health-retries 3
+          --health-retries 5
     
     steps:
     - uses: actions/checkout@v4
@@ -197,6 +197,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
+    - name: Create log files early
+      run: |
+        touch error.log pipeline.log || echo "Log files created early"
+    
     - name: Wait for MinIO
       run: |
         timeout 60 bash -c 'until curl -f http://localhost:9000/minio/health/live; do sleep 2; done' || echo "MinIO wait completed with warnings"
@@ -207,9 +211,9 @@ jobs:
       env:
         HUGGINGFACE_API_TOKEN: ${{ secrets.HUGGINGFACE_API_TOKEN }}
     
-    - name: Ensure log files exist
+    - name: Create log files before upload
       run: |
-        touch error.log pipeline.log || echo "Log files ensured"
+        touch error.log pipeline.log || echo "Log files created"
     
     - name: Upload error logs
       uses: actions/upload-artifact@v4

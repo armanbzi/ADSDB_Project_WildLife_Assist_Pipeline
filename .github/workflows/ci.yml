@@ -25,7 +25,7 @@ jobs:
     
     - name: Run tests
       run: |
-        python test_orchestrator.py || echo "Tests completed with warnings"
+        python tests/test_orchestrator.py || echo "Tests completed with warnings"
     
     - name: Run quality control
       run: |
@@ -34,7 +34,7 @@ jobs:
     - name: Check code style
       run: |
         pip install flake8
-        flake8 orchestrate.py test_orchestrator.py --max-line-length=100 || echo "Code style check completed with warnings"
+        flake8 orchestrate.py tests/test_orchestrator.py --max-line-length=100 || echo "Code style check completed with warnings"
 
   quality-check:
     runs-on: ubuntu-latest

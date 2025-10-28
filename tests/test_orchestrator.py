@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Simple test file for WildLife Pipeline Orchestrator
-This file provides basic tests to verify the orchestrator functionality.
+WildLife Pipeline Test Suite
+============================
+Comprehensive test suite for the WildLife Data Management Pipeline Orchestrator.
 """
 
 import sys
@@ -9,8 +10,8 @@ import os
 import unittest
 from unittest.mock import patch, MagicMock
 
-# Add the current directory to Python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add the parent directory to Python path to import orchestrate
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
     from orchestrate import PipelineOrchestrator
