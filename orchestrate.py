@@ -99,19 +99,19 @@ class PipelineOrchestrator:
 
     def get_minio_config(self) -> Dict[str, str]:
         # Configure MinIO connection parameters.
+        import json
 
         print("\n" + "="*60)
         print(" MinIO Configuration Setup")
         print("="*60)
         
         # Check for environment variables first (for CI/CD and automated runs)
-        # Try individual environment variables first
         endpoint = os.getenv('MINIO_ENDPOINT')
         access_key = os.getenv('MINIO_ACCESS_KEY')
         secret_key = os.getenv('MINIO_SECRET_KEY')
         
         if endpoint and access_key and secret_key:
-            print(" MinIO configuration found in individual environment variables")
+            print(" MinIO configuration found in environment variables")
             config = {
                 "endpoint": endpoint,
                 "access_key": access_key,
@@ -122,22 +122,6 @@ class PipelineOrchestrator:
                 json.dump(config, f, indent=2)
             print(" MinIO configuration saved to minio_config.json")
             return config
-        
-        # Fallback to consolidated JSON format
-        minio_config_json = os.getenv('MINIO_CONFIG')
-        if minio_config_json:
-            try:
-                import json
-                config = json.loads(minio_config_json)
-                if all(key in config for key in ['endpoint', 'access_key', 'secret_key']):
-                    print(" MinIO configuration found in consolidated environment variable")
-                    # Persist configuration for use by individual pipeline scripts
-                    with open("minio_config.json", "w") as f:
-                        json.dump(config, f, indent=2)
-                    print(" MinIO configuration saved to minio_config.json")
-                    return config
-            except json.JSONDecodeError:
-                print(f" Warning: Invalid JSON format in MINIO_CONFIG: {minio_config_json}")
         
         # Interactive mode for manual setup
         # Collect endpoint with validation to ensure connectivity
