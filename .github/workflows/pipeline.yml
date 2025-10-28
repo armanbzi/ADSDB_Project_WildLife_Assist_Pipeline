@@ -11,7 +11,12 @@ on:
   workflow_dispatch:
     inputs:
       choice:
-        description: 'Pipeline choice (1-5)'
+        description: 'Pipeline choice (1-4): /n
+         1. Complete Data Pipeline (Store All Data)
+         2. Individual Scripts (Choose specific scripts)
+         3. Quality Control & Code Analysis
+         4. View Pipeline Status
+         '
         required: true
         default: '1'
         type: choice
@@ -22,11 +27,58 @@ on:
         - '4'
         - '5'
       
-      # MinIO Configuration (JSON format: {"endpoint":"localhost:9000","access_key":"admin","secret_key":"password123"})
-      minio_config:
-        description: 'MinIO Configuration (JSON format)'
+      # Sub-choice for option 2 (individual scripts)
+      sub_choice:
+        description: 'Script/Task choice for option 2 (1-12):/n
+          1. Temporal Landing /n
+          2. Persistent Landing /n
+          3. Formatted Metadata /n
+          4. Formatted Images /n
+          5. Trusted Metadata /n
+          6. Trusted Images /n
+          7. Exploitation Metadata /n
+          8. Exploitation Images /n
+          9. Exploitation Multimodal /n
+          
+          Task Scripts :
+          10. Same Modality Search /n
+          11. Multimodal Similarity /n
+          12. Generative Task /n
+          '
         required: false
-        default: '{"endpoint":"localhost:9000","access_key":"admin","secret_key":"password123"}'
+        default: '10'
+        type: choice
+        options:
+        - '1'
+        - '2'
+        - '3'
+        - '4'
+        - '5'
+        - '6'
+        - '7'
+        - '8'
+        - '9'
+        - '10'
+        - '11'
+        - '12'
+      
+      # MinIO Configuration (separated back to individual inputs)
+      minio_endpoint:
+        description: 'MinIO Endpoint (e.g., localhost:9000)'
+        required: false
+        default: 'localhost:9000'
+        type: string
+      
+      minio_access_key:
+        description: 'MinIO Access Key'
+        required: false
+        default: 'admin'
+        type: string
+      
+      minio_secret_key:
+        description: 'MinIO Secret Key'
+        required: false
+        default: 'password123'
         type: string
       
       # Temporal Landing Parameters (comma-separated: max_per_species,max_species_per_family,max_samples)
@@ -38,7 +90,8 @@ on:
       
       # User Query (needed for option 2 with multimodal tasks)
       user_query:
-        description: 'User Query for Multimodal Tasks (e.g., "What is a rattlesnake?")'
+        description: 'User Query for Multimodal Tasks /n 
+         (e.g., "What is a rattlesnake?", "take image and what color is the snake?")'
         required: false
         default: 'What is a rattlesnake?'
         type: string
@@ -58,8 +111,16 @@ on:
         type: string
 
 env:
-  # Consolidated inputs (will be parsed by scripts)
-  MINIO_CONFIG: ${{ github.event.inputs.minio_config || '{"endpoint":"localhost:9000","access_key":"admin","secret_key":"password123"}' }}
+  # Individual inputs
+  CHOICE: ${{ github.event.inputs.choice || '1' }}
+  SUB_CHOICE: ${{ github.event.inputs.sub_choice || '1' }}
+  
+  # MinIO Configuration (individual inputs)
+  MINIO_ENDPOINT: ${{ github.event.inputs.minio_endpoint || 'localhost:9000' }}
+  MINIO_ACCESS_KEY: ${{ github.event.inputs.minio_access_key || 'admin' }}
+  MINIO_SECRET_KEY: ${{ github.event.inputs.minio_secret_key || 'password123' }}
+  
+  # Other configurations
   TEMPORAL_PARAMS: ${{ github.event.inputs.temporal_params || '30,11,3000000' }}
   USER_QUERY: ${{ github.event.inputs.user_query || 'What is a rattlesnake?' }}
   HUGGINGFACE_API_TOKEN: ${{ github.event.inputs.huggingface_token || '' }}
@@ -232,7 +293,7 @@ jobs:
     - name: Run complete pipeline
       run: |
         echo "Running complete pipeline..."
-        python orchestrate.py --non-interactive --choice ${{ github.event.inputs.choice || '1' }} || echo "Complete pipeline completed with warnings"
+        python orchestrate.py --non-interactive --choice $CHOICE --sub-choice $SUB_CHOICE || echo "Complete pipeline completed with warnings"
     
     - name: Create log files before upload
       run: |

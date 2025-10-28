@@ -105,23 +105,7 @@ class PipelineOrchestrator:
         print("="*60)
         
         # Check for environment variables first (for CI/CD and automated runs)
-        # Try consolidated JSON format first
-        minio_config_json = os.getenv('MINIO_CONFIG')
-        if minio_config_json:
-            try:
-                import json
-                config = json.loads(minio_config_json)
-                if all(key in config for key in ['endpoint', 'access_key', 'secret_key']):
-                    print(" MinIO configuration found in consolidated environment variable")
-                    # Persist configuration for use by individual pipeline scripts
-                    with open("minio_config.json", "w") as f:
-                        json.dump(config, f, indent=2)
-                    print(" MinIO configuration saved to minio_config.json")
-                    return config
-            except json.JSONDecodeError:
-                print(f" Warning: Invalid JSON format in MINIO_CONFIG: {minio_config_json}")
-        
-        # Fallback to individual environment variables
+        # Try individual environment variables first
         endpoint = os.getenv('MINIO_ENDPOINT')
         access_key = os.getenv('MINIO_ACCESS_KEY')
         secret_key = os.getenv('MINIO_SECRET_KEY')
@@ -138,6 +122,22 @@ class PipelineOrchestrator:
                 json.dump(config, f, indent=2)
             print(" MinIO configuration saved to minio_config.json")
             return config
+        
+        # Fallback to consolidated JSON format
+        minio_config_json = os.getenv('MINIO_CONFIG')
+        if minio_config_json:
+            try:
+                import json
+                config = json.loads(minio_config_json)
+                if all(key in config for key in ['endpoint', 'access_key', 'secret_key']):
+                    print(" MinIO configuration found in consolidated environment variable")
+                    # Persist configuration for use by individual pipeline scripts
+                    with open("minio_config.json", "w") as f:
+                        json.dump(config, f, indent=2)
+                    print(" MinIO configuration saved to minio_config.json")
+                    return config
+            except json.JSONDecodeError:
+                print(f" Warning: Invalid JSON format in MINIO_CONFIG: {minio_config_json}")
         
         # Interactive mode for manual setup
         # Collect endpoint with validation to ensure connectivity
@@ -208,7 +208,7 @@ class PipelineOrchestrator:
         
         # Request URL from user
         while True:
-            url = input("Enter SonarQube URL (e.g., http://host.docker.internal:9002): ").strip()
+            url = input("Enter SonarQube URL (e.g., http://localhost:9002): ").strip()
             if url:
                 break
             print(" URL cannot be empty. Please enter a valid SonarQube URL.")
@@ -427,8 +427,14 @@ class PipelineOrchestrator:
         
         return True
 
-    def run_individual_script(self):
+    def run_individual_script(self, sub_choice=None):
         """Run individual scripts (workflow or tasks)"""
+        if sub_choice:
+            # Non-interactive mode - execute specific script
+            print(f" Executing script choice {sub_choice}")
+            return self._handle_script_choice(int(sub_choice))
+        
+        # Interactive mode
         while True:
             # Display available scripts
             self._display_available_scripts()
@@ -744,7 +750,7 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
         print(f" Total monitoring samples: {len(self.monitoring_data['system_metrics'])}")
         print(f" Total errors: {len(self.monitoring_data['errors'])}")
 
-    def run(self, non_interactive=False, auto_choice=None):
+    def run(self, non_interactive=False, auto_choice=None, auto_sub_choice=None):
         # Main orchestration
         
         # This method serves as the primary entry point for the pipeline orchestrator,
@@ -764,7 +770,11 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
                 choice = "1"  # Default to complete pipeline
             
             print(f" Executing option {choice}")
-            self._execute_choice(choice)
+            if choice == "2" and auto_sub_choice:
+                print(f" Executing sub-option {auto_sub_choice}")
+                self._execute_choice(choice, auto_sub_choice)
+            else:
+                self._execute_choice(choice)
             return
         
         # Main user interaction loop
@@ -783,7 +793,7 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
                 print(f" Error: {e}")
                 logger.error(f"Main loop error: {e}")
     
-    def _execute_choice(self, choice):
+    def _execute_choice(self, choice, sub_choice=None):
         """Execute the selected menu choice and return True if should exit."""
         try:
             if choice == "1":
@@ -791,7 +801,10 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
                 self.run_complete_data_pipeline()
             elif choice == "2":
                 # Execute individual scripts with monitoring
-                self.run_individual_script()
+                if sub_choice:
+                    self.run_individual_script(sub_choice)
+                else:
+                    self.run_individual_script()
             elif choice == "3":
                 # Perform comprehensive code quality analysis
                 self.run_quality_control()
@@ -817,8 +830,10 @@ if __name__ == "__main__":
                        help='Run in non-interactive mode for CI/CD')
     parser.add_argument('--choice', type=int, choices=[1,2,3,4,5],
                        help='Predefined choice for non-interactive mode (1-5)')
+    parser.add_argument('--sub-choice', type=int, choices=list(range(1, 13)),
+                       help='Sub-choice for option 2 (individual scripts) (1-12)')
     
     args = parser.parse_args()
     
     orchestrator = PipelineOrchestrator()
-    orchestrator.run(non_interactive=args.non_interactive, auto_choice=args.choice)
+    orchestrator.run(non_interactive=args.non_interactive, auto_choice=args.choice, auto_sub_choice=args.sub_choice)
