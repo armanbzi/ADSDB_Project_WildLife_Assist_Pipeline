@@ -1,0 +1,117 @@
+# GitLab CI/CD Pipeline Configuration
+# WildLife Data Management Pipeline
+
+stages:
+  - setup
+  - test
+  - quality
+  - deploy
+
+variables:
+  # MinIO Configuration
+  MINIO_ENDPOINT: "minio:9000"
+  MINIO_ACCESS_KEY: "admin"
+  MINIO_SECRET_KEY: "password123"
+  
+  # SonarQube Configuration (set in GitLab CI/CD variables)
+  # SONAR_HOST_URL: "http://sonarqube:9000"
+  # SONAR_LOGIN: "your_sonar_token"
+  
+  # HuggingFace Configuration (set in GitLab CI/CD variables)
+  # HUGGINGFACE_API_TOKEN: "your_hf_token"
+
+# Setup stage - Install dependencies and prepare environment
+setup:
+  stage: setup
+  image: python:3.9-slim
+  before_script:
+    - apt-get update && apt-get install -y git curl
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+  script:
+    - echo "Dependencies installed successfully"
+    - python orchestrate.py --non-interactive --choice 4
+  artifacts:
+    reports:
+      junit: error.log
+    expire_in: 1 week
+
+# Test stage - Run individual scripts
+test_scripts:
+  stage: test
+  image: python:3.9-slim
+  services:
+    - name: minio/minio:latest
+      alias: minio
+      command: server /data --console-address ":9001"
+  before_script:
+    - apt-get update && apt-get install -y git curl
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - sleep 10  # Wait for MinIO to start
+  script:
+    - echo "Testing individual scripts..."
+    - python orchestrate.py --non-interactive --choice 2
+  artifacts:
+    reports:
+      junit: error.log
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+
+# Quality Control stage - Run SonarQube analysis
+quality_control:
+  stage: quality
+  image: python:3.9-slim
+  services:
+    - name: sonarqube:latest
+      alias: sonarqube
+  before_script:
+    - apt-get update && apt-get install -y git curl docker.io
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - sleep 30  # Wait for SonarQube to start
+  script:
+    - echo "Running quality control analysis..."
+    - python orchestrate.py --non-interactive --choice 3
+  artifacts:
+    reports:
+      junit: error.log
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+
+# Deploy stage - Run complete pipeline
+deploy_pipeline:
+  stage: deploy
+  image: python:3.9-slim
+  services:
+    - name: minio/minio:latest
+      alias: minio
+      command: server /data --console-address ":9001"
+  before_script:
+    - apt-get update && apt-get install -y git curl
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - sleep 10  # Wait for MinIO to start
+  script:
+    - echo "Running complete data pipeline..."
+    - python orchestrate.py --non-interactive --choice 1
+  artifacts:
+    reports:
+      junit: error.log
+    expire_in: 1 week
+  only:
+    - main
+  when: manual
+
+# Cleanup job
+cleanup:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - echo "Cleaning up temporary files..."
+    - rm -f minio_config.json error.log pipeline.log
+  when: always

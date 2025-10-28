@@ -83,6 +83,55 @@ A comprehensive DataOps orchestration system for wildlife data processing, featu
 python orchestrate.py
 ```
 
+### Automated Setup (Third-Person Environments)
+For new environments or CI/CD pipelines, use the setup script:
+
+**Linux/macOS:**
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+**Windows:**
+```cmd
+setup.bat
+```
+
+### CI/CD Usage
+
+The pipeline supports automated execution for continuous integration environments:
+
+**Command Line Options:**
+```bash
+# Non-interactive mode (for CI/CD)
+python orchestrate.py --non-interactive
+
+# Non-interactive with specific choice
+python orchestrate.py --non-interactive --choice 1
+
+# Available choices:
+# 1 - Complete Data Pipeline
+# 2 - Individual Scripts
+# 3 - Quality Control & Code Analysis
+# 4 - View Pipeline Status
+# 5 - Exit
+```
+
+**Environment Variables for CI/CD:**
+```bash
+# MinIO Configuration (required)
+export MINIO_ENDPOINT="localhost:9000"
+export MINIO_ACCESS_KEY="admin"
+export MINIO_SECRET_KEY="password123"
+
+# SonarQube Configuration (optional)
+export SONAR_HOST_URL="http://localhost:9002"
+export SONAR_LOGIN="your_sonar_token"
+
+# HuggingFace Configuration (optional)
+export HUGGINGFACE_API_TOKEN="your_hf_token"
+```
+
 ### Configuration
 The orchestrator will prompt you for:
 - **MinIO Endpoint**: Your MinIO server address (e.g., `localhost:9000`)
@@ -187,6 +236,40 @@ This will:
 - **Pipeline Logs**: `pipeline.log` - Complete execution log with timestamps
 - **MinIO Config**: `minio_config.json` - Configuration storage (auto-generated)
 - **SonarQube Config**: `sonar-project.properties` - Code analysis configuration (auto-generated)
+
+## 🔄 CI/CD Integration
+
+The pipeline is designed for continuous integration and deployment environments:
+
+### GitHub Actions
+The repository includes a complete GitHub Actions workflow (`.github/workflows/pipeline.yml`) that:
+- Tests dependencies and setup
+- Runs individual scripts with MinIO service
+- Performs quality control with SonarQube
+- Executes complete pipeline deployment
+- Uploads logs and artifacts
+
+### GitLab CI/CD
+GitLab CI configuration (`.gitlab-ci.yml`) provides:
+- Multi-stage pipeline execution
+- Service integration (MinIO, SonarQube)
+- Automated testing and quality control
+- Manual deployment triggers
+
+### Docker Support
+- **Docker Compose**: `docker-compose.yml` for local development
+- **Service Integration**: MinIO and SonarQube containers
+- **Health Checks**: Automated service readiness verification
+
+### Environment Configuration
+- **Development**: Use `.env` file for local configuration
+- **CI/CD**: Set environment variables in pipeline configuration
+- **Production**: Use system environment variables or secrets management
+
+### Setup Scripts
+- **Linux/macOS**: `setup.sh` - Automated environment setup
+- **Windows**: `setup.bat` - Windows-compatible setup
+- **CI/CD**: `run_cicd.sh` / `run_cicd.bat` - Automated execution scripts
 
 ## 🔗 External Dependencies
 

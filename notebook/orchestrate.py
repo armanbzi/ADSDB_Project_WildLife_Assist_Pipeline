@@ -104,6 +104,25 @@ class PipelineOrchestrator:
         print(" MinIO Configuration Setup")
         print("="*60)
         
+        # Check for environment variables first (for CI/CD and automated runs)
+        endpoint = os.getenv('MINIO_ENDPOINT')
+        access_key = os.getenv('MINIO_ACCESS_KEY')
+        secret_key = os.getenv('MINIO_SECRET_KEY')
+        
+        if endpoint and access_key and secret_key:
+            print(" MinIO configuration found in environment variables")
+            config = {
+                "endpoint": endpoint,
+                "access_key": access_key,
+                "secret_key": secret_key
+            }
+            # Persist configuration for use by individual pipeline scripts
+            with open("minio_config.json", "w") as f:
+                json.dump(config, f, indent=2)
+            print(" MinIO configuration saved to minio_config.json")
+            return config
+        
+        # Interactive mode for manual setup
         # Collect endpoint with validation to ensure connectivity
         while True:
             endpoint = input("Enter MinIO endpoint (e.g., localhost:9000): ").strip()
@@ -693,7 +712,7 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
         print(f" Total monitoring samples: {len(self.monitoring_data['system_metrics'])}")
         print(f" Total errors: {len(self.monitoring_data['errors'])}")
 
-    def run(self):
+    def run(self, non_interactive=False, auto_choice=None):
         # Main orchestration
         
         # This method serves as the primary entry point for the pipeline orchestrator,
@@ -704,30 +723,26 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
         # Initialize MinIO configuration for distributed storage
         self.minio_config = self.get_minio_config()
         
+        # Non-interactive mode for CI/CD
+        if non_interactive:
+            print(" Running in non-interactive mode for CI/CD")
+            if auto_choice:
+                choice = str(auto_choice)
+            else:
+                choice = "1"  # Default to complete pipeline
+            
+            print(f" Executing option {choice}")
+            self._execute_choice(choice)
+            return
+        
         # Main user interaction loop
         while True:
             self.display_menu()
             
             try:
                 choice = input("\nSelect option (1-5): ").strip()
-                
-                if choice == "1":
-                    # Execute complete data processing pipeline
-                    self.run_complete_data_pipeline()
-                elif choice == "2":
-                    # Execute individual scripts with monitoring
-                    self.run_individual_script()
-                elif choice == "3":
-                    # Perform comprehensive code quality analysis
-                    self.run_quality_control()
-                elif choice == "4":
-                    # Display current pipeline status and metrics
-                    self.show_pipeline_status()
-                elif choice == "5":
-                    print("\n Goodbye!")
+                if self._execute_choice(choice):
                     break
-                else:
-                    print(" Invalid option. Please select 1-5.")
                     
             except KeyboardInterrupt:
                 print("\n\n Goodbye!")
@@ -735,7 +750,43 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
             except Exception as e:
                 print(f" Error: {e}")
                 logger.error(f"Main loop error: {e}")
+    
+    def _execute_choice(self, choice):
+        """Execute the selected menu choice and return True if should exit."""
+        try:
+            if choice == "1":
+                # Execute complete data processing pipeline
+                self.run_complete_data_pipeline()
+            elif choice == "2":
+                # Execute individual scripts with monitoring
+                self.run_individual_script()
+            elif choice == "3":
+                # Perform comprehensive code quality analysis
+                self.run_quality_control()
+            elif choice == "4":
+                # Display current pipeline status and metrics
+                self.show_pipeline_status()
+            elif choice == "5":
+                print("\n Goodbye!")
+                return True
+            else:
+                print(" Invalid option. Please select 1-5.")
+        except Exception as e:
+            print(f" Error executing choice {choice}: {e}")
+            logger.error(f"Choice execution error: {e}")
+        return False
 
 if __name__ == "__main__":
+    import argparse
+    
+    # Parse command line arguments for CI/CD
+    parser = argparse.ArgumentParser(description='WildLife Data Management Pipeline Orchestrator')
+    parser.add_argument('--non-interactive', action='store_true', 
+                       help='Run in non-interactive mode for CI/CD')
+    parser.add_argument('--choice', type=int, choices=[1,2,3,4,5],
+                       help='Predefined choice for non-interactive mode (1-5)')
+    
+    args = parser.parse_args()
+    
     orchestrator = PipelineOrchestrator()
-    orchestrator.run()
+    orchestrator.run(non_interactive=args.non_interactive, auto_choice=args.choice)
