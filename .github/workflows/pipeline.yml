@@ -189,6 +189,7 @@ jobs:
           --health-interval 30s
           --health-timeout 20s
           --health-retries 3
+          server /data --console-address ":9001"
     
     steps:
     - uses: actions/checkout@v4
@@ -312,6 +313,7 @@ jobs:
           --health-interval 30s
           --health-timeout 20s
           --health-retries 3
+          server /data --console-address ":9001"
     
     steps:
     - uses: actions/checkout@v4
