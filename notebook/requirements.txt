@@ -12,7 +12,9 @@ minio>=7.1.0
 # Data processing
 datasets>=2.0.0
 numpy>=1.21.0
-# opencv-python>=4.6.0  # Optional: only needed for license plate anonymization
+
+# Computer vision
+opencv-python>=4.6.0
 
 # Machine Learning embeddings
 langchain-experimental>=0.0.30
@@ -26,7 +28,3 @@ matplotlib>=3.5.0
 
 # Vector database
 chromadb>=0.4.0
-
-# Quality control and testing
-pytest>=7.0.0
-pytest-cov>=4.0.0

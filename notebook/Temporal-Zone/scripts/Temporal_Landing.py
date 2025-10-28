@@ -3,23 +3,26 @@
 Temporal_Landing
 here we get the raw data(image and metadata about each image) 
 from source (imageomics/TreeOfLife-200M) and store in our temporal-zone.
-miniIO user must be "admin", and password "password123".
-as data is huge 200m, we get the data by chunks of 1% out of 100% of all data.
-so we limit the amount of getting data on each run.
-user is asked for a maximum number of species per family, limiting data to store up to a defined  
+asks user for minIO configurations.
+as data is huge 200m, we choose streaming it rather than storing heavy data in local storage and then process.
+and we define a maximum samples for each run to define how many samples of the main dataset(200m) to iterate.
+user is asked for a max samples, maximum number of species per family, limiting data to store up to a defined  
 number of species for each stored family.
 user also is asked for a maximum number of observations(images) per each stored species.
-also is asked for the chunks interval for the run, for example 5-10 will get from 5th% up to 10th% of the whole 100% of data.
 for now only retrieves images of snake families only because of not being able to store a lot of data at the moment.
 
 then code connects to minIO create a temporal-zone bucket and a subbucket 'temporal-landing', 
-gets defined interval % of the train split of data,
 stores images in a folder 'images' and a csv file of the needed metadata in a folder 'metadata',
 it checks and avoids storing duplicates in temporal-zone, also deletes any temporary file and cache
 and huggingface heavy cach from local storage.
 
-
 # Login using e.g. `huggingface-cli login` to access this dataset
+
+
+    we notice that getting data from huggingface stores heavy size of cache of that dataset on local storage.
+    so we try to safely remove this cache and free up space.
+    
+# However some binary files from online huggingface hub stay in locat storage
 """
 
 from datasets import load_dataset
@@ -36,11 +39,12 @@ import requests
 import re
 
 # ==============================
-# Helper Functions
+#          Functions
 # ==============================
 
 def get_user_parameters():
-    """Get user input parameters for data processing with validation."""
+    # Get user input parameters for data processing with validation control.
+    
     print("Please enter the following parameters:")
     
     # Get MAX_PER_SPECIES with validation
@@ -65,10 +69,22 @@ def get_user_parameters():
         except ValueError:
             print(" Please enter a valid number.")
     
-    return max_per_species, max_species_per_family
+    # Get MAX_SAMPLES with validation
+    while True:
+        try:
+            max_samples = int(input("MAX_SAMPLES (e.g., 300000): "))
+            if max_samples > 0:
+                break
+            else:
+                print(" Please enter a positive number greater than 0.")
+        except ValueError:
+            print(" Please enter a valid number.")
+    
+    return max_per_species, max_species_per_family, max_samples
 
 def setup_minio_buckets(client, root_bucket, temp_prefix):
-    """Setup MinIO buckets and subfolders."""
+    # Setup MinIO buckets and subfolders.
+    
     # Ensure temporal-landing and temporal-zone exist
     if not client.bucket_exists(root_bucket):
         client.make_bucket(root_bucket)
@@ -87,10 +103,11 @@ def setup_minio_buckets(client, root_bucket, temp_prefix):
             length=4,
             content_type="text/plain"
         )
-        print(f"✅ Created subfolder: {temp_prefix}/ inside {root_bucket}")
+        print(f" Created subfolder: {temp_prefix}/ inside {root_bucket}")
 
 def load_existing_metadata(client, root_bucket, metadata_remote_path, metadata_local):
-    """Load existing metadata or create empty DataFrame."""
+    # Load existing metadata or create empty DataFrame if no existing available.
+    
     try:
         client.fget_object(root_bucket, metadata_remote_path, metadata_local)
         metadata_df = pd.read_csv(metadata_local)
@@ -107,7 +124,8 @@ def load_existing_metadata(client, root_bucket, metadata_remote_path, metadata_l
     return metadata_df, existing_uuids
 
 def scan_existing_images(client, root_bucket, temp_prefix):
-    """Scan existing images in temporal-landing."""
+    # Scan existing images in temporal-landing.
+    
     print(" Scanning existing images in temporal-landing...")
     
     existing_image_ids = set()
@@ -121,7 +139,7 @@ def scan_existing_images(client, root_bucket, temp_prefix):
     return existing_image_ids
 
 def build_family_species_map(metadata_df):
-    """Build family -> species map from metadata."""
+    # Build family -> species map from metadata.
     family_species = {}
     species_counts = {}
     
@@ -137,7 +155,8 @@ def build_family_species_map(metadata_df):
     return family_species, species_counts
 
 def is_snake_family(sample, snake_families):
-    """Check if sample belongs to snake families."""
+    # Check if sample belongs to snake families.
+    
     kingdom = sample.get("kingdom")
     cls = sample.get("class")
     family = sample.get("family") or "unknown"
@@ -148,8 +167,9 @@ def is_snake_family(sample, snake_families):
         and family in snake_families
     )
 
-def should_skip_species(species, family, species_counts, family_species, max_per_species, max_species_per_family):
-    """Check if species should be skipped based on limits."""
+def skip_species(species, family, species_counts, family_species, max_per_species, max_species_per_family):
+    # Check if species should be skipped based on limits.
+    
     # Skip if already have enough per this species
     count = species_counts.get(species, 0)
     if count >= max_per_species:
@@ -163,7 +183,8 @@ def should_skip_species(species, family, species_counts, family_species, max_per
     return False
 
 def download_and_save_image(image_url, img_id, client, root_bucket, temp_prefix, existing_image_ids):
-    """Download and save image to MinIO."""
+    # Download and save image to MinIO.
+    
     try:
         response = requests.get(image_url, timeout=10)
         response.raise_for_status()
@@ -188,9 +209,10 @@ def download_and_save_image(image_url, img_id, client, root_bucket, temp_prefix,
         raise RuntimeError(f"Error downloading image: {e}")
 
 def save_metadata_record(sample, img_id, object_name, metadata_df, metadata_local, minio_config, existing_uuids, species_counts, family_species, species, family, limits):
-    """Save metadata record to CSV and MinIO."""
+    # Save metadata record to CSV and MinIO.
+    
     if img_id not in existing_uuids:
-        # Save needed metadata
+        # Save needed columns
         record = {
             "uuid": img_id,
             "temporal_path": object_name,
@@ -219,8 +241,11 @@ def save_metadata_record(sample, img_id, object_name, metadata_df, metadata_loca
     
     return metadata_df
 
-def process_sample(sample, snake_families, limits, client, root_bucket, temp_prefix, existing_image_ids, existing_uuids, metadata_df, species_counts, family_species, metadata_local, metadata_remote_path):
-    """Process a single sample and return updated metadata_df."""
+def process_sample(sample, snake_families, limits, client, root_bucket, temp_prefix, 
+                   existing_image_ids, existing_uuids, metadata_df, species_counts, family_species, 
+                   metadata_local, metadata_remote_path):
+    
+    # Process a single sample and return updated metadata_df.
     species = sample.get("species") or "unknown"
     family = sample.get("family") or "unknown"
     img_id = sample.get("uuid")
@@ -231,7 +256,7 @@ def process_sample(sample, snake_families, limits, client, root_bucket, temp_pre
         return metadata_df
     
     # Skip if limits exceeded
-    if should_skip_species(species, family, species_counts, family_species, limits['max_per_species'], limits['max_species_per_family']):
+    if skip_species(species, family, species_counts, family_species, limits['max_per_species'], limits['max_species_per_family']):
         return metadata_df
     
     try:
@@ -255,8 +280,10 @@ def process_sample(sample, snake_families, limits, client, root_bucket, temp_pre
     
     return metadata_df
 
-def process_streaming_data(snake_families, limits, max_total_images, client, root_bucket, temp_prefix, existing_image_ids, existing_uuids, metadata_df, species_counts, family_species, metadata_local, metadata_remote_path):
-    """Process streaming data with fixed limit."""
+def process_streaming_data(snake_families, limits, max_samples, client, root_bucket, temp_prefix, existing_image_ids, existing_uuids, metadata_df, species_counts, family_species, metadata_local, metadata_remote_path):
+    # Process streaming data with fixed limit.
+    # connecting to dataset through imagomics to get raw data.
+    
     print(" Processing streaming data...")
     
     try:
@@ -267,8 +294,8 @@ def process_streaming_data(snake_families, limits, max_total_images, client, roo
             streaming=True
         )
         
-        # Stop after 15% of the dataset (50M samples out of 200M)
-        max_samples = 30_000
+        # Use user-provided max_samples limit
+        print(f" Processing up to {max_samples} samples from the dataset...")
         
     except Exception as e:
         print(f" Error loading dataset: {e}")
@@ -285,10 +312,6 @@ def process_streaming_data(snake_families, limits, max_total_images, client, roo
             existing_image_ids, existing_uuids, metadata_df, species_counts, 
             family_species, metadata_local, metadata_remote_path
         )
-        
-        if len(metadata_df) >= max_total_images:
-            print(" Reached global image limit.")
-            return metadata_df, True
     
     return metadata_df, False
 
@@ -299,9 +322,9 @@ def cleanup_local_files(metadata_local):
         print(f" Removed local metadata file: {metadata_local}")
 
 # ==============================
-# 1 Configuration
+#        Configuration
 # ==============================
-def process_landing_zone(
+def process_temporal(
     minio_endpoint = "localhost:9000",
     access_key = "admin",
     secret_key = "password123"):
@@ -314,10 +337,9 @@ def process_landing_zone(
     METADATA_LOCAL = "metadata_final.csv"
     
     # Get user parameters
-    MAX_PER_SPECIES, MAX_SPECIES_PER_FAMILY = get_user_parameters()
+    MAX_PER_SPECIES, MAX_SPECIES_PER_FAMILY, MAX_SAMPLES = get_user_parameters()
     
-    # Global Limit
-    MAX_TOTAL_IMAGES = 100000
+
     
     # Known snake families
     SNAKE_FAMILIES = {
@@ -346,7 +368,7 @@ def process_landing_zone(
     # Process streaming data
     limits = {'max_per_species': MAX_PER_SPECIES, 'max_species_per_family': MAX_SPECIES_PER_FAMILY}
     metadata_df, _ = process_streaming_data(
-        SNAKE_FAMILIES, limits, MAX_TOTAL_IMAGES,
+        SNAKE_FAMILIES, limits, MAX_SAMPLES,
         client, ROOT_BUCKET, TEMP_PREFIX, existing_image_ids, existing_uuids,
         metadata_df, species_counts, family_species, METADATA_LOCAL, METADATA_REMOTE_PATH)
     
@@ -355,19 +377,6 @@ def process_landing_zone(
     # Cleanup
     cleanup_local_files(METADATA_LOCAL)
 
-process_landing_zone();
-
-import os
-import shutil
-import tempfile
-import subprocess
-import time
-from datasets import config
-
-"""
-  Here we notice that getting data from huggingface stores heavy size of cache of that dataset on local storage.
-  so we try to safely remove this cache and free up space.
-"""
+process_temporal();
 
 
-# However some binary files from online huggingface hub stay in locat storage

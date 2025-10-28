@@ -12,8 +12,6 @@
  - we take 3 most frequent to have more precise detection.
  - we must use the same model we used for embedding them to check for similarities
 
- note that in notebook we are having nested functions(which stops from reusing them elsewhere) but 
- in our case is not a problem because we are not planning to use the functions out of the main.
 """
 
 
@@ -26,13 +24,13 @@ from minio import Minio
 import io
 
 # -----------------------
-# 1. Configuration
+#    Configuration
 # -----------------------
 def process_same_modality(
     minio_endpoint="localhost:9000",
     access_key="admin",
     secret_key="password123"):
-    """Main function to orchestrate same-modality similarity search."""
+    # Main function to orchestrate same-modality similarity search.
     
     # Setup connections and validate environment
     minio_client, _, image_collection = _setup_connections(minio_endpoint, access_key, secret_key)
@@ -57,7 +55,8 @@ def process_same_modality(
     _visualize_results(query_image, cluster_results, minio_client)
 
 def _setup_connections(minio_endpoint, access_key, secret_key):
-    """Setup MinIO and ChromaDB connections with validation."""
+    # Setup MinIO and ChromaDB connections with validation.
+    
     # Connect to MinIO
     minio_client = Minio(
         minio_endpoint,
@@ -102,8 +101,8 @@ def _setup_connections(minio_endpoint, access_key, secret_key):
     return minio_client, chroma_client, image_collection
 
 def _setup_query_processing():
-    """Setup embedding model and select query image."""
-    # Initialize the same embedding model
+    # Setup embedding model and select query image.
+    # Initialize the same embedding model (must be the same embedding model)
     clip_embd = OpenCLIPEmbeddings(
         model_name="ViT-B-32", # same model
         checkpoint="laion2b_s34b_b79k")
@@ -114,7 +113,7 @@ def _setup_query_processing():
     except NameError:
         SCRIPT_DIR = os.getcwd() # in notebook
         
-    QUERY_FOLDER = "../query_images"
+    QUERY_FOLDER = "../query_images" # query images path from root script or notebook folders
     
     all_images = [
         os.path.join(SCRIPT_DIR, QUERY_FOLDER, f)
@@ -130,7 +129,8 @@ def _setup_query_processing():
     return clip_embd, query_image
 
 def cluster_based_image_search(image_collection, query_embedding, n_results=15, return_count=3):
-    """Perform cluster-based image similarity search focused on species frequency."""
+    # Perform cluster-based image similarity search focused on species frequency.
+    # most frequent spceies in k number of similar ones will be displayed
     print(f"Analyzing top-{n_results} results for most frequent species...")
     print("=" * 60)
     
@@ -163,7 +163,7 @@ def cluster_based_image_search(image_collection, query_embedding, n_results=15, 
     return filtered_results
 
 def _display_search_results(results, n_results, collection_name):
-    """Display detailed results of the search."""
+    # Display detailed results of the search.
     print(f" Top {n_results} similar images found in collection '{collection_name}':\n")
     for i in range(len(results["ids"][0])):
         uid = results["ids"][0][i]
@@ -183,7 +183,7 @@ def _display_search_results(results, n_results, collection_name):
         print()
 
 def _extract_species_list(results):
-    """Extract species list from metadata."""
+    # Extract species list from metadata.
     species_list = []
     for metadata in results['metadatas'][0]:
         species = metadata.get('species', 'Unknown')
@@ -191,7 +191,7 @@ def _extract_species_list(results):
     return species_list
 
 def _count_species_frequency(species_list):
-    """Count frequency of species and display analysis."""
+    # Count frequency of species and display analysis.
     from collections import Counter
     species_counts = Counter(species_list)
     print("\n Species frequency analysis:")
@@ -200,13 +200,13 @@ def _count_species_frequency(species_list):
     return species_counts
 
 def _get_top_species(species_counts, return_count):
-    """Get top most frequent species."""
+    # Get top most frequent species.
     top_species = [species for species, _ in species_counts.most_common(return_count)]
     print(f"\n Top {return_count} most frequent species: {top_species}")
     return top_species
 
 def _filter_results_by_species(results, top_species, return_count):
-    """Filter results to show one representative from each top species."""
+    # Filter results to show one representative from each top species.
     filtered_ids = []
     filtered_distances = []
     filtered_metadatas = []
@@ -232,14 +232,14 @@ def _filter_results_by_species(results, top_species, return_count):
     }
 
 def _display_analysis_summary(results, filtered_results):
-    """Display summary of the analysis."""
+    # Display summary of the analysis.
     print("\n Species cluster analysis complete!")
     print(f" Original results: {len(results['ids'][0])}")
     print(f" Top species representatives: {len(filtered_results['ids'][0])}")
     print(f" Species represented: {set([meta.get('species', 'Unknown') for meta in filtered_results['metadatas'][0]])}")
 
 def show_top3_species_results(query_path, results, minio_client):
-    """Display query image and top 3 species results side by side."""
+    # Display query image and top 3 species results side by side.
     top_dists = results["distances"][0]
     top_metadatas = results["metadatas"][0]
 
@@ -295,7 +295,7 @@ def show_top3_species_results(query_path, results, minio_client):
     plt.show()
 
 def _visualize_results(query_image, cluster_results, minio_client):
-    """Visualize the top 3 species results."""
+    # Visualize the top 3 species results.
     if cluster_results:
         print("\n VISUALIZING TOP 3 SPECIES RESULTS")
         print("=" * 60)

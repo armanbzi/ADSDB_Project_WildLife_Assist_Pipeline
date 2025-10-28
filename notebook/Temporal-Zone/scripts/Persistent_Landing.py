@@ -23,11 +23,12 @@ import re
 import sys
 
 # ==============================
-# Helper Functions
+#          Functions
 # ==============================
 
 def setup_minio_client_and_buckets(minio, access_key, secret_key, root_bucket, temp_prefix, persist_prefix):
-    """Setup MinIO client and validate/create buckets."""
+    # Setup MinIO client and validate/create buckets.
+    
     client = Minio(
         minio,
         access_key=access_key,
@@ -35,16 +36,16 @@ def setup_minio_client_and_buckets(minio, access_key, secret_key, root_bucket, t
         secure=False
     )
     
-    # Validate buckets
+    # Validate bucket
     if not client.bucket_exists(root_bucket):
-        sys.exit(" ERROR: Root bucket 'Landing' does not exist in MinIO.")
+        sys.exit(f" ERROR: Root bucket {root_bucket} does not exist in MinIO.")
     
     temporal_exists = any(
         obj.object_name.startswith(f"{temp_prefix}/")
         for obj in client.list_objects(root_bucket, recursive=False)
     )
     if not temporal_exists:
-        sys.exit(" ERROR: 'Temporal_Landing' does not exist inside 'Landing' bucket.")
+        sys.exit(f" ERROR: {temp_prefix} does not exist inside 'Landing' bucket.")
     
     # Create Persistent_Landing if missing
     persistent_exists = any(
@@ -59,13 +60,14 @@ def setup_minio_client_and_buckets(minio, access_key, secret_key, root_bucket, t
             length=4,
             content_type="text/plain"
         )
-        print(f" Created 'Persistent_Landing' inside '{root_bucket}'.")
+        print(f" Created {persist_prefix} inside '{root_bucket}'.")
     
     return client
 
 def load_metadata_from_temporal(client, root_bucket, temp_prefix):
-    """Load metadata from Temporal_Landing."""
-    print("📥 Loading metadata from Temporal_Landing...")
+    # Load metadata from Temporal_Landing.
+    
+    print(f" Loading metadata from {temp_prefix}...")
     local_metadata = "temp_metadata.csv"
     temp_metadata_path = f"{temp_prefix}/metadata/metadata_final.csv"
     try:
@@ -78,8 +80,10 @@ def load_metadata_from_temporal(client, root_bucket, temp_prefix):
     return metadata_df, local_metadata
 
 def scan_existing_persistent_images(client, root_bucket, persist_prefix):
-    """Scan existing images in Persistent_Landing."""
-    print(" Checking existing images in Persistent_Landing...")
+    # Scan existing images in Persistent_Landing.
+    # to skip duplicates.
+    
+    print(f" Checking existing images in {persist_prefix}...")
     existing_persistent_uuids = set()
     for obj in client.list_objects(root_bucket, prefix=f"{persist_prefix}/images/", recursive=True):
         match = re.match(rf"{persist_prefix}/images/.+?/([a-f0-9\-]+)\.jpg", obj.object_name)
@@ -90,7 +94,9 @@ def scan_existing_persistent_images(client, root_bucket, persist_prefix):
     return existing_persistent_uuids
 
 def move_single_image(client, root_bucket, persist_prefix, row, existing_persistent_uuids):
-    """Move a single image from Temporal to Persistent."""
+    # Move a single image from Temporal to Persistent.
+    # we move them one by one to make sure both image and metadata of a specific observation is recorder,
+    # and we wont have maybe some metadata without valid image.
     try:
         img_uuid = row.get("uuid")
         if not img_uuid:
@@ -137,7 +143,8 @@ def move_single_image(client, root_bucket, persist_prefix, row, existing_persist
         return None, False
 
 def process_metadata_group(client, root_bucket, persist_prefix, kingdom_name, cls_name, group):
-    """Process metadata for a single kingdom-class group."""
+    # Process metadata for a single kingdom-class group.
+    
     kingdom_safe = str(kingdom_name).replace(" ", "_")
     cls_safe = str(cls_name).replace(" ", "_")
     
@@ -154,7 +161,7 @@ def process_metadata_group(client, root_bucket, persist_prefix, kingdom_name, cl
     ]
     
     if existing_metadata_files:
-        # Take the latest metadata file (any timestamp)
+        # Take the latest metadata file 
         existing_metadata_files.sort(reverse=True)
         existing_metadata_path = existing_metadata_files[0]
         existing_local_file = f"existing_{kingdom_safe}_{cls_safe}.csv"
@@ -189,7 +196,7 @@ def process_metadata_group(client, root_bucket, persist_prefix, kingdom_name, cl
     print(f" Updated/uploaded metadata for '{kingdom_safe}-{cls_safe}' → {persistent_metadata_path_new}")
 
 def cleanup_temporal_landing(client, root_bucket, temp_prefix):
-    """Cleanup Temporal Landing (files only)."""
+    # Cleanup Temporal Landing.
     print(" Cleaning up Temporal_Landing zone (files only)...")
     
     try:
@@ -213,10 +220,10 @@ def cleanup_temporal_landing(client, root_bucket, temp_prefix):
         print(f" Warning: Failed to fully clean Temporal_Landing → {e}")
 
 # ==============================
-# 1.  Configuration
+#       Configuration
 # ==============================
 def process_landing_zone(
-    minio="localhost:9000",
+    minio="localhost:9000", # default configurations
     access_key="admin",
     secret_key="password123"): 
     

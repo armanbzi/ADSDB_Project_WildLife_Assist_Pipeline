@@ -16,11 +16,11 @@ import io, json, os, re, shutil
 from datetime import datetime
 
 # ==============================
-# Helper Functions
+#          Functions
 # ==============================
 
 def setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, landing_zone, persist_prefix, formatted_zone):
-    """Setup MinIO client and validate/create buckets."""
+    # Setup MinIO client and validate/create buckets.
     client = Minio(
         minio_endpoint,
         access_key=access_key,
@@ -34,7 +34,7 @@ def setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, landi
     
     persistent_objects = list(client.list_objects(landing_zone, prefix=f"{persist_prefix}/", recursive=False))
     if not persistent_objects:
-        raise FileNotFoundError(" Required prefix '{persist_prefix}/' not found inside '{landing_zone}' bucket.")
+        raise FileNotFoundError(f" Required prefix '{persist_prefix}/' not found inside '{landing_zone}' bucket.")
     
     # Ensure formatted-zone bucket exists
     if not client.bucket_exists(formatted_zone):
@@ -46,7 +46,8 @@ def setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, landi
     return client
 
 def load_metadata_files(client, landing_zone, persist_prefix):
-    """Load all metadata files from Persistent Landing."""
+    # Load all metadata files from Persistent Landing.
+    
     metadata_objects = [
         obj.object_name for obj in client.list_objects(landing_zone, prefix=f"{persist_prefix}/metadata/", recursive=True)
         if obj.object_name.endswith(".csv") or obj.object_name.endswith(".json")
@@ -56,7 +57,8 @@ def load_metadata_files(client, landing_zone, persist_prefix):
         raise FileNotFoundError(" No metadata files found in Persistent Landing Zone.")
     
     print(f" Found {len(metadata_objects)} metadata files to process.")
-    
+
+    # search for metadata csv or json in temporal-zone
     all_dfs = []
     for obj_name in metadata_objects:
         print(f" Reading: {obj_name}")
@@ -85,7 +87,7 @@ def load_metadata_files(client, landing_zone, persist_prefix):
     return all_dfs
 
 def normalize_and_combine_metadata(all_dfs, persist_prefix):
-    """Normalize schema and combine all metadata."""
+    # Normalize schema and combine all metadata.
     target_columns = [
         "uuid", "kingdom", "phylum", "class", "order", "family",
         "genus", "species", "scientific_name", "common",
@@ -109,7 +111,8 @@ def normalize_and_combine_metadata(all_dfs, persist_prefix):
     return persistent_df
 
 def load_existing_general_metadata(client, formatted_zone, target_columns):
-    """Load existing general metadata from Formatted Zone."""
+    # Load existing general metadata from Formatted Zone. to skip duplicates.
+    
     general_metadata_files = [
         obj.object_name for obj in client.list_objects(formatted_zone, prefix="metadata/", recursive=True)
         if re.match(r"metadata/all_metadata_.*\.csv", obj.object_name)
@@ -147,7 +150,8 @@ def load_existing_general_metadata(client, formatted_zone, target_columns):
     return general_df
 
 def merge_and_prepare_data(persistent_df, general_df):
-    """Merge new rows and prepare final dataset."""
+    # Merge new rows and prepare final dataset.
+    
     new_rows = persistent_df[~persistent_df["uuid"].isin(general_df["uuid"])]
     if not new_rows.empty:
         updated_df = pd.concat([general_df, new_rows], ignore_index=True)
@@ -166,7 +170,7 @@ def merge_and_prepare_data(persistent_df, general_df):
     return updated_df, schema_summary
 
 def save_unified_outputs(client, formatted_zone, updated_df, schema_summary):
-    """Save unified outputs in multiple formats."""
+    # Save unified outputs in multiple formats.
     timestamp = datetime.now().strftime("%Y_%m_%d_%H:%M")
     os.makedirs("temp_formatted", exist_ok=True)
     
@@ -194,7 +198,7 @@ def save_unified_outputs(client, formatted_zone, updated_df, schema_summary):
     shutil.rmtree("temp_formatted")
 
 # ==============================
-# 1. Configuration
+#        Configuration
 # ==============================
 def process_formatted_metadata(
     minio_endpoint = "localhost:9000",

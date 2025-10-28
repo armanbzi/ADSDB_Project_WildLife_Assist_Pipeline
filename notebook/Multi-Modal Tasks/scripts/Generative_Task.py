@@ -14,12 +14,6 @@ and a response for their query from Qwen,
 User can enter 'take image' for including a random query image to their query, then similar images to the query will 
 be displayed and the image with their rest of query text with a founded similar image will be sent to Qwen for a response.
 
-require to install openai
-# pip install openai
-
- note that in notebook we are having nested functions(which stops from reusing them elsewhere) but 
- in our case is not a problem because we are not planning to use the functions out of the main.
-
 """
 
 import chromadb
@@ -45,16 +39,14 @@ from openai import OpenAI
 # here we have store the api key for calling the used model
 load_dotenv()
 
-# ==============================
-# Constants
-# ==============================
+
 NO_SIMILAR_SPECIES_FOUND = " No similar species found"
 
 # ==============================
-# Hugging Face Token Configuration
+#         Hugging Face Token Configuration
 # ==============================
 def get_huggingface_token():
-    """Get Hugging Face token from user input or environment"""
+    # Get Hugging Face token from user input or environment
     print("\n" + "="*60)
     print(" Hugging Face Token Configuration")
     print("="*60)
@@ -74,17 +66,17 @@ def get_huggingface_token():
             print(" Hugging Face token saved to environment variables")
             return token
         else:
-            print(" No token provided. Some features may not work without a valid token.")
+            print(" No token provided.")
             return None
     
-    print(" Maximum attempts reached. Some features may not work without a valid token.")
+    print(" Maximum attempts reached.")
     return None
 
 def generate_text_with_llm(prompt, image=None, model="meta-llama/Llama-4-Scout-17B-16E-Instruct:groq", max_length=500):
-    """Generate text using a multimodal Llama model via Hugging Face router."""
+    # Generate text using a multimodal Llama model via Hugging Face router.
     hf_token = os.getenv("HUGGINGFACE_API_TOKEN")
     if not hf_token:
-        return " ERROR: No Hugging Face API token found! Please run the token configuration at the beginning of the notebook."
+        return " ERROR: No Hugging Face API token found!"
 
     # Build base URL and headers
     api_url = "https://router.huggingface.co/v1/chat/completions"
@@ -131,10 +123,11 @@ def generate_text_with_llm(prompt, image=None, model="meta-llama/Llama-4-Scout-1
         return f" Error generating text: {e}"
 
 def generate_text_with_qwen3(prompt, image=None, max_length=500):
-    """Generate text using Qwen3-VL model with OpenAI-compatible API."""
+    # Generate text using Qwen3-VL model with OpenAI-compatible API.
+    # we use this model because it is light, fast, and appears to respond well in our interests.
     hf_token = os.getenv("HUGGINGFACE_API_TOKEN")
     if not hf_token:
-        return " ERROR: No Hugging Face API token found! Please run the token configuration at the beginning of the notebook."
+        return " ERROR: No Hugging Face API token found!"
 
     try:
         # Use OpenAI-compatible API for Qwen3-VL
@@ -207,8 +200,8 @@ def generate_text_with_qwen3(prompt, image=None, max_length=500):
         return generate_text_with_llm(prompt, model="meta-llama/Llama-4-Scout-17B-16E-Instruct:groq", max_length=max_length)
 
 def retrieve_relevant_data(collection, query_text="", query_image=None, n_results=15):
-    """Retrieve similar data from the multimodal collection based on user query text and image."""
-    print("🔍 Retrieving relevant data for RAG...")
+    # Retrieve similar data from the multimodal collection based on user query text and image.
+    print(" Retrieving relevant data for RAG...")
     
     try:
         if query_text and query_image:
@@ -242,7 +235,7 @@ def retrieve_relevant_data(collection, query_text="", query_image=None, n_result
         return None
 
 def get_most_frequent_species(retrieved_data, top_n=3):
-    """Get the most frequent species from retrieved data for clustering."""
+    # Get the most frequent species from retrieved data for clustering.
     if not retrieved_data or not retrieved_data['metadatas']:
         return []
     # Counting top 3 species
@@ -260,18 +253,18 @@ def get_most_frequent_species(retrieved_data, top_n=3):
     return sorted_species[:top_n]
 
 def display_species_header(search_type):
-    """Display the header for species search results."""
-    print(f"\n📊 MOST FREQUENT SPECIES FOUND ({search_type.upper()} SEARCH):")
+    # Display the header for species search results.
+    print(f"\n MOST FREQUENT SPECIES FOUND ({search_type.upper()} SEARCH):")
     print("=" * 60)
 
 def display_frequent_species_list(frequent_species):
-    """Display the list of most frequent species."""
+    # isplay the list of most frequent species.
     print("\n MOST FREQUENT SPECIES:")
     for i, (species, count) in enumerate(frequent_species, 1):
         print(f"{i}. {species} (appears {count} times)")
 
 def display_taxonomy_details(metadata):
-    """Display taxonomy details for a species."""
+    # Display taxonomy details for a species.
     taxonomy = []
     if metadata.get('kingdom') and str(metadata.get('kingdom')) != 'nan':
         taxonomy.append(f"Kingdom: {metadata.get('kingdom')}")
@@ -292,7 +285,7 @@ def display_taxonomy_details(metadata):
         print("\n".join(taxonomy))
 
 def display_single_species_info(client, trusted_bucket, item_id, metadata, document, distance, scientific_name):
-    """Display information for a single species."""
+    # Display information for a single species.
     similarity_score = 1 - distance
 
     if not document or str(document).lower() == 'none':
@@ -326,7 +319,7 @@ def display_single_species_info(client, trusted_bucket, item_id, metadata, docum
     print("-" * 50)
 
 def display_similar_species_info(client, trusted_bucket, retrieved_data, search_type="text"):
-    """Display only top 3 most frequent species to user."""
+    # Display only top 3 most frequent species to user.
     # if nothing retrieved
     if not retrieved_data or not retrieved_data['ids']:
         print(NO_SIMILAR_SPECIES_FOUND)
@@ -371,7 +364,7 @@ def display_similar_species_info(client, trusted_bucket, retrieved_data, search_
     print("=" * 60)
 
 def display_image_from_trusted_zone(client, trusted_bucket, image_id, species_name, image_path_in_metadata=None):
-    """Display image from trusted zone - try path first, then fallback to ID search."""
+    # Display image from trusted zone - try path first, then fallback to ID search.
     try:
         # Try using image_path_in_metadata first
         if image_path_in_metadata:
@@ -425,7 +418,7 @@ def display_image_from_trusted_zone(client, trusted_bucket, image_id, species_na
         return False
 
 def find_similar_image(collection, query_image, n_results=15):
-    """Find similar species from database using image embeddings with clustering."""
+    # Find similar species from database using image embeddings.
     print("🔍 Finding similar species ...")
     
     try:
@@ -455,7 +448,7 @@ def find_similar_image(collection, query_image, n_results=15):
         return None
 
 def create_prompt(user_query, retrieved_data, query_image=None, top_n=3):
-    """Create a prompt with users query text also image if available, to send to model."""
+    # Create a prompt with users query text also image if available, to send to model.
     print(" Creating unified RAG prompt...")
 
     # if no similar data was retrieved
@@ -490,7 +483,7 @@ def create_prompt(user_query, retrieved_data, query_image=None, top_n=3):
             context_item += f"Species: {metadata.get('species', 'Unknown')}\n"
             context_parts.append(context_item)
 
-    #  Show top-3 to user, send only top-1 to model
+    #  Show top-3 to user, send only top-1 to model, we cant send a lot of images and data to model.
     model_context = ''.join(context_parts[:1])          
 
     # Include user image as base64 if available
@@ -527,7 +520,7 @@ def create_prompt(user_query, retrieved_data, query_image=None, top_n=3):
     return rag_prompt
 
 def parse_user_query(query):
-    """Parse user query to determine workflow type."""
+    # Parse user query to determine workflow type.
     query_lower = query.lower()
     
     has_take_image = 'take image' in query_lower
@@ -547,7 +540,7 @@ def parse_user_query(query):
     }
 
 def get_random_query_image(query_images_list, query_images):
-    """Get a random image from query_images folder."""
+    # Get a random image from query_images folder.
     if not query_images_list:
         return None, None
     
@@ -562,7 +555,7 @@ def get_random_query_image(query_images_list, query_images):
         return None, None
 
 def display_query_image(image, image_name):
-    """Display the query image in controlled size."""
+    # Display the query image in controlled size.
     try:
         _, ax = plt.subplots(1, 1, figsize=(8, 6))
         ax.imshow(image)
@@ -576,7 +569,8 @@ def display_query_image(image, image_name):
         print(f"Could not display query image: {e}")
 
 def handle_image_query(client, trusted_bucket, collection, query_images_list, query_images, parsed_query):
-    """Handle multimodal query with image."""
+    # Handle multimodal query with image.
+    
     print(" Selecting random image from query_images...")
     query_image, image_name = get_random_query_image(query_images_list, query_images)
     
@@ -609,7 +603,8 @@ def handle_image_query(client, trusted_bucket, collection, query_images_list, qu
     return response
 
 def handle_text_query(client, trusted_bucket, collection, parsed_query):
-    """Handle text-only query."""
+    # Handle text-only query.
+    
     print(f" Searching for similar species to: '{parsed_query['clean_query']}'")
     retrieved_data = retrieve_relevant_data(collection, parsed_query['clean_query'])
     
@@ -629,7 +624,8 @@ def handle_text_query(client, trusted_bucket, collection, parsed_query):
     return response
 
 def interactive_generative_interface(client, trusted_bucket, collection, query_images_list, query_images):
-    """Interactive interface for all generative tasks."""
+    # Interactive interface for all generative tasks.
+    
     print("Welcome to the Multimodal Generative Wildlife System!")
     print("\n Query Examples:")
     print("• 'What is a rattlesnake?' - Text generation with database context")
@@ -673,12 +669,13 @@ def interactive_generative_interface(client, trusted_bucket, collection, query_i
             print(f" Error: {e}")
 
 # ==============================
-# Helper Functions
+#          Functions
 # ==============================
 
 def setup_minio_connection(minio, access_key, secret_key, trusted_bucket):
-    """Setup MinIO connection and verify bucket exists."""
-    print("🔗 Connecting to MinIO...")
+    # Setup MinIO connection and verify bucket exists.
+    
+    print(" Connecting to MinIO...")
     client = Minio(
         minio,
         access_key=access_key,
@@ -694,8 +691,9 @@ def setup_minio_connection(minio, access_key, secret_key, trusted_bucket):
     return client
 
 def setup_chromadb_and_images(chroma_db, collection_name, query_images):
-    """Setup ChromaDB connection and load query images."""
-    # Setup ChromaDB
+    # Setup ChromaDB connection and load query images.
+    
+  
     print(" Connecting to ChromaDB...")
     chroma_client = chromadb.PersistentClient(path=chroma_db)
     
@@ -721,7 +719,7 @@ def setup_chromadb_and_images(chroma_db, collection_name, query_images):
     return collection, query_images_list
 
 # ==============================
-# 1. Configuration
+#        Configuration
 # ==============================
 def process_generative_task(
     minio = "localhost:9000",
@@ -749,19 +747,11 @@ def process_generative_task(
     collection, query_images_list = setup_chromadb_and_images(chroma_db, collection_name, query_images)
     
     print("=" * 60)
-    
-    # ==============================
-    # 2. Text Generation with LLMs
-    # ==============================
-    
     print(" Required dependencies: openai")
     print(" Using Qwen3-VL for multimodal processing (text + image)")
     print(" Fallback system: Qwen3-VL -> Llama-2")
     print("=" * 60)
-    
-    # ==============================
-    # 3. Multimodal RAG System
-    # ==============================
+
     
     # Start the interactive interface
     interactive_generative_interface(client, trusted_bucket, collection, query_images_list, query_images)

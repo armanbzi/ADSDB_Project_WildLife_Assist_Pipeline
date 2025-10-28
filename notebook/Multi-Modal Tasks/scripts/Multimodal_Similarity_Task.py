@@ -30,11 +30,11 @@ import numpy as np
 from datetime import datetime
 
 # ==============================
-# Configuration and Setup Functions
+#          Functions
 # ==============================
 
 def setup_minio_connection(minio_endpoint, access_key, secret_key, trusted_bucket):
-    """Setup and verify MinIO client connection."""
+    # Setup and verify MinIO client connection.
     print(" Connecting to MinIO...")
     client = Minio(
         minio_endpoint,
@@ -51,7 +51,8 @@ def setup_minio_connection(minio_endpoint, access_key, secret_key, trusted_bucke
     return client
 
 def setup_chromadb_connection(chroma_db_path, collection_name):
-    """Setup ChromaDB client and collection."""
+    # Setup ChromaDB client and collection.
+    
     print(" Connecting to ChromaDB...")
     chroma_client = chromadb.PersistentClient(path=chroma_db_path)
     
@@ -69,7 +70,8 @@ def setup_chromadb_connection(chroma_db_path, collection_name):
         sys.exit(f" ERROR: Could not connect to collection '{collection_name}' → {e}")
 
 def setup_query_images(query_images_path):
-    """Setup and verify query images directory."""
+    # Setup and verify query images directory.
+    
     if not os.path.exists(query_images_path):
         sys.exit(f" ERROR: Query images directory '{query_images_path}' does not exist.")
     
@@ -78,19 +80,16 @@ def setup_query_images(query_images_path):
     return query_images
 
 def preload_image_paths(client, trusted_bucket):
-    """Pre-load image paths for efficient lookup."""
+    # Pre-load image paths for efficient lookup.
+    
     all_image_objects = list(client.list_objects(trusted_bucket, prefix="images/", recursive=True))
     image_paths = {obj.object_name.split('/')[-1].replace('.jpg', ''): obj.object_name 
                    for obj in all_image_objects if obj.object_name.endswith('.jpg')}
     print(f" Found {len(image_paths)} image files in bucket")
     return image_paths
 
-# ==============================
-# Helper Functions
-# ==============================
-
 def load_image_from_minio(client, trusted_bucket, image_paths, uuid):
-    """Load image from MinIO using pre-loaded path dictionary."""
+    # Load image from MinIO using pre-loaded path dictionary.
     try:
         # Get image path
         image_path = image_paths.get(uuid)
@@ -110,7 +109,7 @@ def load_image_from_minio(client, trusted_bucket, image_paths, uuid):
         return None
 
 def get_random_query_image(query_images, query_images_path):
-    """Get a random image from the query_images directory."""
+    # Get a random image from the query_images directory. for performing images tasks.
     if not query_images:
         return None, None
     # selecting a random image
@@ -126,7 +125,7 @@ def get_random_query_image(query_images, query_images_path):
         return None, None
 
 def prepare_result_data(ids, distances, metadatas, documents, collection, client, trusted_bucket, image_paths):
-    """Prepare result data for display."""
+    # Prepare result data for display.
     result_data = []
     for i, (item_id, distance, metadata, document) in enumerate(zip(ids, distances, metadatas, documents)):
         # as in multimodal embeddings we are storing with a _txt or _img in end.
@@ -158,7 +157,8 @@ def prepare_result_data(ids, distances, metadatas, documents, collection, client
     return result_data
 
 def get_text_description(collection, uuid, document):
-    """Get text description for a result."""
+    # Get text description for a result.
+    
     text_description = ""
     try:
         # get only text using modality as text
@@ -176,7 +176,8 @@ def get_text_description(collection, uuid, document):
     return text_description
 
 def display_result_items(result_data):
-    """Display individual result items."""
+    # Display individual result items.
+    
     for i, data in enumerate(result_data):
         print(f"\n{'='*80}")
         print(f"RESULT #{data['index']} - {data['species']}")
@@ -219,7 +220,8 @@ def display_result_items(result_data):
 
 def display_results(results, query_type="text", query_value="", n_results=5, is_cluster_search=False, 
                    collection=None, client=None, trusted_bucket=None, image_paths=None):
-    """Display search results with images and descriptions."""
+    # Display search results with images and descriptions.
+    
     print(f"\n🔍 {query_type.upper()} QUERY RESULTS")
     print(f"Query: '{query_value}'")
     # if we are displayin results of a cluster search
@@ -248,7 +250,7 @@ def display_results(results, query_type="text", query_value="", n_results=5, is_
     display_result_items(result_data)
 
 def cluster_based_search(collection, chroma_client, query_text="", query_image=None, n_results=15, return_count=3):
-    """Perform cluster-based search showing top species representatives."""
+    # Perform cluster-based search showing top species representatives.
     print("\n CLUSTER-BASED SEARCH")
     print(f"Analyzing top-{n_results} results for most frequent species...")
     print("=" * 60)
@@ -309,7 +311,7 @@ def cluster_based_search(collection, chroma_client, query_text="", query_image=N
         return None
 
 def perform_image_cluster_search(collection, chroma_client, query_image, n_results):
-    """Perform image-based cluster search using embeddings."""
+    # Perform image-based cluster search using embeddings.
     try:
         # Get the multimodal collection
         multimodal_collection = chroma_client.get_collection(name="multimodal_embeddings")
@@ -337,7 +339,7 @@ def perform_image_cluster_search(collection, chroma_client, query_image, n_resul
         return None
 
 def generate_image_embedding(clip_embd, query_image):
-    """Generate embedding for different image formats."""
+    # Generate embedding for different image formats.
     if isinstance(query_image, Image.Image):
         # Save PIL image temporarily
         import tempfile
@@ -362,7 +364,7 @@ def generate_image_embedding(clip_embd, query_image):
     return query_embedding
 
 def filter_results_by_top_species(results, top_species, return_count):
-    """Filter results to show one representative from each top species."""
+    # Filter results to show one representative from each top species.
     filtered_ids = []
     filtered_distances = []
     filtered_metadatas = []
@@ -393,13 +395,10 @@ def filter_results_by_top_species(results, top_species, return_count):
     }
     
     return filtered_results
-
-# ==============================
-# Search Functions
-# ==============================
-
+    
+# search functions
 def search_by_text(collection, query_text, n_results=5, client=None, trusted_bucket=None, image_paths=None):
-    """Perform text-based similarity search."""
+     # erform text-based similarity search.
     print(f"\n Searching with text: '{query_text}'")
     
     try:
@@ -419,7 +418,7 @@ def search_by_text(collection, query_text, n_results=5, client=None, trusted_buc
 
 def search_by_image(collection, chroma_client, query_image, image_name="", 
                    client=None, trusted_bucket=None, image_paths=None):
-    """Perform image-based similarity search using cluster-based approach."""
+    # Perform image-based similarity search using cluster-based approach.
     print(f"\n Searching with image: '{image_name}'")
     
     # Display the query image in smaller size and centered
@@ -453,7 +452,7 @@ def search_by_image(collection, chroma_client, query_image, image_name="",
 
 def interactive_search(collection, chroma_client, query_images, query_images_path, 
                       client, trusted_bucket, image_paths):
-    """Interactive search interface for user input."""
+    # Interactive search interface for user input
     print("\n MULTIMODAL WILDLIFE SEARCH")
     print("=" * 60)
     print("Instructions:")
@@ -494,7 +493,7 @@ def interactive_search(collection, chroma_client, query_images, query_images_pat
             print(f" Error: {e}")
 
 def get_collection_statistics(collection):
-    """Get statistics about the multimodal_embedding collection."""
+    # Get statistics about the multimodal_embedding collection.
     print("\n COLLECTION STATISTICS")
     print("=" * 60)
     
@@ -538,13 +537,12 @@ def get_collection_statistics(collection):
         print(f" Error getting statistics: {e}")
 
 # ==============================
-# Main Function
+#        Main Function
 # ==============================
 def process_multimodal_task(
     minio_endpoint = "localhost:9000",
     access_key = "admin",
     secret_key = "password123"):
-    """Main function to orchestrate multimodal similarity search."""
     # Configuration
     trusted_bucket = "trusted-zone"
     try:

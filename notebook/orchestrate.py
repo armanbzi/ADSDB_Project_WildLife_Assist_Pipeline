@@ -10,11 +10,11 @@ through SonarQube integration.
 
 Key Features:
 - Complete pipeline orchestration with real-time monitoring
+- Running full workflow scripts to store data completely
 - Individual script execution with system resource tracking
 - SonarQube code quality analysis with detailed reporting
-- MinIO configuration management for distributed storage
+- saves only error logs in a file in root project
 
-Author: Arman Bazarchi
 """
 
 import os
@@ -30,16 +30,18 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import logging
 
-# Configure comprehensive logging system for pipeline operations
+# Configure error logging to save only errors in root project directory
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.ERROR,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('pipeline.log', encoding='utf-8'),
+        logging.FileHandler('error.log', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
+
+
 
 class PipelineOrchestrator:
     """
@@ -54,19 +56,12 @@ class PipelineOrchestrator:
     
     def __init__(self):
         """
-        Initialize the pipeline orchestrator with script mappings and monitoring infrastructure.
-        
+        Initialize the orchestrator with script mappings and monitorings.
         Sets up the complete workflow definition including:
-        - Temporal zone scripts for data ingestion
-        - Formatted zone scripts for data normalization  
-        - Trusted zone scripts for data quality assurance
-        - Exploitation zone scripts for vector embeddings
-        - Multi-modal task scripts for AI operations
         """
         self.minio_config = {}
         self.scripts_dir = Path(__file__).parent
         
-        # Define workflow scripts in processing order (Temporal -> Persistent -> Formatted -> Trusted -> Exploitation)
         self.workflow_scripts = {
             "temporal_landing": "Temporal-Zone/scripts/Temporal_Landing.py",
             "persistent_landing": "Temporal-Zone/scripts/Persistent_Landing.py", 
@@ -79,7 +74,7 @@ class PipelineOrchestrator:
             "exploitation_multimodal": "Exploitation-Zone/scripts/Exploitation_Multimodal.py"
         }
         
-        # Define AI/ML task scripts for advanced operations
+        # Define task scripts for advanced operations
         self.task_scripts = {
             "same_modality_search": "Multi-Modal Tasks/scripts/Same_Modality_Search.py",
             "multimodal_similarity": "Multi-Modal Tasks/scripts/Multimodal_Similarity_Task.py",
@@ -103,16 +98,8 @@ class PipelineOrchestrator:
         }
 
     def get_minio_config(self) -> Dict[str, str]:
-        """
-        Configure MinIO connection parameters for distributed object storage.
-        
-        MinIO serves as the primary storage backend for the data pipeline, handling
-        images, metadata, and processed data across all zones. This method collects
-        connection parameters and persists them for use by individual scripts.
-        
-        Returns:
-            Dict containing MinIO connection configuration
-        """
+        # Configure MinIO connection parameters.
+
         print("\n" + "="*60)
         print(" MinIO Configuration Setup")
         print("="*60)
@@ -154,11 +141,6 @@ class PipelineOrchestrator:
     def get_sonar_config(self) -> Tuple[str, str]:
         """
         Configure SonarQube URL and authentication token for code quality analysis.
-        
-        SonarQube provides comprehensive static code analysis including security
-        vulnerabilities, code smells, and technical debt assessment. This method
-        handles URL and token configuration for authenticated access to SonarQube services.
-        
         Returns:
             Tuple of (sonar_url, sonar_token) for SonarQube configuration
         """
@@ -195,12 +177,8 @@ class PipelineOrchestrator:
             return url, None
 
     def display_menu(self):
-        """
-        Display the main orchestration menu with available operations.
+       # Display the main orchestration menu with available operations.
         
-        Provides access to complete pipeline execution, individual script management,
-        code quality analysis, and system monitoring capabilities.
-        """
         print("\n" + "="*60)
         print(" WildLife Data Management Pipeline Orchestrator")
         print("="*60)
@@ -218,8 +196,6 @@ class PipelineOrchestrator:
         This method provides the core script execution functionality with:
         - Real-time system resource monitoring
         - Environment variable configuration for MinIO and coverage tracking
-        - Comprehensive error logging and reporting
-        - Process lifecycle management
         
         Args:
             script_path: Relative path to the script file
@@ -236,7 +212,6 @@ class PipelineOrchestrator:
             logger.error(error_msg)
             return False, error_msg
         
-        logger.info(f" Starting {script_name}...")
         start_time = time.time()
         
         # Initialize monitoring control mechanism
@@ -276,11 +251,10 @@ class PipelineOrchestrator:
             
             # Process execution results and update monitoring data
             if result.returncode == 0:
-                logger.info(f" {script_name} completed successfully in {duration:.2f}s")
                 return True, f"Success: {script_name} completed in {duration:.2f}s"
             else:
                 error_msg = f"Script failed with return code {result.returncode}: {result.stderr}"
-                logger.error(f" {script_name} failed: {error_msg}")
+                logger.error(f"{script_name} failed: {error_msg}")
                 self.monitoring_data["errors"].append({
                     "script": script_name,
                     "error": error_msg,
@@ -347,12 +321,12 @@ class PipelineOrchestrator:
                     break
                 
             except Exception as e:
-                logger.warning(f"Monitoring error: {e}")
+                logger.error(f"Monitoring error: {e}")
                 break
 
     def run_complete_data_pipeline(self):
         """
-        Execute the complete data processing pipeline with comprehensive monitoring.
+        Execute the complete data processing pipeline with monitoring.
         
         This method orchestrates the entire data workflow from temporal landing
         through exploitation zones, providing real-time monitoring and progress
@@ -388,45 +362,7 @@ class PipelineOrchestrator:
         # Finalize monitoring data
         self.monitoring_data["end_time"] = datetime.now().isoformat()
         
-        # Display final monitoring summary
-        self._display_monitoring_summary()
         return True
-
-    def _display_monitoring_summary(self):
-        """
-        Display comprehensive monitoring summary after pipeline execution.
-        
-        Provides detailed analysis of system performance during pipeline execution,
-        including resource utilization patterns, execution times, and error analysis.
-        """
-        print("\n" + "="*60)
-        print(" PIPELINE MONITORING SUMMARY")
-        print("="*60)
-        
-        if self.monitoring_data["system_metrics"]:
-            # Calculate performance statistics
-            cpu_values = [m["cpu_percent"] for m in self.monitoring_data["system_metrics"]]
-            memory_values = [m["memory_percent"] for m in self.monitoring_data["system_metrics"]]
-            disk_values = [m["disk_percent"] for m in self.monitoring_data["system_metrics"]]
-            
-            print(f" Total monitoring samples: {len(self.monitoring_data['system_metrics'])}")
-            print(f" Average CPU usage: {sum(cpu_values)/len(cpu_values):.1f}%")
-            print(f" Peak CPU usage: {max(cpu_values):.1f}%")
-            print(f" Average Memory usage: {sum(memory_values)/len(memory_values):.1f}%")
-            print(f" Peak Memory usage: {max(memory_values):.1f}%")
-            print(f" Average Disk usage: {sum(disk_values)/len(disk_values):.1f}%")
-            print(f" Peak Disk usage: {max(disk_values):.1f}%")
-        else:
-            print(" No monitoring data available")
-        
-        if self.monitoring_data["errors"]:
-            print(f"\n Errors encountered: {len(self.monitoring_data['errors'])}")
-            for error in self.monitoring_data["errors"]:
-                print(f"  - {error['script']}: {error['error'][:80]}...")
-        else:
-            print("\n No errors detected during pipeline execution")
-        
-        print("="*60)
 
     def run_individual_script(self):
         """Run individual scripts (workflow or tasks)"""
@@ -442,7 +378,8 @@ class PipelineOrchestrator:
                 break
 
     def _display_available_scripts(self):
-        """Display available scripts to user"""
+        # Display available scripts to user 
+
         print("\n Available Scripts:")
         print("="*40)
         
@@ -452,7 +389,7 @@ class PipelineOrchestrator:
             print(f"{i:2d}. {name.replace('_', ' ').title()}")
         
         # Show task scripts
-        print("\n Task Scripts (AI/ML Tasks):")
+        print("\n Task Scripts :")
         task_start = len(self.workflow_scripts) + 1
         for i, (name, path) in enumerate(self.task_scripts.items(), task_start):
             print(f"{i:2d}. {name.replace('_', ' ').title()}")
@@ -460,7 +397,8 @@ class PipelineOrchestrator:
         print(f"\n{len(self.workflow_scripts) + len(self.task_scripts) + 1:2d}. Back to Main Menu")
 
     def _get_user_script_choice(self):
-        """Get user script choice"""
+        # Get user script choice
+
         try:
             choice = int(input(f"\nSelect script (1-{len(self.workflow_scripts) + len(self.task_scripts) + 1}): ")) - 1
             return choice
@@ -469,7 +407,7 @@ class PipelineOrchestrator:
             return None
 
     def _handle_script_choice(self, choice):
-        """Handle user script choice and return True if should exit"""
+        # Handle user script choice and return True if should exit
         if choice is None:
             return False
         
@@ -490,7 +428,7 @@ class PipelineOrchestrator:
             return False
 
     def _run_workflow_script(self, choice):
-        """Run selected workflow script"""
+        # Run selected workflow script
         script_names = list(self.workflow_scripts.keys())
         script_name = script_names[choice]
         script_path = self.workflow_scripts[script_name]
@@ -500,7 +438,7 @@ class PipelineOrchestrator:
         return False
 
     def _run_task_script(self, choice):
-        """Run selected task script"""
+        # Run selected task script
         task_idx = choice - len(self.workflow_scripts)
         script_names = list(self.task_scripts.keys())
         script_name = script_names[task_idx]
@@ -511,7 +449,7 @@ class PipelineOrchestrator:
         return False
 
     def _check_docker_availability(self):
-        """Check if Docker is available"""
+        # Check if Docker is available
         docker_check = subprocess.run(['docker', '--version'], 
                                     capture_output=True, text=True, timeout=10)
         
@@ -523,7 +461,7 @@ class PipelineOrchestrator:
 
 
     def _create_sonar_config(self):
-        """Create SonarQube configuration file - only if it doesn't exist"""
+        # Create SonarQube configuration file - only if it doesn't exist
         
         # Check if config file already exists
         if os.path.exists(self.SONAR_CONFIG_FILE):
@@ -532,6 +470,7 @@ class PipelineOrchestrator:
         
         # Create only if file doesn't exist
         # Use Docker mount path for sources (inside container)
+        # check and analyse only python files under project folder.
         sonar_config = """sonar.projectKey=wildlife-pipeline
 sonar.projectName=WildLife Data Management Pipeline
 sonar.projectVersion=1.0
@@ -541,7 +480,6 @@ sonar.inclusions=**/*.py
 sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**,**/*.ipynb,**/*.log,**/*.txt,**/*.json,**/*.md,**/*.zip,**/*.bin,**/*.sqlite3,**/*.pickle
 """
         
-        # Token authentication is now handled via environment variables
         
         # Write config file (only if it doesn't exist)
         with open(self.SONAR_CONFIG_FILE, "w") as f:
@@ -549,18 +487,12 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
         print(f" Created {self.SONAR_CONFIG_FILE}")
 
     def _build_docker_command(self, sonar_url: str, sonar_token: str):
-        """Build Docker command for SonarQube analysis"""
-        import time
-        
-        # Generate unique version timestamp to prevent caching
-        version_tag = str(int(time.time()))
-        
+        # Build Docker command for SonarQube analysis
         docker_cmd = [
             'docker', 'run', '--rm',
             '-v', f'{self.scripts_dir}:/usr/src',
             '-v', f'{self.scripts_dir}/{self.SONAR_CONFIG_FILE}:/usr/src/{self.SONAR_CONFIG_FILE}',
-            '-e', f'SONAR_HOST_URL={sonar_url}',
-            '-e', f'SONAR_SCANNER_OPTS=-Dsonar.projectVersion={version_tag}'
+            '-e', f'SONAR_HOST_URL={sonar_url}'
         ]
         
         # Add token as environment variable if provided
@@ -573,18 +505,9 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
         return docker_cmd
 
     def _display_analysis_results(self, result, sonar_url=None, sonar_token=None):
-        """
-        Display comprehensive SonarQube analysis results with detailed reporting.
         
-        This method processes the SonarQube analysis output and presents
-        a structured summary of code quality findings, including issue
-        categorization and web dashboard access information.
-        
-        Args:
-            result: Subprocess result object containing analysis output
-            sonar_url: SonarQube server URL
-            sonar_token: SonarQube authentication token
-        """
+        # Display comprehensive SonarQube analysis results with detailed reporting.
+       
         print("\n SonarQube Analysis Results:")
         print("="*60)
         
@@ -592,12 +515,19 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
             print(" Analysis completed successfully!")
             print(f" Web Dashboard: {sonar_url}")
             
-            # Fetch detailed results from SonarQube API
-            # Wait for SonarQube to finish processing before fetching new issues
-            if self._wait_for_latest_analysis(sonar_url, sonar_token):
-                self.fetch_sonar_issues(sonar_url=sonar_url, sonar_token=sonar_token)
+            # Wait for SonarQube dashboard to update, then fetch results
+            print(" Waiting 20 seconds for SonarQube dashboard to update...")
+            import time
+            time.sleep(20)
+            
+            print(" Fetching SonarQube analysis results...")
+            issues = self._get_sonar_issues("wildlife-pipeline", sonar_url, sonar_token)
+            
+            if issues:
+                self._display_sonar_issues(issues)
             else:
-                print(" Proceeding without waiting for full processing (results may be outdated).")
+                print(" No issues found or unable to fetch results.")
+                print(f" Please check the SonarQube dashboard: {sonar_url}/dashboard?id=wildlife-pipeline")
             
             # Display scanner warnings if present
             if result.stderr:
@@ -649,11 +579,6 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
             print(" Analyzing code with SonarQube via Docker...")
             docker_cmd = self._build_docker_command(sonar_url, sonar_token)
             
-            # Show the unique version being used
-            import time
-            version_tag = str(int(time.time()))
-            print(f" Using unique project version: {version_tag}")
-            
             # Run analysis with comprehensive monitoring
             print(" Starting code analysis with monitoring...")
             result = subprocess.run(docker_cmd, 
@@ -661,9 +586,6 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
             
             # Display comprehensive analysis results
             self._display_analysis_results(result, sonar_url, sonar_token)
-            
-            # Display monitoring summary for quality control session
-            self._display_monitoring_summary()
                 
         except subprocess.TimeoutExpired:
             print("  SonarQube analysis timed out after 10 minutes")
@@ -674,140 +596,39 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
             print("  - Start Docker Desktop before running analysis")
         except Exception as e:
             print(f" Error running SonarQube analysis: {e}")
+            logger.error(f"SonarQube analysis error: {e}")
         
         finally:
             # Preserve configuration file for future analysis runs
             pass
 
-    def fetch_sonar_issues(self, project_key="wildlife-pipeline", sonar_url=None, sonar_token=None):
-        """
-        Retrieve detailed SonarQube analysis results from the API.
-        
-        This method fetches comprehensive issue data from the SonarQube server,
-        including security vulnerabilities, code smells, and technical debt
-        metrics for detailed analysis and reporting.
-        
-        Args:
-            project_key: SonarQube project identifier
-            sonar_url: SonarQube server URL
-            sonar_token: SonarQube authentication token
-            
-        Returns:
-            Boolean indicating successful issue retrieval
-        """
-        try:
-            issues = self._get_sonar_issues(project_key, sonar_url, sonar_token)
-            if issues is None:
-                return False
-            
-            if issues:
-                self._display_issues_summary(issues)
-                self._display_top_issues(issues)
-                return True
-            else:
-                print(" No issues found in SonarQube analysis!")
-                return True
-                
-        except Exception as e:
-            print(f" Error fetching SonarQube issues: {e}")
-            return False
-
     def _get_sonar_issues(self, project_key, sonar_url, sonar_token):
-        """
-        Retrieve issue data from SonarQube REST API.
-        
-        This method communicates with the SonarQube server to fetch
-        detailed analysis results, handling authentication and error
-        conditions appropriately.
-        
-        Args:
-            project_key: SonarQube project identifier
-            sonar_url: SonarQube server URL
-            sonar_token: SonarQube authentication token
-            
-        Returns:
-            List of issue dictionaries or None on error
-        """
-        url = f"{sonar_url}/api/issues/search?projects={project_key}"
-        # Add timestamp to force fresh API results
-        import time
-        timestamp = int(time.time() * 1000)
-        url += f"&_t={timestamp}"
-        
-        headers = {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-        }
+        # Retrieve issue data from SonarQube REST API.
+       
+        import time, requests
+
+        # Convert host.docker.internal to localhost for API calls from host
+        api_url = sonar_url.replace('host.docker.internal', 'localhost')
+        url = f"{api_url}/api/issues/search?projects={project_key}&resolved=false&types=BUG,CODE_SMELL,VULNERABILITY"
+        headers = {'Cache-Control': 'no-cache'}
         if sonar_token:
             headers['Authorization'] = f"Bearer {sonar_token}"
-        
-        print(" Fetching detailed analysis results from SonarQube API...")
-        resp = requests.get(url, headers=headers, timeout=30)
-        
-        if resp.status_code == 200:
+
+        print(" Fetching analysis results from SonarQube API...")
+        try:
+            resp = requests.get(url, headers=headers, timeout=10)
+            resp.raise_for_status()
             data = resp.json()
             return data.get("issues", [])
-        else:
-            print(f" Failed to fetch issues from SonarQube API: HTTP {resp.status_code}")
-            if resp.status_code == 401:
-                print("    Authentication failed. Check your SonarQube token.")
-            return None
+        except requests.RequestException as e:
+            print(f"  Could not fetch issues from SonarQube API: {e}")
+            print("    View results in the SonarQube web dashboard instead.")
+            logger.error(f"SonarQube API error: {e}")
+            return []
 
-    def _wait_for_latest_analysis(self, sonar_url: str, sonar_token: str, project_key="wildlife-pipeline", timeout=60):
-        """
-        Wait for the latest SonarQube analysis to be processed before fetching issues.
-        """
-        import time
-        headers = {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-        }
-        if sonar_token:
-            headers['Authorization'] = f"Bearer {sonar_token}"
-
-        print(" Waiting for SonarQube to finish processing the latest analysis...")
-        start_time = time.time()
+    def _display_sonar_issues(self, issues):
+       # Display comprehensive SonarQube analysis results and top issues.
         
-        for attempt in range(timeout // 5):
-            try:
-                # Add timestamp to force fresh API results
-                timestamp = int(time.time() * 1000)
-                analysis_url = f"{sonar_url}/api/project_analyses/search?project={project_key}&_t={timestamp}"
-                
-                resp = requests.get(analysis_url, headers=headers, timeout=10)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    analyses = data.get("analyses", [])
-                    if analyses:
-                        last_analysis = analyses[0]
-                        analysis_date = last_analysis.get('date', 'Unknown')
-                        print(f" ✅ Latest analysis detected: {analysis_date}")
-                        return True
-                else:
-                    print(f"  SonarQube API returned {resp.status_code}, retrying...")
-            except (requests.RequestException, ValueError, KeyError) as e:
-                print(f"  Error while checking analysis status: {e}")
-            
-            elapsed = time.time() - start_time
-            print(f"  Attempt {attempt + 1}: {elapsed:.1f}s elapsed, waiting 5s...")
-            time.sleep(5)
-
-        print(" ⚠️ Timed out waiting for SonarQube to process the analysis.")
-        return False
-
-    def _display_issues_summary(self, issues):
-        """
-        Display comprehensive summary of SonarQube issues organized by severity.
-        
-        This method categorizes and presents code quality issues found during
-        analysis, providing clear visibility into different types of problems
-        that need attention in the codebase.
-        
-        Args:
-            issues: List of issue dictionaries from SonarQube API
-        """
         print(f"\n Detailed Analysis Results ({len(issues)} issues found):")
         print("="*60)
         
@@ -821,18 +642,8 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
         print(" Issues by Severity:")
         for severity, count in sorted(severity_counts.items()):
             print(f"  {severity}: {count}")
-
-    def _display_top_issues(self, issues):
-        """
-        Display detailed information for the top 10 most critical issues.
         
-        This method provides specific details about the most important
-        code quality issues, including file locations, line numbers,
-        and descriptive messages for developer action.
-        
-        Args:
-            issues: List of issue dictionaries from SonarQube API
-        """
+        # Display detailed information for top 10 issues
         print("\n Top 10 Issues:")
         for i, issue in enumerate(issues[:10], 1):
             severity = issue.get('severity', 'UNKNOWN')
@@ -847,31 +658,6 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
         if len(issues) > 10:
             print(f"  ... and {len(issues) - 10} more issues (see web dashboard for full details)")
 
-    def show_monitoring_dashboard(self):
-        """
-        Display comprehensive system monitoring dashboard with real-time metrics.
-        
-        This method provides detailed visibility into system performance during
-        pipeline execution, including resource utilization patterns and error
-        analysis for operational insights.
-        """
-        print("\n System Monitoring Dashboard")
-        print("="*50)
-        
-        if self.monitoring_data["system_metrics"]:
-            latest_metrics = self.monitoring_data["system_metrics"][-1]
-            print(f"  CPU Usage: {latest_metrics['cpu_percent']:.1f}%")
-            print(f" Memory Usage: {latest_metrics['memory_percent']:.1f}% ({latest_metrics['memory_used_gb']:.2f} GB)")
-            print(f" Disk Usage: {latest_metrics['disk_percent']:.1f}% ({latest_metrics['disk_free_gb']:.2f} GB free)")
-        else:
-            print(" No monitoring data available yet")
-        
-        if self.monitoring_data["errors"]:
-            print(f"\n Errors: {len(self.monitoring_data['errors'])}")
-            for error in self.monitoring_data["errors"][-3:]:  # Show last 3 errors
-                print(f"  - {error['script']}: {error['error'][:50]}...")
-        else:
-            print("\n No errors detected")
 
     def show_pipeline_status(self):
         """
@@ -896,16 +682,12 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
         print(f" Total errors: {len(self.monitoring_data['errors'])}")
 
     def run(self):
-        """
-        Main orchestration loop providing comprehensive pipeline management interface.
+        # Main orchestration
         
-        This method serves as the primary entry point for the pipeline orchestrator,
-        handling user interaction, configuration management, and workflow execution.
-        It provides a complete DataOps environment with monitoring, quality control,
-        and operational management capabilities.
-        """
+        # This method serves as the primary entry point for the pipeline orchestrator,
+        # handling user interaction, and workflow execution.
+
         print(" Welcome to WildLife Data Management Pipeline Orchestrator")
-        print("This tool provides a complete DataOps environment for your pipeline")
         
         # Initialize MinIO configuration for distributed storage
         self.minio_config = self.get_minio_config()
@@ -939,8 +721,8 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
                 print("\n\n Goodbye!")
                 break
             except Exception as e:
-                logger.error(f"Unexpected error: {e}")
                 print(f" Error: {e}")
+                logger.error(f"Main loop error: {e}")
 
 if __name__ == "__main__":
     orchestrator = PipelineOrchestrator()

@@ -2,7 +2,7 @@
 -Arman Bazarchi-
 Formatted_Images
 
-here we  Move all images from Persistent Landing to Formatted Zone,
+Here we Move all images from Persistent Landing to Formatted Zone,
 we ensure that all images have same format JPEG, and have a correct path.
 connects to minIO, creates formatted-zone bucket, raises an error if pesistant_landing or temporal-zone does not exist.
 reads images from persistent and converts to only JPEG and store in formatted-zone with same foldering structure.
@@ -18,11 +18,11 @@ import os
 from tqdm import tqdm
 
 # ==============================
-# Helper Functions
+#          Functions
 # ==============================
 
 def setup_minio_client_and_buckets(minio, access_key, secret_key, landing_zone, persistent_prefix, formatted_zone):
-    """Setup MinIO client and validate/create buckets."""
+    # Setup MinIO client and validate/create buckets.
     client = Minio(
         minio,
         access_key=access_key,
@@ -48,7 +48,7 @@ def setup_minio_client_and_buckets(minio, access_key, secret_key, landing_zone, 
     return client
 
 def scan_existing_formatted_images(client, formatted_zone, formatted_prefix):
-    """Scan existing formatted images."""
+    # Scan existing formatted images.
     existing_formatted_uuids = set()
     for obj in client.list_objects(formatted_zone, prefix=formatted_prefix + "/", recursive=True):
         match = re.match(r".*/([a-f0-9\-]+)\.jpg", obj.object_name)
@@ -59,7 +59,7 @@ def scan_existing_formatted_images(client, formatted_zone, formatted_prefix):
     return existing_formatted_uuids
 
 def process_single_image(client, landing_zone, persistent_prefix, formatted_prefix, formatted_zone, obj, existing_formatted_uuids):
-    """Process a single image: download, convert to JPEG, and upload."""
+    # Process a single image: download, convert to JPEG, and upload.
     try:
         # Extract UUID from filename (e.g., *.jpg, *.png, *.webp, etc.)
         match = re.match(rf"{persistent_prefix}/.+?/([a-f0-9\-]+)\.\w+$", obj.object_name)
@@ -111,7 +111,7 @@ def process_single_image(client, landing_zone, persistent_prefix, formatted_pref
         return "failed", None
 
 # ==============================
-# 1. Configuration
+#        Configuration
 # ==============================
 def process_formatted_images(   
     minio = "localhost:9000",
