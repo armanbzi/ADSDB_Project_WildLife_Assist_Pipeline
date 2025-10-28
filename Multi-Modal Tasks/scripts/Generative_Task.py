@@ -51,7 +51,26 @@ def get_huggingface_token():
     print(" Hugging Face Token Configuration")
     print("="*60)
     
-    # Check if token already exists in environment
+    # Check if running in non-interactive mode (CI/CD)
+    import sys
+    is_non_interactive = (
+        os.getenv('CI') == 'true' or  # GitHub Actions
+        os.getenv('GITHUB_ACTIONS') == 'true' or  # GitHub Actions
+        os.getenv('GITLAB_CI') == 'true' or  # GitLab CI
+        '--non-interactive' in sys.argv or  # Command line flag
+        not sys.stdin.isatty()  # No TTY (piped input)
+    )
+    
+    if is_non_interactive:
+        # In non-interactive mode, only use environment variables
+        if os.getenv('HUGGINGFACE_API_TOKEN'):
+            print("Using Hugging Face token from environment variable")
+            return os.getenv('HUGGINGFACE_API_TOKEN')
+        else:
+            print("No Hugging Face token found in environment - skipping")
+            return None
+    
+    # Interactive mode - check environment first, then prompt user
     if os.getenv('HUGGINGFACE_API_TOKEN'):
         print(" Hugging Face token found in environment variables")
         return os.getenv('HUGGINGFACE_API_TOKEN')
@@ -630,7 +649,49 @@ def handle_text_query(client, trusted_bucket, collection, parsed_query):
 
 def interactive_generative_interface(client, trusted_bucket, collection, query_images_list, query_images):
     # Interactive interface for all generative tasks.
+    # Supports both interactive and non-interactive (CI/CD) modes.
     
+    import os
+    import sys
+    
+    # Check if running in non-interactive mode (CI/CD)
+    is_non_interactive = (
+        os.getenv('CI') == 'true' or  # GitHub Actions
+        os.getenv('GITHUB_ACTIONS') == 'true' or  # GitHub Actions
+        os.getenv('GITLAB_CI') == 'true' or  # GitLab CI
+        '--non-interactive' in sys.argv or  # Command line flag
+        not sys.stdin.isatty()  # No TTY (piped input)
+    )
+    
+    if is_non_interactive:
+        # Non-interactive mode - use environment variable for query
+        print("Running in non-interactive mode - using environment variable for query")
+        user_query = os.getenv('USER_QUERY', 'What is a rattlesnake?')
+        print(f"Using query: {user_query}")
+        
+        if not user_query:
+            print("No query provided in environment variable")
+            return
+        
+        # Parse the query
+        parsed_query = parse_user_query(user_query)
+        print(f"\nParsed query: {parsed_query['clean_query']}")
+        
+        # Execute based on workflow type
+        if parsed_query['has_take_image']:
+            response = handle_image_query(client, trusted_bucket, collection, query_images_list, query_images, parsed_query)
+        else:
+            response = handle_text_query(client, trusted_bucket, collection, parsed_query)
+        
+        if response:
+            print("\nRESPONSE:")
+            print("=" * 60)
+            print(response)
+            print("=" * 60)
+        
+        return
+    
+    # Interactive mode
     print("Welcome to the Multimodal Generative Wildlife System!")
     print("\n Query Examples:")
     print("• 'What is a rattlesnake?' - Text generation with database context")

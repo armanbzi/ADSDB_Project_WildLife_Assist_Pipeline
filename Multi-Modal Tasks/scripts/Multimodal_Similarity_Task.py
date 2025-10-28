@@ -453,6 +453,47 @@ def search_by_image(collection, chroma_client, query_image, image_name="",
 def interactive_search(collection, chroma_client, query_images, query_images_path, 
                       client, trusted_bucket, image_paths):
     # Interactive search interface for user input
+    # Supports both interactive and non-interactive (CI/CD) modes.
+    
+    import os
+    import sys
+    
+    # Check if running in non-interactive mode (CI/CD)
+    is_non_interactive = (
+        os.getenv('CI') == 'true' or  # GitHub Actions
+        os.getenv('GITHUB_ACTIONS') == 'true' or  # GitHub Actions
+        os.getenv('GITLAB_CI') == 'true' or  # GitLab CI
+        '--non-interactive' in sys.argv or  # Command line flag
+        not sys.stdin.isatty()  # No TTY (piped input)
+    )
+    
+    if is_non_interactive:
+        # Non-interactive mode - use environment variable for query
+        print("Running in non-interactive mode - using environment variable for query")
+        user_input = os.getenv('USER_QUERY', 'rattlesnake')
+        print(f"Using query: {user_input}")
+        
+        if not user_input:
+            print("No query provided in environment variable")
+            return
+        
+        # Execute search based on input
+        if user_input.lower() == 'image':
+            # Random image search with cluster approach
+            query_image, image_name = get_random_query_image(query_images, query_images_path)
+            if query_image:
+                search_by_image(collection, chroma_client, query_image, image_name,
+                              client=client, trusted_bucket=trusted_bucket, image_paths=image_paths)
+            else:
+                print(" No query images available!")
+        else:
+            # Text-based search
+            search_by_text(collection, user_input, n_results=5, client=client, 
+                          trusted_bucket=trusted_bucket, image_paths=image_paths)
+        
+        return
+    
+    # Interactive mode
     print("\n MULTIMODAL WILDLIFE SEARCH")
     print("=" * 60)
     print("Instructions:")

@@ -255,7 +255,8 @@ class PipelineOrchestrator:
             env.update({
                 "MINIO_ENDPOINT": self.minio_config["endpoint"],
                 "MINIO_ACCESS_KEY": self.minio_config["access_key"],
-                "MINIO_SECRET_KEY": self.minio_config["secret_key"]
+                "MINIO_SECRET_KEY": self.minio_config["secret_key"],
+                "CI": "true"  # Set CI environment variable for non-interactive mode detection
             })
             
             # Launch monitoring thread for real-time system metrics

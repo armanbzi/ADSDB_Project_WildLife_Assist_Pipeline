@@ -21,19 +21,92 @@ on:
         - '3'
         - '4'
         - '5'
+      
+      # MinIO Configuration (needed for options 1, 2)
+      minio_endpoint:
+        description: 'MinIO Endpoint (e.g., localhost:9000)'
+        required: false
+        default: 'localhost:9000'
+        type: string
+      
+      minio_access_key:
+        description: 'MinIO Access Key'
+        required: false
+        default: 'admin'
+        type: string
+      
+      minio_secret_key:
+        description: 'MinIO Secret Key'
+        required: false
+        default: 'password123'
+        type: string
+      
+      # Temporal Landing Parameters (needed for option 1, and option 2 with temporal scripts)
+      max_per_species:
+        description: 'MAX_PER_SPECIES (e.g., 30)'
+        required: false
+        default: '30'
+        type: string
+      
+      max_species_per_family:
+        description: 'MAX_SPECIES_PER_FAMILY (e.g., 11)'
+        required: false
+        default: '11'
+        type: string
+      
+      max_samples:
+        description: 'MAX_SAMPLES (e.g., 3000000)'
+        required: false
+        default: '3000000'
+        type: string
+      
+      # User Query (needed for option 2 with multimodal tasks)
+      user_query:
+        description: 'User Query for Multimodal Tasks (e.g., "What is a rattlesnake?")'
+        required: false
+        default: 'What is a rattlesnake?'
+        type: string
+      
+      # HuggingFace Token (needed for option 2 with generative tasks)
+      huggingface_token:
+        description: 'HuggingFace API Token (optional)'
+        required: false
+        default: ''
+        type: string
+      
+      # SonarQube Configuration (needed for option 3)
+      sonar_url:
+        description: 'SonarQube URL (e.g., http://localhost:9002)'
+        required: false
+        default: 'http://localhost:9002'
+        type: string
+      
+      sonar_token:
+        description: 'SonarQube Token (optional)'
+        required: false
+        default: ''
+        type: string
 
 env:
-  # MinIO Configuration
-  MINIO_ENDPOINT: "localhost:9000"
-  MINIO_ACCESS_KEY: "admin"
-  MINIO_SECRET_KEY: "password123"
+  # MinIO Configuration (from workflow inputs)
+  MINIO_ENDPOINT: ${{ github.event.inputs.minio_endpoint || 'localhost:9000' }}
+  MINIO_ACCESS_KEY: ${{ github.event.inputs.minio_access_key || 'admin' }}
+  MINIO_SECRET_KEY: ${{ github.event.inputs.minio_secret_key || 'password123' }}
   
-  # SonarQube Configuration (set in GitHub Secrets)
-  # SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-  # SONAR_LOGIN: ${{ secrets.SONAR_LOGIN }}
+  # Temporal Landing Parameters (from workflow inputs)
+  MAX_PER_SPECIES: ${{ github.event.inputs.max_per_species || '30' }}
+  MAX_SPECIES_PER_FAMILY: ${{ github.event.inputs.max_species_per_family || '11' }}
+  MAX_SAMPLES: ${{ github.event.inputs.max_samples || '3000000' }}
   
-  # HuggingFace Configuration (set in GitHub Secrets)
-  # HUGGINGFACE_API_TOKEN: ${{ secrets.HUGGINGFACE_API_TOKEN }}
+  # User Query (from workflow inputs)
+  USER_QUERY: ${{ github.event.inputs.user_query || 'What is a rattlesnake?' }}
+  
+  # HuggingFace Configuration (from workflow inputs)
+  HUGGINGFACE_API_TOKEN: ${{ github.event.inputs.huggingface_token || '' }}
+  
+  # SonarQube Configuration (from workflow inputs)
+  SONAR_HOST_URL: ${{ github.event.inputs.sonar_url || 'http://localhost:9002' }}
+  SONAR_LOGIN: ${{ github.event.inputs.sonar_token || '' }}
 
 jobs:
   # Setup and test dependencies
@@ -156,9 +229,6 @@ jobs:
         echo "Running quality control analysis..."
         python orchestrate.py --non-interactive --choice 3 || echo "Quality control completed with warnings"
         echo "Quality control step completed"
-      env:
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        SONAR_LOGIN: ${{ secrets.SONAR_LOGIN }}
     
     - name: Create log files before upload
       run: |
@@ -206,8 +276,6 @@ jobs:
       run: |
         echo "Running complete pipeline..."
         python orchestrate.py --non-interactive --choice ${{ github.event.inputs.choice || '1' }} || echo "Complete pipeline completed with warnings"
-      env:
-        HUGGINGFACE_API_TOKEN: ${{ secrets.HUGGINGFACE_API_TOKEN }}
     
     - name: Create log files before upload
       run: |

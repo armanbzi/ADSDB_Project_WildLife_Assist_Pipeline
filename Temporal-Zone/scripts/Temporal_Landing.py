@@ -44,7 +44,33 @@ import re
 
 def get_user_parameters():
     # Get user input parameters for data processing with validation control.
+    # Supports both interactive and non-interactive (CI/CD) modes.
     
+    import os
+    import sys
+    
+    # Check if running in non-interactive mode (CI/CD)
+    is_non_interactive = (
+        os.getenv('CI') == 'true' or  # GitHub Actions
+        os.getenv('GITHUB_ACTIONS') == 'true' or  # GitHub Actions
+        os.getenv('GITLAB_CI') == 'true' or  # GitLab CI
+        '--non-interactive' in sys.argv or  # Command line flag
+        not sys.stdin.isatty()  # No TTY (piped input)
+    )
+    
+    if is_non_interactive:
+        # Use environment variables or defaults for CI/CD
+        print("Running in non-interactive mode - using environment variables or defaults")
+        
+        max_per_species = int(os.getenv('MAX_PER_SPECIES', '30'))
+        max_species_per_family = int(os.getenv('MAX_SPECIES_PER_FAMILY', '11'))
+        max_samples = int(os.getenv('MAX_SAMPLES', '3000000'))
+        
+        print(f"Using parameters: MAX_PER_SPECIES={max_per_species}, MAX_SPECIES_PER_FAMILY={max_species_per_family}, MAX_SAMPLES={max_samples}")
+        
+        return max_per_species, max_species_per_family, max_samples
+    
+    # Interactive mode - get user input
     print("Please enter the following parameters:")
     
     # Get MAX_PER_SPECIES with validation
