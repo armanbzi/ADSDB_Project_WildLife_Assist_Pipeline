@@ -416,7 +416,9 @@ class PipelineOrchestrator:
         if sub_choice:
             # Non-interactive mode - execute specific script
             print(f" Executing script choice {sub_choice}")
-            return self._handle_script_choice(int(sub_choice))
+            # Convert 1-based user choice to 0-based index
+            choice_index = int(sub_choice) - 1
+            return self._handle_script_choice(choice_index)
         
         # Interactive mode
         while True:
