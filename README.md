@@ -55,7 +55,7 @@ A comprehensive DataOps orchestration system for wildlife data processing, featu
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/<your_username>/ADSDB_Project_WildLife_Assist_Pipeline.git
    cd WildLife/notebook
    ```
 
@@ -67,7 +67,7 @@ A comprehensive DataOps orchestration system for wildlife data processing, featu
 3. **Setup MinIO** (if not already running):
    ```bash
    # Start MinIO server
-   minio server /data --console-address ":9001"
+   minio server /data --console-address ":9000"
    ```
 
 4. **Setup HuggingFace** (for dataset access):
@@ -289,12 +289,12 @@ GitLab CI configuration (`.gitlab-ci.yml`) provides:
 
 ## 📄 License
 
-This project is part of the WildLife Data Management system developed for academic purposes.
+This project is part of the ADSDB academic course.
 
 ## 👨‍💻 Author
 
-**Arman Bazarchi** - Data Management Pipeline Orchestrator
+**Arman Bazarchi** - 
 
 ---
 
-*This orchestration system provides a complete DataOps environment for the WildLife Data Management Pipeline, ensuring reliable, monitored, and quality-controlled data processing operations with advanced AI/ML capabilities.*
+*This orchestration system provides a complete DataOps environment for the WildLife Data Management Pipeline, ensuring reliable, monitored, and quality-controlled data processing operations.*
