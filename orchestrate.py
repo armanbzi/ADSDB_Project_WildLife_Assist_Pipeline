@@ -31,13 +31,23 @@ from typing import Dict, List, Optional, Tuple
 import logging
 
 # Configure comprehensive logging to save detailed information
+# Create handlers
+pipeline_handler = logging.FileHandler('pipeline.log', encoding='utf-8')
+error_handler = logging.FileHandler('error.log', encoding='utf-8')
+console_handler = logging.StreamHandler()
+
+# Set levels for handlers
+pipeline_handler.setLevel(logging.INFO)
+error_handler.setLevel(logging.ERROR)
+console_handler.setLevel(logging.WARNING)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s',
     handlers=[
-        logging.FileHandler('pipeline.log', encoding='utf-8'),
-        logging.FileHandler('error.log', level=logging.ERROR, encoding='utf-8'),
-        logging.StreamHandler(level=logging.WARNING)  # Only show warnings and errors on console
+        pipeline_handler,
+        error_handler,
+        console_handler
     ]
 )
 logger = logging.getLogger(__name__)

@@ -18,3 +18,4 @@
 2025-10-28 01:41:30,838 - INFO -  exploitation_images completed successfully in 6.58s
 2025-10-28 01:41:32,853 - INFO -  Starting exploitation_multimodal...
 2025-10-28 01:42:28,598 - INFO -  exploitation_multimodal completed successfully in 55.74s
+2025-10-29 03:05:54,116 - __main__ - ERROR - _execute_choice:923 - Choice execution error: 'charmap' codec can't encode character '\u2192' in position 19: character maps to <undefined>

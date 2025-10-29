@@ -1,3 +1,4 @@
 2025-10-28 05:21:43,082 - ERROR - Choice execution error: 'charmap' codec can't encode character '\u2192' in position 19: character maps to <undefined>
 2025-10-28 05:26:06,117 - ERROR - Choice execution error: 'charmap' codec can't encode character '\u2192' in position 19: character maps to <undefined>
 2025-10-28 05:38:23,398 - ERROR - Choice execution error: 'charmap' codec can't encode character '\u2192' in position 19: character maps to <undefined>
+2025-10-29 03:05:54,116 - __main__ - ERROR - _execute_choice:923 - Choice execution error: 'charmap' codec can't encode character '\u2192' in position 19: character maps to <undefined>
