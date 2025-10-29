@@ -7297,3 +7297,85 @@ minio.error.S3Error: S3 operation failed; code: NoSuchBucket, message: The speci
 
 2025-10-29 04:02:12,910 - __main__ - ERROR - run_script:332 - trusted_images failed (attempt 2): Script failed with return code 1:  No trusted metadata found.
 
+2025-10-29 04:02:21,002 - __main__ - ERROR - run_script:312 - trusted_metadata failed (attempt 3): Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Trusted_Zone\scripts\Trusted_Metadata.py", line 157, in <module>
+    process_trusted_metadata();
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Trusted_Zone\scripts\Trusted_Metadata.py", line 51, in process_trusted_metadata
+    obj.object_name for obj in client.list_objects(FORMATTED_ZONE, prefix=META_PREFIX, recursive=True)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 3323, in _list_objects
+    response = self._execute(
+               ^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 427, in _url_open
+    raise response_error
+minio.error.S3Error: S3 operation failed; code: NoSuchBucket, message: The specified bucket does not exist, resource: /formatted-zone, request_id: 1872D71FC4BBA482, host_id: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8, bucket_name: formatted-zone
+
+2025-10-29 04:02:21,859 - __main__ - ERROR - run_script:325 - exploitation_images failed (attempt 1): Script failed with return code 1:  No metadata CSV files found in trusted-zone.
+
+2025-10-29 04:02:24,931 - __main__ - ERROR - run_script:332 - trusted_images failed (attempt 3): Script failed with return code 1:  No trusted metadata found.
+
+2025-10-29 04:02:31,385 - __main__ - ERROR - run_script:312 - trusted_images failed (attempt 1): Script failed with return code 1:  No trusted metadata found.
+
+2025-10-29 04:02:39,830 - __main__ - ERROR - run_script:325 - exploitation_images failed (attempt 2): Script failed with return code 1:  No metadata CSV files found in trusted-zone.
+
+2025-10-29 04:02:41,717 - __main__ - ERROR - run_script:312 - trusted_images failed (attempt 2): Script failed with return code 1:  No trusted metadata found.
+
+2025-10-29 04:02:42,273 - __main__ - ERROR - run_script:332 - exploitation_metadata failed (attempt 1): Script failed with return code 1:  No trusted metadata files found in trusted-zone.
+
+2025-10-29 04:02:53,755 - __main__ - ERROR - run_script:312 - trusted_images failed (attempt 3): Script failed with return code 1:  No trusted metadata found.
+
+2025-10-29 04:02:58,926 - __main__ - ERROR - run_script:332 - exploitation_metadata failed (attempt 2): Script failed with return code 1:  No trusted metadata files found in trusted-zone.
+
+2025-10-29 04:02:59,014 - __main__ - ERROR - run_script:325 - exploitation_images failed (attempt 3): Script failed with return code 1:  No metadata CSV files found in trusted-zone.
+
+2025-10-29 04:03:12,122 - __main__ - ERROR - run_script:312 - exploitation_metadata failed (attempt 1): Script failed with return code 1:  No trusted metadata files found in trusted-zone.
+
+2025-10-29 04:03:19,481 - __main__ - ERROR - run_script:332 - exploitation_metadata failed (attempt 3): Script failed with return code 1:  No trusted metadata files found in trusted-zone.
+
+2025-10-29 04:03:31,946 - __main__ - ERROR - run_script:312 - exploitation_metadata failed (attempt 2): Script failed with return code 1:  No trusted metadata files found in trusted-zone.
+
+2025-10-29 04:03:39,661 - __main__ - ERROR - run_script:332 - exploitation_images failed (attempt 1): Script failed with return code 1:  No metadata CSV files found in trusted-zone.
+
+2025-10-29 04:03:45,020 - __main__ - ERROR - run_script:325 - exploitation_multimodal failed (attempt 1): Script failed with return code 1:  ERROR: No metadata CSV files found in trusted-zone/metadata/
+
+2025-10-29 04:03:51,514 - __main__ - ERROR - run_script:325 - exploitation_multimodal failed (attempt 1): Script failed with return code 1:  ERROR: No metadata CSV files found in trusted-zone/metadata/
+
+2025-10-29 04:03:52,033 - __main__ - ERROR - run_script:312 - exploitation_metadata failed (attempt 3): Script failed with return code 1:  No trusted metadata files found in trusted-zone.
+
+2025-10-29 04:03:56,629 - __main__ - ERROR - run_script:332 - exploitation_images failed (attempt 2): Script failed with return code 1:  No metadata CSV files found in trusted-zone.
+
+2025-10-29 04:04:13,455 - __main__ - ERROR - run_script:312 - exploitation_images failed (attempt 1): Script failed with return code 1:  No metadata CSV files found in trusted-zone.
+
+2025-10-29 04:04:18,023 - __main__ - ERROR - run_script:332 - exploitation_images failed (attempt 3): Script failed with return code 1:  No metadata CSV files found in trusted-zone.
+
+2025-10-29 04:04:33,042 - __main__ - ERROR - run_script:325 - exploitation_multimodal failed (attempt 2): Script failed with return code 1:  ERROR: No metadata CSV files found in trusted-zone/metadata/
+
+2025-10-29 04:04:33,360 - __main__ - ERROR - run_script:312 - exploitation_images failed (attempt 2): Script failed with return code 1:  No metadata CSV files found in trusted-zone.
+
+2025-10-29 04:04:42,052 - __main__ - ERROR - run_script:325 - exploitation_multimodal failed (attempt 2): Script failed with return code 1:  ERROR: No metadata CSV files found in trusted-zone/metadata/
+
+2025-10-29 04:04:53,974 - __main__ - ERROR - run_script:312 - exploitation_images failed (attempt 3): Script failed with return code 1:  No metadata CSV files found in trusted-zone.
+
+2025-10-29 04:05:11,519 - __main__ - ERROR - run_script:332 - exploitation_multimodal failed (attempt 1): Script failed with return code 1:  ERROR: No metadata CSV files found in trusted-zone/metadata/
+
+2025-10-29 04:05:28,814 - __main__ - ERROR - run_script:325 - exploitation_multimodal failed (attempt 3): Script failed with return code 1:  ERROR: No metadata CSV files found in trusted-zone/metadata/
+
+2025-10-29 04:05:37,577 - __main__ - ERROR - run_script:325 - exploitation_multimodal failed (attempt 3): Script failed with return code 1:  ERROR: No metadata CSV files found in trusted-zone/metadata/
+
+2025-10-29 04:05:44,424 - __main__ - ERROR - run_script:312 - exploitation_multimodal failed (attempt 1): Script failed with return code 1:  ERROR: No metadata CSV files found in trusted-zone/metadata/
+
+2025-10-29 04:05:55,324 - __main__ - ERROR - run_script:332 - exploitation_multimodal failed (attempt 2): Script failed with return code 1:  ERROR: No metadata CSV files found in trusted-zone/metadata/
+
+2025-10-29 04:06:17,824 - __main__ - ERROR - run_script:312 - exploitation_multimodal failed (attempt 2): Script failed with return code 1:  ERROR: No metadata CSV files found in trusted-zone/metadata/
+
+2025-10-29 04:06:29,793 - __main__ - ERROR - run_script:332 - exploitation_multimodal failed (attempt 3): Script failed with return code 1:  ERROR: No metadata CSV files found in trusted-zone/metadata/
+
+2025-10-29 04:06:48,143 - __main__ - ERROR - run_script:312 - exploitation_multimodal failed (attempt 3): Script failed with return code 1:  ERROR: No metadata CSV files found in trusted-zone/metadata/
+

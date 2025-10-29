@@ -19,6 +19,10 @@ opencv-python>=4.6.0
 # Machine Learning embeddings
 langchain-experimental>=0.0.30
 
+# OpenCLIP dependencies for image embeddings
+torch>=1.12.0
+open-clip-torch>=2.20.0
+
 # API and environment
 python-dotenv>=1.0.0
 openai>=1.0.0
