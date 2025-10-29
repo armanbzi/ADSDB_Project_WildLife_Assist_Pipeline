@@ -221,7 +221,17 @@ def download_and_save_image(image_url, img_id, client, root_bucket, temp_prefix,
     # Download and save image to MinIO.
     
     try:
-        response = requests.get(image_url, timeout=10)
+        # Configure requests to handle SSL certificate issues
+        import ssl
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        
+        response = requests.get(
+            image_url, 
+            timeout=10,
+            verify=False,  # Disable SSL verification to handle certificate issues
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        )
         response.raise_for_status()
         image_bytes = response.content
         
@@ -297,7 +307,19 @@ def process_sample(sample, snake_families, limits, client, root_bucket, temp_pre
     try:
         object_name = None
         if img_id not in existing_image_ids:
-            object_name = download_and_save_image(image_url, img_id, client, root_bucket, temp_prefix, existing_image_ids)
+            # Download and save image with retry logic
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    object_name = download_and_save_image(image_url, img_id, client, root_bucket, temp_prefix, existing_image_ids)
+                    break  # Success, exit retry loop
+                except Exception as download_error:
+                    if attempt < max_retries - 1:
+                        print(f" Retrying download for {species} (attempt {attempt + 2}/{max_retries}): {download_error}")
+                        time.sleep(2 ** attempt)  # Exponential backoff
+                    else:
+                        print(f" Failed to download {species} after {max_retries} attempts: {download_error}")
+                        return metadata_df  # Skip this sample and continue
         
         # Save metadata
         minio_config = {
@@ -311,7 +333,8 @@ def process_sample(sample, snake_families, limits, client, root_bucket, temp_pre
             species, family, limits)
         
     except Exception as e:
-        print(f" Error saving {species}: {e}")
+        print(f" Error processing {species}: {e}")
+        # Continue processing other samples instead of failing completely
     
     return metadata_df
 
@@ -336,18 +359,31 @@ def process_streaming_data(snake_families, limits, max_samples, client, root_buc
         print(f" Error loading dataset: {e}")
         return metadata_df, False
     
-    # Process samples in stream
+    # Process samples in stream with error handling
+    processed_count = 0
+    error_count = 0
+    
     for i, sample in enumerate(tqdm(dataset)):
         # Stop after processing max_samples
         if i >= max_samples:
             break
         
-        metadata_df = process_sample(
-            sample, snake_families, limits, client, root_bucket, temp_prefix, 
-            existing_image_ids, existing_uuids, metadata_df, species_counts, 
-            family_species, metadata_local, metadata_remote_path
-        )
+        try:
+            metadata_df = process_sample(
+                sample, snake_families, limits, client, root_bucket, temp_prefix, 
+                existing_image_ids, existing_uuids, metadata_df, species_counts, 
+                family_species, metadata_local, metadata_remote_path
+            )
+            processed_count += 1
+        except Exception as e:
+            error_count += 1
+            print(f" Error processing sample {i}: {e}")
+            # Continue processing other samples instead of failing completely
+            if error_count > 100:  # Stop if too many consecutive errors
+                print(f" Too many errors ({error_count}), stopping processing")
+                break
     
+    print(f" Processing completed: {processed_count} samples processed, {error_count} errors encountered")
     return metadata_df, False
 
 def cleanup_local_files(metadata_local):

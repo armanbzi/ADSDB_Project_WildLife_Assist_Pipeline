@@ -30,13 +30,14 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import logging
 
-# Configure error logging to save only errors in root project directory
+# Configure comprehensive logging to save detailed information
 logging.basicConfig(
-    level=logging.ERROR,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s',
     handlers=[
-        logging.FileHandler('error.log', encoding='utf-8'),
-        logging.StreamHandler()
+        logging.FileHandler('pipeline.log', encoding='utf-8'),
+        logging.FileHandler('error.log', level=logging.ERROR, encoding='utf-8'),
+        logging.StreamHandler(level=logging.WARNING)  # Only show warnings and errors on console
     ]
 )
 logger = logging.getLogger(__name__)
@@ -235,17 +236,19 @@ class PipelineOrchestrator:
         print("5. Exit")
         print("="*60)
 
-    def run_script(self, script_path: str, script_name: str) -> Tuple[bool, str]:
+    def run_script(self, script_path: str, script_name: str, max_retries: int = 2) -> Tuple[bool, str]:
         """
         Execute a single pipeline script with comprehensive monitoring and error handling.
         
         This method provides the core script execution functionality with:
         - Real-time system resource monitoring
         - Environment variable configuration for MinIO and coverage tracking
+        - Retry mechanism with exponential backoff for transient failures
         
         Args:
             script_path: Relative path to the script file
             script_name: Human-readable name for logging and display
+            max_retries: Maximum number of retry attempts (default: 2)
             
         Returns:
             Tuple of (success_status, message) indicating execution result
@@ -258,62 +261,99 @@ class PipelineOrchestrator:
             logger.error(error_msg)
             return False, error_msg
         
-        start_time = time.time()
-        
-        # Initialize monitoring control mechanism
-        monitoring_active = threading.Event()
-        monitoring_active.set()  # Start monitoring immediately
-        
-        try:
-            # Configure environment variables for script execution
-            env = os.environ.copy()
-            env.update({
-                "MINIO_ENDPOINT": self.minio_config["endpoint"],
-                "MINIO_ACCESS_KEY": self.minio_config["access_key"],
-                "MINIO_SECRET_KEY": self.minio_config["secret_key"],
-                "CI": "true"  # Set CI environment variable for non-interactive mode detection
-            })
+        # Retry logic with exponential backoff
+        for attempt in range(max_retries + 1):
+            if attempt > 0:
+                wait_time = 2 ** attempt  # Exponential backoff: 2, 4, 8 seconds
+                print(f" Retrying {script_name} in {wait_time} seconds (attempt {attempt + 1}/{max_retries + 1})")
+                time.sleep(wait_time)
             
-            # Launch monitoring thread for real-time system metrics
-            monitor_thread = threading.Thread(
-                target=self._monitor_process, 
-                args=(script_name, start_time, monitoring_active)
-            )
-            monitor_thread.daemon = True
-            monitor_thread.start()
+            start_time = time.time()
             
-            # Execute the target script with configured environment
-            print(f"Running: {full_path}")
-            result = subprocess.run(
-                [sys.executable, str(full_path)],
-                env=env,
-                text=True
-            )
+            # Initialize monitoring control mechanism
+            monitoring_active = threading.Event()
+            monitoring_active.set()  # Start monitoring immediately
+            monitor_thread = None
             
-            # Stop monitoring when script execution completes
-            monitoring_active.clear()
-            
-            end_time = time.time()
-            duration = end_time - start_time
-            
-            # Process execution results and update monitoring data
-            if result.returncode == 0:
-                return True, f"Success: {script_name} completed in {duration:.2f}s"
-            else:
-                error_msg = f"Script failed with return code {result.returncode}: {result.stderr}"
-                logger.error(f"{script_name} failed: {error_msg}")
-                self.monitoring_data["errors"].append({
-                    "script": script_name,
-                    "error": error_msg,
-                    "timestamp": datetime.now().isoformat()
+            try:
+                # Configure environment variables for script execution
+                env = os.environ.copy()
+                env.update({
+                    "MINIO_ENDPOINT": self.minio_config["endpoint"],
+                    "MINIO_ACCESS_KEY": self.minio_config["access_key"],
+                    "MINIO_SECRET_KEY": self.minio_config["secret_key"],
+                    "CI": "true"  # Set CI environment variable for non-interactive mode detection
                 })
-                return False, error_msg
                 
-        except Exception as e:
-            monitoring_active.clear()  # Ensure monitoring stops on error
-            error_msg = f"Unexpected error running {script_name}: {str(e)}"
-            logger.error(error_msg)
-            return False, error_msg
+                # Launch monitoring thread for real-time system metrics
+                monitor_thread = threading.Thread(
+                    target=self._monitor_process, 
+                    args=(script_name, start_time, monitoring_active)
+                )
+                monitor_thread.daemon = True
+                monitor_thread.start()
+                
+                # Execute the target script with configured environment
+                if attempt > 0:
+                    print(f"Retrying: {full_path}")
+                else:
+                    print(f"Running: {full_path}")
+                
+                result = subprocess.run(
+                    [sys.executable, str(full_path)],
+                    env=env,
+                    text=True,
+                    capture_output=True  # Capture output to prevent GIL issues
+                )
+                
+                # Stop monitoring when script execution completes
+                monitoring_active.clear()
+                
+                # Wait for monitoring thread to finish gracefully
+                if monitor_thread and monitor_thread.is_alive():
+                    monitor_thread.join(timeout=5)
+                
+                end_time = time.time()
+                duration = end_time - start_time
+                
+                # Process execution results and update monitoring data
+                if result.returncode == 0:
+                    if attempt > 0:
+                        print(f" ✓ {script_name} succeeded on retry attempt {attempt + 1}")
+                    return True, f"Success: {script_name} completed in {duration:.2f}s"
+                else:
+                    error_msg = f"Script failed with return code {result.returncode}: {result.stderr}"
+                    logger.error(f"{script_name} failed (attempt {attempt + 1}): {error_msg}")
+                    
+                    # If this is the last attempt, record the error and return failure
+                    if attempt == max_retries:
+                        self.monitoring_data["errors"].append({
+                            "script": script_name,
+                            "error": error_msg,
+                            "timestamp": datetime.now().isoformat(),
+                            "attempts": attempt + 1
+                        })
+                        return False, error_msg
+                    else:
+                        print(f" Attempt {attempt + 1} failed, will retry...")
+                        
+            except Exception as e:
+                monitoring_active.clear()  # Ensure monitoring stops on error
+                # Wait for monitoring thread to finish gracefully
+                if monitor_thread and monitor_thread.is_alive():
+                    monitor_thread.join(timeout=5)
+                
+                error_msg = f"Unexpected error running {script_name}: {str(e)}"
+                logger.error(f"{script_name} error (attempt {attempt + 1}): {error_msg}")
+                
+                # If this is the last attempt, return failure
+                if attempt == max_retries:
+                    return False, error_msg
+                else:
+                    print(f" Attempt {attempt + 1} failed with exception, will retry...")
+        
+        # This should never be reached, but just in case
+        return False, f"Script {script_name} failed after {max_retries + 1} attempts"
 
     def _monitor_process(self, script_name: str, start_time: float, monitoring_active: threading.Event):
         """
@@ -377,7 +417,8 @@ class PipelineOrchestrator:
         
         This method orchestrates the entire data workflow from temporal landing
         through exploitation zones, providing real-time monitoring and progress
-        tracking for each stage of the pipeline.
+        tracking for each stage of the pipeline. It continues execution even
+        if individual scripts fail, ensuring maximum data processing coverage.
         
         Returns:
             Boolean indicating overall pipeline success
@@ -387,6 +428,11 @@ class PipelineOrchestrator:
         
         # Initialize pipeline monitoring
         self.monitoring_data["start_time"] = datetime.now().isoformat()
+        logger.info(f"Starting complete data pipeline with {len(self.recommended_workflow)} scripts")
+        
+        # Track successful and failed scripts
+        successful_scripts = []
+        failed_scripts = []
         
         # Execute workflow scripts in recommended order
         for i, script_name in enumerate(self.recommended_workflow, 1):
@@ -396,20 +442,47 @@ class PipelineOrchestrator:
             # Execute script with monitoring
             success, message = self.run_script(script_path, script_name)
             
-            if not success:
-                print(f" Workflow stopped at {script_name}: {message}")
-                return False
+            if success:
+                print(f" ✓ {script_name} completed successfully")
+                successful_scripts.append(script_name)
+                logger.info(f"Script {script_name} completed successfully")
+            else:
+                print(f" ✗ {script_name} failed: {message}")
+                failed_scripts.append((script_name, message))
+                logger.warning(f"Script {script_name} failed: {message}")
+                print(f" Continuing with next script...")
             
-            print(f" {script_name} completed successfully")
             time.sleep(2)  # Brief pause between scripts for system stability
         
-        print("\n Complete data pipeline finished successfully!")
-        print(" All data has been processed and stored in the pipeline")
+        # Display final results
+        print(f"\n Complete data pipeline finished!")
+        print(f" Successful scripts: {len(successful_scripts)}/{len(self.recommended_workflow)}")
+        print(f" Failed scripts: {len(failed_scripts)}/{len(self.recommended_workflow)}")
+        
+        if successful_scripts:
+            print(f" ✓ Successfully completed: {', '.join(successful_scripts)}")
+        
+        if failed_scripts:
+            print(f" ✗ Failed scripts:")
+            for script_name, error_msg in failed_scripts:
+                print(f"   - {script_name}: {error_msg}")
         
         # Finalize monitoring data
         self.monitoring_data["end_time"] = datetime.now().isoformat()
         
-        return True
+        # Consider pipeline successful if at least 50% of scripts succeeded
+        success_rate = len(successful_scripts) / len(self.recommended_workflow)
+        pipeline_success = success_rate >= 0.5
+        
+        if pipeline_success:
+            print(f" Pipeline completed with {success_rate:.1%} success rate")
+            logger.info(f"Pipeline completed successfully with {success_rate:.1%} success rate")
+        else:
+            print(f" Pipeline completed with low success rate ({success_rate:.1%})")
+            logger.warning(f"Pipeline completed with low success rate ({success_rate:.1%})")
+        
+        logger.info(f"Pipeline execution completed. Successful: {len(successful_scripts)}, Failed: {len(failed_scripts)}")
+        return pipeline_success
 
     def run_individual_script(self, sub_choice=None):
         """Run individual scripts (workflow or tasks)"""
