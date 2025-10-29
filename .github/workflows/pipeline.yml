@@ -63,14 +63,6 @@ on:
         - '12'
       
       # MinIO Configuration (separated back to individual inputs)
-      minio_endpoint:
-        description: |
-          MinIO Endpoint (for reference only - service runs on localhost:9000 in CI/CD)
-          (e.g., localhost:9000)
-        required: false
-        default: 'localhost:9000'
-        type: string
-      
       minio_access_key:
         description: 'MinIO Access Key'
         required: false
@@ -87,7 +79,7 @@ on:
       temporal_params:
         description: 'Temporal Parameters (comma-separated: max_per_species,max_species_per_family,max_samples)'
         required: false
-        default: '30,11,3000000'
+        default: '30,11,300000'
         type: string
       
       # User Query (needed for option 2 with multimodal tasks)
@@ -125,7 +117,7 @@ env:
   MINIO_SECRET_KEY: ${{ github.event.inputs.minio_secret_key || 'password123' }}
   
   # Other configurations
-  TEMPORAL_PARAMS: ${{ github.event.inputs.temporal_params || '30,11,3000000' }}
+  TEMPORAL_PARAMS: ${{ github.event.inputs.temporal_params || '30,11,300000' }}
   USER_QUERY: ${{ github.event.inputs.user_query || 'What is a rattlesnake?' }}
   HUGGINGFACE_API_TOKEN: ${{ github.event.inputs.huggingface_token || '' }}
   SONAR_CONFIG: ${{ github.event.inputs.sonar_config || 'http://localhost:9002,' }}
