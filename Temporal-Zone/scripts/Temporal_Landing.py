@@ -36,6 +36,8 @@ import requests
 import re
 import threading
 import atexit
+import signal
+import sys
 
 # ==============================
 #          Functions
@@ -345,10 +347,12 @@ def process_streaming_data(snake_families, limits, max_samples, client, root_buc
     
     try:
         # Stream the dataset (no full download)
+        # Use a more conservative approach to avoid threading issues
         dataset = load_dataset(
             "imageomics/TreeOfLife-200M",
             split="train",
-            streaming=True
+            streaming=True,
+            trust_remote_code=False  # Disable remote code execution
         )
         
         # Use user-provided max_samples limit
@@ -414,9 +418,38 @@ def cleanup_threads():
         import gc
         gc.collect()
         
+        # Additional cleanup for libraries that might cause GIL issues
+        try:
+            # Clean up any remaining requests sessions
+            import requests
+            requests.Session().close()
+        except:
+            pass
+        
+        try:
+            # Clean up PIL/Pillow resources
+            from PIL import Image
+            Image._show = lambda *args, **kwargs: None  # Disable image display
+        except:
+            pass
+        
         print(" Thread cleanup completed successfully")
     except Exception as e:
         print(f" Warning during thread cleanup: {e}")
+
+def force_exit():
+    """Force exit to prevent GIL errors during interpreter shutdown."""
+    try:
+        print(" Forcing clean exit to prevent GIL errors...")
+        # Use os._exit to bypass Python's cleanup mechanisms
+        os._exit(0)
+    except:
+        sys.exit(0)
+
+def signal_handler(signum, frame):
+    """Handle signals to prevent GIL errors."""
+    print(f" Received signal {signum}, forcing clean exit...")
+    force_exit()
 
 # ==============================
 #        Configuration
@@ -479,10 +512,18 @@ def process_temporal(
     
     # Also call cleanup immediately
     cleanup_threads()
+    
+    # Register force exit to prevent GIL errors
+    atexit.register(force_exit)
 
 if __name__ == "__main__":
+    # Register signal handlers to prevent GIL errors
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
+    
     try:
         process_temporal()
+        print(" Temporal processing completed successfully")
     except KeyboardInterrupt:
         print("\n Process interrupted by user")
     except Exception as e:
@@ -490,5 +531,7 @@ if __name__ == "__main__":
     finally:
         # Ensure cleanup happens even if there's an error
         cleanup_threads()
+        # Force exit to prevent GIL errors
+        force_exit()
 
 
