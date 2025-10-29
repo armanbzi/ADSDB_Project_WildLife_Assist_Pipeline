@@ -13,16 +13,13 @@ for now only retrieves images of snake families only because of not being able t
 
 then code connects to minIO create a temporal-zone bucket and a subbucket 'temporal-landing', 
 stores images in a folder 'images' and a csv file of the needed metadata in a folder 'metadata',
-it checks and avoids storing duplicates in temporal-zone, also deletes any temporary file and cache
-and huggingface heavy cach from local storage.
+it checks and avoids storing duplicates in temporal-zone, 
+
+we use streaming mode to retrieve data we need, because data is huge and is not best option
+to store in local storage and then filter to store
 
 # Login using e.g. `huggingface-cli login` to access this dataset
 
-
-    we notice that getting data from huggingface stores heavy size of cache of that dataset on local storage.
-    so we try to safely remove this cache and free up space.
-    
-# However some binary files from online huggingface hub stay in locat storage
 """
 
 from datasets import load_dataset
@@ -37,6 +34,8 @@ import os
 import time
 import requests
 import re
+import threading
+import atexit
 
 # ==============================
 #          Functions
@@ -363,27 +362,37 @@ def process_streaming_data(snake_families, limits, max_samples, client, root_buc
     processed_count = 0
     error_count = 0
     
-    for i, sample in enumerate(tqdm(dataset)):
-        # Stop after processing max_samples
-        if i >= max_samples:
-            break
-        
-        try:
-            metadata_df = process_sample(
-                sample, snake_families, limits, client, root_bucket, temp_prefix, 
-                existing_image_ids, existing_uuids, metadata_df, species_counts, 
-                family_species, metadata_local, metadata_remote_path
-            )
-            processed_count += 1
-        except Exception as e:
-            error_count += 1
-            print(f" Error processing sample {i}: {e}")
-            # Continue processing other samples instead of failing completely
-            if error_count > 100:  # Stop if too many consecutive errors
-                print(f" Too many errors ({error_count}), stopping processing")
+    try:
+        for i, sample in enumerate(tqdm(dataset)):
+            # Stop after processing max_samples
+            if i >= max_samples:
                 break
+            
+            try:
+                metadata_df = process_sample(
+                    sample, snake_families, limits, client, root_bucket, temp_prefix, 
+                    existing_image_ids, existing_uuids, metadata_df, species_counts, 
+                    family_species, metadata_local, metadata_remote_path
+                )
+                processed_count += 1
+            except Exception as e:
+                error_count += 1
+                print(f" Error processing sample {i}: {e}")
+                # Continue processing other samples instead of failing completely
+                if error_count > 100:  # Stop if too many consecutive errors
+                    print(f" Too many errors ({error_count}), stopping processing")
+                    break
+    except Exception as e:
+        print(f" Error during dataset iteration: {e}")
+    finally:
+        # Ensure dataset cleanup happens
+        try:
+            del dataset
+        except:
+            pass
     
     print(f" Processing completed: {processed_count} samples processed, {error_count} errors encountered")
+    
     return metadata_df, False
 
 def cleanup_local_files(metadata_local):
@@ -391,6 +400,23 @@ def cleanup_local_files(metadata_local):
     if os.path.exists(metadata_local):
         os.remove(metadata_local)
         print(f" Removed local metadata file: {metadata_local}")
+
+def cleanup_threads():
+    """Clean up any remaining threads to prevent GIL errors."""
+    try:
+        # Wait for all non-daemon threads to complete
+        for thread in threading.enumerate():
+            if thread != threading.current_thread() and thread.is_alive():
+                if not thread.daemon:
+                    thread.join(timeout=1.0)
+        
+        # Force garbage collection to clean up any remaining references
+        import gc
+        gc.collect()
+        
+        print(" Thread cleanup completed successfully")
+    except Exception as e:
+        print(f" Warning during thread cleanup: {e}")
 
 # ==============================
 #        Configuration
@@ -447,7 +473,22 @@ def process_temporal(
     
     # Cleanup
     cleanup_local_files(METADATA_LOCAL)
+    
+    # Register cleanup function to run on exit
+    atexit.register(cleanup_threads)
+    
+    # Also call cleanup immediately
+    cleanup_threads()
 
-process_temporal();
+if __name__ == "__main__":
+    try:
+        process_temporal()
+    except KeyboardInterrupt:
+        print("\n Process interrupted by user")
+    except Exception as e:
+        print(f"\n Error in temporal processing: {e}")
+    finally:
+        # Ensure cleanup happens even if there's an error
+        cleanup_threads()
 
 

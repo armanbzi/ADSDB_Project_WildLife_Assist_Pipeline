@@ -2,7 +2,7 @@
 -Arman Bazarchi-
 Trusted Zone — Images notebook
 -----------------------------------------------------------
-This notebook moves cleaned and anonymized images from the
+Here we move cleaned and anonymized images from the
 Formatted Zone to the Trusted Zone bucket in MinIO.
 raises an error if no metadata is available in trusted-zone
 
