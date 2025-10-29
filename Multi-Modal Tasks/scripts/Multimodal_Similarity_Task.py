@@ -33,6 +33,19 @@ from datetime import datetime
 #          Functions
 # ==============================
 
+def get_minio_config():
+    # Load MinIO configuration from environment variables (set by orchestrator).
+    
+    import os
+    
+    # Get configuration from environment variables (set by orchestrator)
+    endpoint = os.getenv('MINIO_ENDPOINT', 'localhost:9000')
+    access_key = os.getenv('MINIO_ACCESS_KEY', 'admin')
+    secret_key = os.getenv('MINIO_SECRET_KEY', 'admin123')
+    
+    print(f"Using MinIO configuration from environment variables: endpoint={endpoint}, access_key={access_key[:3]}***")
+    return endpoint, access_key, secret_key
+
 def setup_minio_connection(minio_endpoint, access_key, secret_key, trusted_bucket):
     # Setup and verify MinIO client connection.
     print(" Connecting to MinIO...")
@@ -67,7 +80,7 @@ def setup_chromadb_connection(chroma_db_path, collection_name):
         
         return collection
     except Exception as e:
-        sys.exit(f" ERROR: Could not connect to collection '{collection_name}' → {e}")
+        sys.exit(f" ERROR: Could not connect to collection '{collection_name}' -> {e}")
 
 def setup_query_images(query_images_path):
     # Setup and verify query images directory.
@@ -584,6 +597,10 @@ def process_multimodal_task(
     minio_endpoint = "localhost:9000",
     access_key = "admin",
     secret_key = "password123"):
+    
+    # Get MinIO configuration from environment variables (set by orchestrator)
+    minio_endpoint, access_key, secret_key = get_minio_config()
+    
     # Configuration
     trusted_bucket = "trusted-zone"
     try:

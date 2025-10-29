@@ -19,6 +19,19 @@ from datetime import datetime
 #          Functions
 # ==============================
 
+def get_minio_config():
+    # Load MinIO configuration from environment variables (set by orchestrator).
+    
+    import os
+    
+    # Get configuration from environment variables (set by orchestrator)
+    endpoint = os.getenv('MINIO_ENDPOINT', 'localhost:9000')
+    access_key = os.getenv('MINIO_ACCESS_KEY', 'admin')
+    secret_key = os.getenv('MINIO_SECRET_KEY', 'admin123')
+    
+    print(f"Using MinIO configuration from environment variables: endpoint={endpoint}, access_key={access_key[:3]}***")
+    return endpoint, access_key, secret_key
+
 def setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, landing_zone, persist_prefix, formatted_zone):
     # Setup MinIO client and validate/create buckets.
     client = Minio(
@@ -104,7 +117,8 @@ def normalize_and_combine_metadata(all_dfs, persist_prefix):
     persistent_df = pd.concat(all_dfs, ignore_index=True)
     
     # Generate formatted_path same as persistent_path
-    persistent_df["formatted_path"] = persistent_df["persistent_path"].str.replace(
+    # Handle non-string values (None, NaN) in persistent_path
+    persistent_df["formatted_path"] = persistent_df["persistent_path"].astype(str).str.replace(
         f"{persist_prefix}/images", "images", regex=False
     )
     
@@ -204,6 +218,9 @@ def process_formatted_metadata(
     minio_endpoint = "localhost:9000",
     access_key = "admin",
     secret_key = "password123"):
+
+    # Get MinIO configuration from environment variables (set by orchestrator)
+    minio_endpoint, access_key, secret_key = get_minio_config()
 
     landing_zone = "temporal-zone"
     persist_prefix = "persistent_landing"

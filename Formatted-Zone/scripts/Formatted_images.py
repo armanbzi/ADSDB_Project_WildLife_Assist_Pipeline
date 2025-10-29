@@ -21,6 +21,19 @@ from tqdm import tqdm
 #          Functions
 # ==============================
 
+def get_minio_config():
+    # Load MinIO configuration from environment variables (set by orchestrator).
+    
+    import os
+    
+    # Get configuration from environment variables (set by orchestrator)
+    endpoint = os.getenv('MINIO_ENDPOINT', 'localhost:9000')
+    access_key = os.getenv('MINIO_ACCESS_KEY', 'admin')
+    secret_key = os.getenv('MINIO_SECRET_KEY', 'admin123')
+    
+    print(f"Using MinIO configuration from environment variables: endpoint={endpoint}, access_key={access_key[:3]}***")
+    return endpoint, access_key, secret_key
+
 def setup_minio_client_and_buckets(minio, access_key, secret_key, landing_zone, persistent_prefix, formatted_zone):
     # Setup MinIO client and validate/create buckets.
     client = Minio(
@@ -117,6 +130,9 @@ def process_formatted_images(
     minio = "localhost:9000",
     access_key = "admin",
     secret_key = "password123"):
+
+    # Get MinIO configuration from environment variables (set by orchestrator)
+    minio, access_key, secret_key = get_minio_config()
 
     landing_zone = "temporal-zone"
     persistent_prefix = "persistent_landing/images"

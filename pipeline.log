@@ -9694,3 +9694,1468 @@ minio.error.S3Error: S3 operation failed; code: NoSuchBucket, message: The speci
 
 2025-10-29 04:06:50,146 - __main__ - WARNING - run_complete_data_pipeline:468 - Pipeline completed with low success rate (0.0%)
 2025-10-29 04:06:50,146 - __main__ - INFO - run_complete_data_pipeline:470 - Pipeline execution completed. Successful: 0, Failed: 9
+2025-10-29 06:01:33,625 - __main__ - INFO - run_complete_data_pipeline:448 - Starting complete data pipeline with 9 scripts
+2025-10-29 06:09:23,548 - __main__ - INFO - run_complete_data_pipeline:448 - Starting complete data pipeline with 9 scripts
+2025-10-29 06:09:30,745 - __main__ - INFO - run_complete_data_pipeline:465 - Script temporal_landing completed successfully
+2025-10-29 06:09:41,494 - __main__ - ERROR - run_script:338 - persistent_landing failed (attempt 1): Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 271, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 258, in process_landing_zone
+    process_metadata_group(client, root_bucket, persist_prefix, kingdom_name, cls_name, group)
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 196, in process_metadata_group
+    print(f" Updated/uploaded metadata for '{kingdom_safe}-{cls_safe}' \u2192 {persistent_metadata_path_new}")
+  File "C:\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 51: character maps to <undefined>
+
+2025-10-29 06:09:49,973 - __main__ - ERROR - run_script:338 - persistent_landing failed (attempt 2): Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 271, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 258, in process_landing_zone
+    process_metadata_group(client, root_bucket, persist_prefix, kingdom_name, cls_name, group)
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 196, in process_metadata_group
+    print(f" Updated/uploaded metadata for '{kingdom_safe}-{cls_safe}' \u2192 {persistent_metadata_path_new}")
+  File "C:\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 51: character maps to <undefined>
+
+2025-10-29 06:14:26,558 - __main__ - INFO - run_complete_data_pipeline:448 - Starting complete data pipeline with 9 scripts
+2025-10-29 06:14:35,210 - __main__ - INFO - run_complete_data_pipeline:465 - Script temporal_landing completed successfully
+2025-10-29 06:14:44,010 - __main__ - ERROR - run_script:338 - persistent_landing failed (attempt 1): Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 271, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 258, in process_landing_zone
+    process_metadata_group(client, root_bucket, persist_prefix, kingdom_name, cls_name, group)
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 196, in process_metadata_group
+    print(f" Updated/uploaded metadata for '{kingdom_safe}-{cls_safe}' \u2192 {persistent_metadata_path_new}")
+  File "C:\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 51: character maps to <undefined>
+
+2025-10-29 06:14:53,158 - __main__ - ERROR - run_script:338 - persistent_landing failed (attempt 2): Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 271, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 258, in process_landing_zone
+    process_metadata_group(client, root_bucket, persist_prefix, kingdom_name, cls_name, group)
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 196, in process_metadata_group
+    print(f" Updated/uploaded metadata for '{kingdom_safe}-{cls_safe}' \u2192 {persistent_metadata_path_new}")
+  File "C:\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 51: character maps to <undefined>
+
+2025-10-29 06:15:03,935 - __main__ - ERROR - run_script:338 - persistent_landing failed (attempt 3): Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 271, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 258, in process_landing_zone
+    process_metadata_group(client, root_bucket, persist_prefix, kingdom_name, cls_name, group)
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 196, in process_metadata_group
+    print(f" Updated/uploaded metadata for '{kingdom_safe}-{cls_safe}' \u2192 {persistent_metadata_path_new}")
+  File "C:\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 51: character maps to <undefined>
+
+2025-10-29 06:15:03,945 - __main__ - WARNING - run_complete_data_pipeline:469 - Script persistent_landing failed: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 271, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 258, in process_landing_zone
+    process_metadata_group(client, root_bucket, persist_prefix, kingdom_name, cls_name, group)
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 196, in process_metadata_group
+    print(f" Updated/uploaded metadata for '{kingdom_safe}-{cls_safe}' \u2192 {persistent_metadata_path_new}")
+  File "C:\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 51: character maps to <undefined>
+
+2025-10-29 06:15:12,334 - __main__ - ERROR - run_script:338 - formatted_metadata failed (attempt 1): Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Formatted-Zone\scripts\Formatted_Metadata.py", line 237, in <module>
+    process_formatted_metadata();
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Formatted-Zone\scripts\Formatted_Metadata.py", line 219, in process_formatted_metadata
+    persistent_df = normalize_and_combine_metadata(all_dfs, persist_prefix)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Formatted-Zone\scripts\Formatted_Metadata.py", line 107, in normalize_and_combine_metadata
+    persistent_df["formatted_path"] = persistent_df["persistent_path"].str.replace(
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\accessor.py", line 224, in __get__
+    accessor_obj = self._accessor(obj)
+                   ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\strings\accessor.py", line 194, in __init__
+    self._inferred_dtype = self._validate(data)
+                           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\strings\accessor.py", line 248, in _validate
+    raise AttributeError("Can only use .str accessor with string values!")
+AttributeError: Can only use .str accessor with string values!. Did you mean: 'std'?
+
+2025-10-29 06:15:20,776 - __main__ - ERROR - run_script:338 - formatted_metadata failed (attempt 2): Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Formatted-Zone\scripts\Formatted_Metadata.py", line 237, in <module>
+    process_formatted_metadata();
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Formatted-Zone\scripts\Formatted_Metadata.py", line 219, in process_formatted_metadata
+    persistent_df = normalize_and_combine_metadata(all_dfs, persist_prefix)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Formatted-Zone\scripts\Formatted_Metadata.py", line 107, in normalize_and_combine_metadata
+    persistent_df["formatted_path"] = persistent_df["persistent_path"].str.replace(
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\accessor.py", line 224, in __get__
+    accessor_obj = self._accessor(obj)
+                   ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\strings\accessor.py", line 194, in __init__
+    self._inferred_dtype = self._validate(data)
+                           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\strings\accessor.py", line 248, in _validate
+    raise AttributeError("Can only use .str accessor with string values!")
+AttributeError: Can only use .str accessor with string values!. Did you mean: 'std'?
+
+2025-10-29 06:15:31,075 - __main__ - ERROR - run_script:338 - formatted_metadata failed (attempt 3): Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Formatted-Zone\scripts\Formatted_Metadata.py", line 237, in <module>
+    process_formatted_metadata();
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Formatted-Zone\scripts\Formatted_Metadata.py", line 219, in process_formatted_metadata
+    persistent_df = normalize_and_combine_metadata(all_dfs, persist_prefix)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Formatted-Zone\scripts\Formatted_Metadata.py", line 107, in normalize_and_combine_metadata
+    persistent_df["formatted_path"] = persistent_df["persistent_path"].str.replace(
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\accessor.py", line 224, in __get__
+    accessor_obj = self._accessor(obj)
+                   ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\strings\accessor.py", line 194, in __init__
+    self._inferred_dtype = self._validate(data)
+                           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\strings\accessor.py", line 248, in _validate
+    raise AttributeError("Can only use .str accessor with string values!")
+AttributeError: Can only use .str accessor with string values!. Did you mean: 'std'?
+
+2025-10-29 06:15:31,085 - __main__ - WARNING - run_complete_data_pipeline:469 - Script formatted_metadata failed: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Formatted-Zone\scripts\Formatted_Metadata.py", line 237, in <module>
+    process_formatted_metadata();
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Formatted-Zone\scripts\Formatted_Metadata.py", line 219, in process_formatted_metadata
+    persistent_df = normalize_and_combine_metadata(all_dfs, persist_prefix)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Formatted-Zone\scripts\Formatted_Metadata.py", line 107, in normalize_and_combine_metadata
+    persistent_df["formatted_path"] = persistent_df["persistent_path"].str.replace(
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\generic.py", line 6318, in __getattr__
+    return object.__getattribute__(self, name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\accessor.py", line 224, in __get__
+    accessor_obj = self._accessor(obj)
+                   ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\strings\accessor.py", line 194, in __init__
+    self._inferred_dtype = self._validate(data)
+                           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\pandas\core\strings\accessor.py", line 248, in _validate
+    raise AttributeError("Can only use .str accessor with string values!")
+AttributeError: Can only use .str accessor with string values!. Did you mean: 'std'?
+
+2025-10-29 06:15:42,856 - __main__ - INFO - run_complete_data_pipeline:465 - Script formatted_images completed successfully
+2025-10-29 06:15:51,151 - __main__ - ERROR - run_script:338 - trusted_metadata failed (attempt 1): Script failed with return code 1:  No formatted metadata files found.
+
+2025-10-29 06:15:59,422 - __main__ - ERROR - run_script:338 - trusted_metadata failed (attempt 2): Script failed with return code 1:  No formatted metadata files found.
+
+2025-10-29 06:16:09,707 - __main__ - ERROR - run_script:338 - trusted_metadata failed (attempt 3): Script failed with return code 1:  No formatted metadata files found.
+
+2025-10-29 06:16:09,716 - __main__ - WARNING - run_complete_data_pipeline:469 - Script trusted_metadata failed: Script failed with return code 1:  No formatted metadata files found.
+
+2025-10-29 06:16:18,257 - __main__ - ERROR - run_script:338 - trusted_images failed (attempt 1): Script failed with return code 1:  No trusted metadata found.
+
+2025-10-29 06:16:26,668 - __main__ - ERROR - run_script:338 - trusted_images failed (attempt 2): Script failed with return code 1:  No trusted metadata found.
+
+2025-10-29 06:16:36,970 - __main__ - ERROR - run_script:338 - trusted_images failed (attempt 3): Script failed with return code 1:  No trusted metadata found.
+
+2025-10-29 06:16:36,970 - __main__ - WARNING - run_complete_data_pipeline:469 - Script trusted_images failed: Script failed with return code 1:  No trusted metadata found.
+
+2025-10-29 06:16:49,777 - __main__ - ERROR - run_script:338 - exploitation_metadata failed (attempt 1): Script failed with return code 1:  No trusted metadata files found in trusted-zone.
+
+2025-10-29 06:17:02,688 - __main__ - ERROR - run_script:338 - exploitation_metadata failed (attempt 2): Script failed with return code 1:  No trusted metadata files found in trusted-zone.
+
+2025-10-29 06:17:17,343 - __main__ - ERROR - run_script:338 - exploitation_metadata failed (attempt 3): Script failed with return code 1:  No trusted metadata files found in trusted-zone.
+
+2025-10-29 06:17:17,348 - __main__ - WARNING - run_complete_data_pipeline:469 - Script exploitation_metadata failed: Script failed with return code 1:  No trusted metadata files found in trusted-zone.
+
+2025-10-29 06:17:30,523 - __main__ - ERROR - run_script:338 - exploitation_images failed (attempt 1): Script failed with return code 1:  No metadata CSV files found in trusted-zone.
+
+2025-10-29 06:17:43,899 - __main__ - ERROR - run_script:338 - exploitation_images failed (attempt 2): Script failed with return code 1:  No metadata CSV files found in trusted-zone.
+
+2025-10-29 06:17:59,342 - __main__ - ERROR - run_script:338 - exploitation_images failed (attempt 3): Script failed with return code 1:  No metadata CSV files found in trusted-zone.
+
+2025-10-29 06:17:59,346 - __main__ - WARNING - run_complete_data_pipeline:469 - Script exploitation_images failed: Script failed with return code 1:  No metadata CSV files found in trusted-zone.
+
+2025-10-29 06:18:40,792 - __main__ - ERROR - run_script:338 - exploitation_multimodal failed (attempt 1): Script failed with return code 1:  ERROR: No metadata CSV files found in trusted-zone/metadata/
+
+2025-10-29 06:20:48,848 - __main__ - INFO - run_complete_data_pipeline:403 - Starting complete data pipeline with 9 scripts
+2025-10-29 06:20:55,891 - __main__ - INFO - run_complete_data_pipeline:413 - Script temporal_landing completed successfully
+2025-10-29 06:23:27,154 - __main__ - INFO - run_complete_data_pipeline:403 - Starting complete data pipeline with 9 scripts
+2025-10-29 06:23:34,755 - __main__ - ERROR - run_script:319 - temporal_landing failed: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 515, in <module>
+    process_temporal()
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 448, in process_temporal
+    print("\U0001f680 Starting Temporal Landing Process...")
+  File "C:\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>
+
+2025-10-29 06:23:34,755 - __main__ - ERROR - run_script:331 - temporal_landing execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 515, in <module>
+    process_temporal()
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 448, in process_temporal
+    print("\U0001f680 Starting Temporal Landing Process...")
+  File "C:\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>
+
+2025-10-29 06:23:34,765 - __main__ - ERROR - _execute_choice:821 - Choice execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 515, in <module>
+    process_temporal()
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 448, in process_temporal
+    print("\U0001f680 Starting Temporal Landing Process...")
+  File "C:\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>
+
+2025-10-29 06:26:07,896 - __main__ - INFO - run_complete_data_pipeline:403 - Starting complete data pipeline with 9 scripts
+2025-10-29 06:33:24,360 - __main__ - ERROR - run_script:319 - temporal_landing failed: Script failed with return code 1: 
+0it [00:00, ?it/s]
+1it [00:05,  5.06s/it]
+91it [00:05, 24.92it/s]
+267it [00:05, 90.23it/s]
+497it [00:05, 202.74it/s]
+648it [00:05, 284.07it/s]
+784it [00:05, 347.89it/s]
+898it [00:05, 401.81it/s]
+997it [00:06, 454.43it/s]
+1088it [00:06, 496.47it/s]
+1172it [00:06, 537.61it/s]
+1253it [00:06, 555.24it/s]
+1339it [00:06, 613.85it/s]
+1417it [00:06, 558.19it/s]
+1566it [00:06, 756.52it/s]
+1783it [00:06, 1078.71it/s]
+1937it [00:06, 1189.36it/s]
+2073it [00:07, 978.91it/s] 
+2188it [00:07, 1008.52it/s]
+2302it [00:07, 1029.34it/s]
+2424it [00:07, 1076.50it/s]
+2558it [00:07, 1145.04it/s]
+2679it [00:07, 1100.14it/s]
+2794it [00:07, 1073.15it/s]
+2905it [00:07, 1011.80it/s]
+3080it [00:08, 1207.71it/s]
+3283it [00:08, 1431.85it/s]
+3431it [00:08, 1437.13it/s]
+3579it [00:08, 1342.01it/s]
+3717it [00:08, 1103.84it/s]
+3837it [00:08, 1060.99it/s]
+3950it [00:08, 982.54it/s] 
+4053it [00:08, 981.66it/s]
+4155it [00:09, 931.02it/s]
+4342it [00:09, 1167.81it/s]
+4545it [00:09, 1384.32it/s]
+4690it [00:09, 1383.54it/s]
+4833it [00:09, 1248.34it/s]
+4963it [00:09, 1216.26it/s]
+5089it [00:09, 1170.49it/s]
+5209it [00:09, 1115.46it/s]
+5323it [00:09, 1060.47it/s]
+5431it [00:10, 985.16it/s] 
+5606it [00:10, 1159.44it/s]
+5833it [00:10, 1442.34it/s]
+5983it [00:10, 1348.79it/s]
+6123it [00:10, 1156.27it/s]
+6246it [00:10, 1020.12it/s]
+6355it [00:10, 926.62it/s] 
+6453it [00:11, 907.89it/s]
+6547it [00:11, 771.34it/s]
+6640it [00:11, 751.42it/s]
+6786it [00:11, 900.17it/s]
+7003it [00:11, 1207.10it/s]
+7220it [00:11, 1455.28it/s]
+7438it [00:11, 1646.27it/s]
+7650it [00:11, 1776.02it/s]
+7870it [00:11, 1895.86it/s]
+8111it [00:12, 1992.70it/s]
+8315it [00:12, 1993.94it/s]
+8518it [00:12, 1939.88it/s]
+8715it [00:12, 1932.85it/s]
+8910it [00:12, 1928.23it/s]
+9104it [00:12, 1920.48it/s]
+9297it [00:12, 1898.72it/s]
+9507it [00:12, 1916.91it/s]
+9700it [00:12, 1903.81it/s]
+9891it [00:13, 1900.42it/s]
+10082it [00:13, 1840.36it/s]
+10267it [00:13, 1832.88it/s]
+10508it [00:13, 1951.08it/s]
+10726it [00:13, 2002.76it/s]
+10951it [00:13, 2071.53it/s]
+11181it [00:13, 2104.85it/s]
+11396it [00:13, 2117.44it/s]
+11617it [00:13, 2143.32it/s]
+11839it [00:13, 2157.45it/s]
+12059it [00:14, 2158.34it/s]
+12285it [00:14, 2170.02it/s]
+12503it [00:14, 2129.16it/s]
+12718it [00:14, 2132.14it/s]
+12932it [00:14, 1528.14it/s]
+13152it [00:14, 1648.65it/s]
+13365it [00:14, 1766.14it/s]
+13606it [00:14, 1894.42it/s]
+13834it [00:14, 1986.14it/s]
+14066it [00:15, 2063.17it/s]
+14280it [00:15, 2025.89it/s]
+14488it [00:15, 2026.23it/s]
+14717it [00:15, 2057.11it/s]
+14931it [00:15, 2078.97it/s]
+15141it [00:15, 2042.46it/s]
+15364it [00:15, 2077.99it/s]
+15594it [00:15, 2103.34it/s]
+15817it [00:15, 2129.88it/s]
+16040it [00:16, 2141.11it/s]
+16255it [00:16, 1952.40it/s]
+16454it [00:16, 1922.84it/s]
+16663it [00:16, 1964.95it/s]
+16862it [00:16, 1628.89it/s]
+17069it [00:16, 1738.69it/s]
+17294it [00:16, 1870.69it/s]
+17518it [00:16, 1961.31it/s]
+17735it [00:16, 2014.91it/s]
+17947it [00:17, 2017.19it/s]
+18153it [00:17, 1923.70it/s]
+18354it [00:17, 1947.12it/s]
+18552it [00:17, 1928.23it/s]
+18755it [00:17, 1904.95it/s]
+18947it [00:17, 1889.01it/s]
+19137it [00:17, 1822.29it/s]
+19321it [00:17, 1809.78it/s]
+19503it [00:17, 1791.79it/s]
+19683it [00:18, 1736.13it/s]
+19858it [00:18, 1587.31it/s]
+20020it [00:18, 1543.25it/s]
+20194it [00:18, 1579.25it/s]
+20385it [00:18, 1654.20it/s]
+20575it [00:18, 1710.01it/s]
+20778it [00:18, 1783.44it/s]
+20985it [00:18, 1865.63it/s]
+21192it [00:18, 1920.29it/s]
+21394it [00:19, 1943.49it/s]
+21589it [00:19, 1927.12it/s]
+21783it [00:19, 1929.31it/s]
+21977it [00:19, 1891.99it/s]
+22167it [00:19, 1771.47it/s]
+22346it [00:19, 1757.05it/s]
+22523it [00:19, 1755.25it/s]
+22533it [00:29, 759.09it/s] 
+Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\util\connection.py", line 85, in create_connection
+    raise err
+  File "C:\Python312\Lib\site-packages\urllib3\util\connection.py", line 73, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 704, in connect
+    self.sock = sock = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 207, in _new_conn
+    raise ConnectTimeoutError(
+urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\requests\adapters.py", line 644, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 231, in download_and_save_image
+    response = requests.get(
+               ^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\adapters.py", line 665, in send
+    raise ConnectTimeout(e, request=request)
+requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 314, in process_sample
+    object_name = download_and_save_image(image_url, img_id, client, root_bucket, temp_prefix, existing_image_ids)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 256, in download_and_save_image
+    raise RuntimeError(f"Error downloading image: {e}")
+RuntimeError: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 317, in process_sample
+    raise RuntimeError(f"Image download failed for {species}: {download_error}")
+RuntimeError: Image download failed for elegans: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 368, in process_streaming_data
+    metadata_df = process_sample(
+                  ^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 332, in process_sample
+    raise RuntimeError(f"Failed to process sample {species}: {e}")
+RuntimeError: Failed to process sample elegans: Image download failed for elegans: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 376, in process_streaming_data
+    raise RuntimeError(f"Failed to process sample {i}: {e}")
+RuntimeError: Failed to process sample 22533: Failed to process sample elegans: Image download failed for elegans: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 508, in <module>
+    process_temporal()
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 489, in process_temporal
+    metadata_df, _ = process_streaming_data(
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 379, in process_streaming_data
+    raise RuntimeError(f"Dataset iteration failed: {e}")
+RuntimeError: Dataset iteration failed: Failed to process sample 22533: Failed to process sample elegans: Image download failed for elegans: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+2025-10-29 06:33:24,371 - __main__ - ERROR - run_script:331 - temporal_landing execution error: Execution error: Script failed with return code 1: 
+0it [00:00, ?it/s]
+1it [00:05,  5.06s/it]
+91it [00:05, 24.92it/s]
+267it [00:05, 90.23it/s]
+497it [00:05, 202.74it/s]
+648it [00:05, 284.07it/s]
+784it [00:05, 347.89it/s]
+898it [00:05, 401.81it/s]
+997it [00:06, 454.43it/s]
+1088it [00:06, 496.47it/s]
+1172it [00:06, 537.61it/s]
+1253it [00:06, 555.24it/s]
+1339it [00:06, 613.85it/s]
+1417it [00:06, 558.19it/s]
+1566it [00:06, 756.52it/s]
+1783it [00:06, 1078.71it/s]
+1937it [00:06, 1189.36it/s]
+2073it [00:07, 978.91it/s] 
+2188it [00:07, 1008.52it/s]
+2302it [00:07, 1029.34it/s]
+2424it [00:07, 1076.50it/s]
+2558it [00:07, 1145.04it/s]
+2679it [00:07, 1100.14it/s]
+2794it [00:07, 1073.15it/s]
+2905it [00:07, 1011.80it/s]
+3080it [00:08, 1207.71it/s]
+3283it [00:08, 1431.85it/s]
+3431it [00:08, 1437.13it/s]
+3579it [00:08, 1342.01it/s]
+3717it [00:08, 1103.84it/s]
+3837it [00:08, 1060.99it/s]
+3950it [00:08, 982.54it/s] 
+4053it [00:08, 981.66it/s]
+4155it [00:09, 931.02it/s]
+4342it [00:09, 1167.81it/s]
+4545it [00:09, 1384.32it/s]
+4690it [00:09, 1383.54it/s]
+4833it [00:09, 1248.34it/s]
+4963it [00:09, 1216.26it/s]
+5089it [00:09, 1170.49it/s]
+5209it [00:09, 1115.46it/s]
+5323it [00:09, 1060.47it/s]
+5431it [00:10, 985.16it/s] 
+5606it [00:10, 1159.44it/s]
+5833it [00:10, 1442.34it/s]
+5983it [00:10, 1348.79it/s]
+6123it [00:10, 1156.27it/s]
+6246it [00:10, 1020.12it/s]
+6355it [00:10, 926.62it/s] 
+6453it [00:11, 907.89it/s]
+6547it [00:11, 771.34it/s]
+6640it [00:11, 751.42it/s]
+6786it [00:11, 900.17it/s]
+7003it [00:11, 1207.10it/s]
+7220it [00:11, 1455.28it/s]
+7438it [00:11, 1646.27it/s]
+7650it [00:11, 1776.02it/s]
+7870it [00:11, 1895.86it/s]
+8111it [00:12, 1992.70it/s]
+8315it [00:12, 1993.94it/s]
+8518it [00:12, 1939.88it/s]
+8715it [00:12, 1932.85it/s]
+8910it [00:12, 1928.23it/s]
+9104it [00:12, 1920.48it/s]
+9297it [00:12, 1898.72it/s]
+9507it [00:12, 1916.91it/s]
+9700it [00:12, 1903.81it/s]
+9891it [00:13, 1900.42it/s]
+10082it [00:13, 1840.36it/s]
+10267it [00:13, 1832.88it/s]
+10508it [00:13, 1951.08it/s]
+10726it [00:13, 2002.76it/s]
+10951it [00:13, 2071.53it/s]
+11181it [00:13, 2104.85it/s]
+11396it [00:13, 2117.44it/s]
+11617it [00:13, 2143.32it/s]
+11839it [00:13, 2157.45it/s]
+12059it [00:14, 2158.34it/s]
+12285it [00:14, 2170.02it/s]
+12503it [00:14, 2129.16it/s]
+12718it [00:14, 2132.14it/s]
+12932it [00:14, 1528.14it/s]
+13152it [00:14, 1648.65it/s]
+13365it [00:14, 1766.14it/s]
+13606it [00:14, 1894.42it/s]
+13834it [00:14, 1986.14it/s]
+14066it [00:15, 2063.17it/s]
+14280it [00:15, 2025.89it/s]
+14488it [00:15, 2026.23it/s]
+14717it [00:15, 2057.11it/s]
+14931it [00:15, 2078.97it/s]
+15141it [00:15, 2042.46it/s]
+15364it [00:15, 2077.99it/s]
+15594it [00:15, 2103.34it/s]
+15817it [00:15, 2129.88it/s]
+16040it [00:16, 2141.11it/s]
+16255it [00:16, 1952.40it/s]
+16454it [00:16, 1922.84it/s]
+16663it [00:16, 1964.95it/s]
+16862it [00:16, 1628.89it/s]
+17069it [00:16, 1738.69it/s]
+17294it [00:16, 1870.69it/s]
+17518it [00:16, 1961.31it/s]
+17735it [00:16, 2014.91it/s]
+17947it [00:17, 2017.19it/s]
+18153it [00:17, 1923.70it/s]
+18354it [00:17, 1947.12it/s]
+18552it [00:17, 1928.23it/s]
+18755it [00:17, 1904.95it/s]
+18947it [00:17, 1889.01it/s]
+19137it [00:17, 1822.29it/s]
+19321it [00:17, 1809.78it/s]
+19503it [00:17, 1791.79it/s]
+19683it [00:18, 1736.13it/s]
+19858it [00:18, 1587.31it/s]
+20020it [00:18, 1543.25it/s]
+20194it [00:18, 1579.25it/s]
+20385it [00:18, 1654.20it/s]
+20575it [00:18, 1710.01it/s]
+20778it [00:18, 1783.44it/s]
+20985it [00:18, 1865.63it/s]
+21192it [00:18, 1920.29it/s]
+21394it [00:19, 1943.49it/s]
+21589it [00:19, 1927.12it/s]
+21783it [00:19, 1929.31it/s]
+21977it [00:19, 1891.99it/s]
+22167it [00:19, 1771.47it/s]
+22346it [00:19, 1757.05it/s]
+22523it [00:19, 1755.25it/s]
+22533it [00:29, 759.09it/s] 
+Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\util\connection.py", line 85, in create_connection
+    raise err
+  File "C:\Python312\Lib\site-packages\urllib3\util\connection.py", line 73, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 704, in connect
+    self.sock = sock = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 207, in _new_conn
+    raise ConnectTimeoutError(
+urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\requests\adapters.py", line 644, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 231, in download_and_save_image
+    response = requests.get(
+               ^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\adapters.py", line 665, in send
+    raise ConnectTimeout(e, request=request)
+requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 314, in process_sample
+    object_name = download_and_save_image(image_url, img_id, client, root_bucket, temp_prefix, existing_image_ids)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 256, in download_and_save_image
+    raise RuntimeError(f"Error downloading image: {e}")
+RuntimeError: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 317, in process_sample
+    raise RuntimeError(f"Image download failed for {species}: {download_error}")
+RuntimeError: Image download failed for elegans: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 368, in process_streaming_data
+    metadata_df = process_sample(
+                  ^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 332, in process_sample
+    raise RuntimeError(f"Failed to process sample {species}: {e}")
+RuntimeError: Failed to process sample elegans: Image download failed for elegans: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 376, in process_streaming_data
+    raise RuntimeError(f"Failed to process sample {i}: {e}")
+RuntimeError: Failed to process sample 22533: Failed to process sample elegans: Image download failed for elegans: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 508, in <module>
+    process_temporal()
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 489, in process_temporal
+    metadata_df, _ = process_streaming_data(
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 379, in process_streaming_data
+    raise RuntimeError(f"Dataset iteration failed: {e}")
+RuntimeError: Dataset iteration failed: Failed to process sample 22533: Failed to process sample elegans: Image download failed for elegans: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+2025-10-29 06:33:24,383 - __main__ - ERROR - _execute_choice:821 - Choice execution error: Execution error: Script failed with return code 1: 
+0it [00:00, ?it/s]
+1it [00:05,  5.06s/it]
+91it [00:05, 24.92it/s]
+267it [00:05, 90.23it/s]
+497it [00:05, 202.74it/s]
+648it [00:05, 284.07it/s]
+784it [00:05, 347.89it/s]
+898it [00:05, 401.81it/s]
+997it [00:06, 454.43it/s]
+1088it [00:06, 496.47it/s]
+1172it [00:06, 537.61it/s]
+1253it [00:06, 555.24it/s]
+1339it [00:06, 613.85it/s]
+1417it [00:06, 558.19it/s]
+1566it [00:06, 756.52it/s]
+1783it [00:06, 1078.71it/s]
+1937it [00:06, 1189.36it/s]
+2073it [00:07, 978.91it/s] 
+2188it [00:07, 1008.52it/s]
+2302it [00:07, 1029.34it/s]
+2424it [00:07, 1076.50it/s]
+2558it [00:07, 1145.04it/s]
+2679it [00:07, 1100.14it/s]
+2794it [00:07, 1073.15it/s]
+2905it [00:07, 1011.80it/s]
+3080it [00:08, 1207.71it/s]
+3283it [00:08, 1431.85it/s]
+3431it [00:08, 1437.13it/s]
+3579it [00:08, 1342.01it/s]
+3717it [00:08, 1103.84it/s]
+3837it [00:08, 1060.99it/s]
+3950it [00:08, 982.54it/s] 
+4053it [00:08, 981.66it/s]
+4155it [00:09, 931.02it/s]
+4342it [00:09, 1167.81it/s]
+4545it [00:09, 1384.32it/s]
+4690it [00:09, 1383.54it/s]
+4833it [00:09, 1248.34it/s]
+4963it [00:09, 1216.26it/s]
+5089it [00:09, 1170.49it/s]
+5209it [00:09, 1115.46it/s]
+5323it [00:09, 1060.47it/s]
+5431it [00:10, 985.16it/s] 
+5606it [00:10, 1159.44it/s]
+5833it [00:10, 1442.34it/s]
+5983it [00:10, 1348.79it/s]
+6123it [00:10, 1156.27it/s]
+6246it [00:10, 1020.12it/s]
+6355it [00:10, 926.62it/s] 
+6453it [00:11, 907.89it/s]
+6547it [00:11, 771.34it/s]
+6640it [00:11, 751.42it/s]
+6786it [00:11, 900.17it/s]
+7003it [00:11, 1207.10it/s]
+7220it [00:11, 1455.28it/s]
+7438it [00:11, 1646.27it/s]
+7650it [00:11, 1776.02it/s]
+7870it [00:11, 1895.86it/s]
+8111it [00:12, 1992.70it/s]
+8315it [00:12, 1993.94it/s]
+8518it [00:12, 1939.88it/s]
+8715it [00:12, 1932.85it/s]
+8910it [00:12, 1928.23it/s]
+9104it [00:12, 1920.48it/s]
+9297it [00:12, 1898.72it/s]
+9507it [00:12, 1916.91it/s]
+9700it [00:12, 1903.81it/s]
+9891it [00:13, 1900.42it/s]
+10082it [00:13, 1840.36it/s]
+10267it [00:13, 1832.88it/s]
+10508it [00:13, 1951.08it/s]
+10726it [00:13, 2002.76it/s]
+10951it [00:13, 2071.53it/s]
+11181it [00:13, 2104.85it/s]
+11396it [00:13, 2117.44it/s]
+11617it [00:13, 2143.32it/s]
+11839it [00:13, 2157.45it/s]
+12059it [00:14, 2158.34it/s]
+12285it [00:14, 2170.02it/s]
+12503it [00:14, 2129.16it/s]
+12718it [00:14, 2132.14it/s]
+12932it [00:14, 1528.14it/s]
+13152it [00:14, 1648.65it/s]
+13365it [00:14, 1766.14it/s]
+13606it [00:14, 1894.42it/s]
+13834it [00:14, 1986.14it/s]
+14066it [00:15, 2063.17it/s]
+14280it [00:15, 2025.89it/s]
+14488it [00:15, 2026.23it/s]
+14717it [00:15, 2057.11it/s]
+14931it [00:15, 2078.97it/s]
+15141it [00:15, 2042.46it/s]
+15364it [00:15, 2077.99it/s]
+15594it [00:15, 2103.34it/s]
+15817it [00:15, 2129.88it/s]
+16040it [00:16, 2141.11it/s]
+16255it [00:16, 1952.40it/s]
+16454it [00:16, 1922.84it/s]
+16663it [00:16, 1964.95it/s]
+16862it [00:16, 1628.89it/s]
+17069it [00:16, 1738.69it/s]
+17294it [00:16, 1870.69it/s]
+17518it [00:16, 1961.31it/s]
+17735it [00:16, 2014.91it/s]
+17947it [00:17, 2017.19it/s]
+18153it [00:17, 1923.70it/s]
+18354it [00:17, 1947.12it/s]
+18552it [00:17, 1928.23it/s]
+18755it [00:17, 1904.95it/s]
+18947it [00:17, 1889.01it/s]
+19137it [00:17, 1822.29it/s]
+19321it [00:17, 1809.78it/s]
+19503it [00:17, 1791.79it/s]
+19683it [00:18, 1736.13it/s]
+19858it [00:18, 1587.31it/s]
+20020it [00:18, 1543.25it/s]
+20194it [00:18, 1579.25it/s]
+20385it [00:18, 1654.20it/s]
+20575it [00:18, 1710.01it/s]
+20778it [00:18, 1783.44it/s]
+20985it [00:18, 1865.63it/s]
+21192it [00:18, 1920.29it/s]
+21394it [00:19, 1943.49it/s]
+21589it [00:19, 1927.12it/s]
+21783it [00:19, 1929.31it/s]
+21977it [00:19, 1891.99it/s]
+22167it [00:19, 1771.47it/s]
+22346it [00:19, 1757.05it/s]
+22523it [00:19, 1755.25it/s]
+22533it [00:29, 759.09it/s] 
+Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\util\connection.py", line 85, in create_connection
+    raise err
+  File "C:\Python312\Lib\site-packages\urllib3\util\connection.py", line 73, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 704, in connect
+    self.sock = sock = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 207, in _new_conn
+    raise ConnectTimeoutError(
+urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\requests\adapters.py", line 644, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 231, in download_and_save_image
+    response = requests.get(
+               ^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\requests\adapters.py", line 665, in send
+    raise ConnectTimeout(e, request=request)
+requests.exceptions.ConnectTimeout: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 314, in process_sample
+    object_name = download_and_save_image(image_url, img_id, client, root_bucket, temp_prefix, existing_image_ids)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 256, in download_and_save_image
+    raise RuntimeError(f"Error downloading image: {e}")
+RuntimeError: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 317, in process_sample
+    raise RuntimeError(f"Image download failed for {species}: {download_error}")
+RuntimeError: Image download failed for elegans: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 368, in process_streaming_data
+    metadata_df = process_sample(
+                  ^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 332, in process_sample
+    raise RuntimeError(f"Failed to process sample {species}: {e}")
+RuntimeError: Failed to process sample elegans: Image download failed for elegans: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 376, in process_streaming_data
+    raise RuntimeError(f"Failed to process sample {i}: {e}")
+RuntimeError: Failed to process sample 22533: Failed to process sample elegans: Image download failed for elegans: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 508, in <module>
+    process_temporal()
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 489, in process_temporal
+    metadata_df, _ = process_streaming_data(
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 379, in process_streaming_data
+    raise RuntimeError(f"Dataset iteration failed: {e}")
+RuntimeError: Dataset iteration failed: Failed to process sample 22533: Failed to process sample elegans: Image download failed for elegans: Error downloading image: HTTPSConnectionPool(host='content.eol.org', port=443): Max retries exceeded with url: /data/media/58/9f/fb/509.a83f556cae6d0d9c64c54da4c9cc33dd.jpg (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001582375A750>, 'Connection to content.eol.org timed out. (connect timeout=10)'))
+
+2025-10-29 06:49:23,343 - __main__ - ERROR - run_script:352 - persistent_landing failed: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 271, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 258, in process_landing_zone
+    process_metadata_group(client, root_bucket, persist_prefix, kingdom_name, cls_name, group)
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 196, in process_metadata_group
+    print(f" Updated/uploaded metadata for '{kingdom_safe}-{cls_safe}' \u2192 {persistent_metadata_path_new}")
+  File "C:\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 51: character maps to <undefined>
+
+2025-10-29 06:49:23,346 - __main__ - ERROR - run_script:364 - persistent_landing execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 271, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 258, in process_landing_zone
+    process_metadata_group(client, root_bucket, persist_prefix, kingdom_name, cls_name, group)
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 196, in process_metadata_group
+    print(f" Updated/uploaded metadata for '{kingdom_safe}-{cls_safe}' \u2192 {persistent_metadata_path_new}")
+  File "C:\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 51: character maps to <undefined>
+
+2025-10-29 06:49:23,363 - __main__ - ERROR - _execute_choice:854 - Choice execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 271, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 258, in process_landing_zone
+    process_metadata_group(client, root_bucket, persist_prefix, kingdom_name, cls_name, group)
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 196, in process_metadata_group
+    print(f" Updated/uploaded metadata for '{kingdom_safe}-{cls_safe}' \u2192 {persistent_metadata_path_new}")
+  File "C:\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 51: character maps to <undefined>
+
+2025-10-29 06:55:52,596 - __main__ - ERROR - run_script:357 - persistent_landing failed: Script failed with return code 1
+2025-10-29 06:55:55,236 - __main__ - ERROR - run_script:369 - persistent_landing execution error: Execution error: Script failed with return code 1
+2025-10-29 06:55:55,246 - __main__ - ERROR - _execute_choice:859 - Choice execution error: Execution error: Script failed with return code 1
+2025-10-29 06:59:21,689 - __main__ - ERROR - run_script:357 - persistent_landing failed: Script failed with return code 1
+2025-10-29 06:59:21,689 - __main__ - ERROR - run_script:369 - persistent_landing execution error: Execution error: Script failed with return code 1
+2025-10-29 06:59:21,689 - __main__ - ERROR - _execute_choice:859 - Choice execution error: Execution error: Script failed with return code 1
+2025-10-29 06:59:54,104 - __main__ - ERROR - run_script:352 - persistent_landing failed: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 302, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 266, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 65, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 427, in _url_open
+    raise response_error
+minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: The request signature we calculated does not match the signature you provided. Check your key and signing method., resource: /temporal-zone, request_id: 1872E0D02E22C506, host_id: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8, bucket_name: temporal-zone
+
+2025-10-29 06:59:54,107 - __main__ - ERROR - run_script:364 - persistent_landing execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 302, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 266, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 65, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 427, in _url_open
+    raise response_error
+minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: The request signature we calculated does not match the signature you provided. Check your key and signing method., resource: /temporal-zone, request_id: 1872E0D02E22C506, host_id: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8, bucket_name: temporal-zone
+
+2025-10-29 06:59:54,113 - __main__ - ERROR - _execute_choice:854 - Choice execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 302, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 266, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 65, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 427, in _url_open
+    raise response_error
+minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: The request signature we calculated does not match the signature you provided. Check your key and signing method., resource: /temporal-zone, request_id: 1872E0D02E22C506, host_id: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8, bucket_name: temporal-zone
+
+2025-10-29 07:02:22,673 - __main__ - ERROR - run_script:352 - persistent_landing failed: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 302, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 266, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 65, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 351, in _url_open
+    raise InvalidResponseError(
+minio.error.InvalidResponseError: non-XML response from server; Response code: 400, Content-Type: text/xml; charset=utf-8, Body: <?xml version="1.0" encoding="UTF-8"?><Error><Code>InvalidArgument</Code><Message>S3 API Requests must be made to API port.</Message><RequestId>0</RequestId></Error>
+
+2025-10-29 07:02:22,676 - __main__ - ERROR - run_script:364 - persistent_landing execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 302, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 266, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 65, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 351, in _url_open
+    raise InvalidResponseError(
+minio.error.InvalidResponseError: non-XML response from server; Response code: 400, Content-Type: text/xml; charset=utf-8, Body: <?xml version="1.0" encoding="UTF-8"?><Error><Code>InvalidArgument</Code><Message>S3 API Requests must be made to API port.</Message><RequestId>0</RequestId></Error>
+
+2025-10-29 07:02:22,685 - __main__ - ERROR - _execute_choice:854 - Choice execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 302, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 266, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 65, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 351, in _url_open
+    raise InvalidResponseError(
+minio.error.InvalidResponseError: non-XML response from server; Response code: 400, Content-Type: text/xml; charset=utf-8, Body: <?xml version="1.0" encoding="UTF-8"?><Error><Code>InvalidArgument</Code><Message>S3 API Requests must be made to API port.</Message><RequestId>0</RequestId></Error>
+
+2025-10-29 07:03:33,723 - __main__ - INFO - run_complete_data_pipeline:436 - Starting complete data pipeline with 9 scripts
+2025-10-29 07:04:03,302 - __main__ - INFO - run_complete_data_pipeline:446 - Script temporal_landing completed successfully
+2025-10-29 07:04:11,784 - __main__ - ERROR - run_script:352 - persistent_landing failed: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 302, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 266, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 65, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 351, in _url_open
+    raise InvalidResponseError(
+minio.error.InvalidResponseError: non-XML response from server; Response code: 400, Content-Type: text/xml; charset=utf-8, Body: <?xml version="1.0" encoding="UTF-8"?><Error><Code>InvalidArgument</Code><Message>S3 API Requests must be made to API port.</Message><RequestId>0</RequestId></Error>
+
+2025-10-29 07:04:11,786 - __main__ - ERROR - run_script:364 - persistent_landing execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 302, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 266, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 65, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 351, in _url_open
+    raise InvalidResponseError(
+minio.error.InvalidResponseError: non-XML response from server; Response code: 400, Content-Type: text/xml; charset=utf-8, Body: <?xml version="1.0" encoding="UTF-8"?><Error><Code>InvalidArgument</Code><Message>S3 API Requests must be made to API port.</Message><RequestId>0</RequestId></Error>
+
+2025-10-29 07:04:11,793 - __main__ - ERROR - _execute_choice:854 - Choice execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 302, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 266, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 65, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 351, in _url_open
+    raise InvalidResponseError(
+minio.error.InvalidResponseError: non-XML response from server; Response code: 400, Content-Type: text/xml; charset=utf-8, Body: <?xml version="1.0" encoding="UTF-8"?><Error><Code>InvalidArgument</Code><Message>S3 API Requests must be made to API port.</Message><RequestId>0</RequestId></Error>
+
+2025-10-29 07:09:44,027 - __main__ - ERROR - run_script:352 - persistent_landing failed: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 302, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 266, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 65, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 427, in _url_open
+    raise response_error
+minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: The request signature we calculated does not match the signature you provided. Check your key and signing method., resource: /temporal-zone, request_id: 1872E159876950F4, host_id: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8, bucket_name: temporal-zone
+
+2025-10-29 07:09:44,027 - __main__ - ERROR - run_script:364 - persistent_landing execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 302, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 266, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 65, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 427, in _url_open
+    raise response_error
+minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: The request signature we calculated does not match the signature you provided. Check your key and signing method., resource: /temporal-zone, request_id: 1872E159876950F4, host_id: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8, bucket_name: temporal-zone
+
+2025-10-29 07:09:44,027 - __main__ - ERROR - _execute_choice:854 - Choice execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 302, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 266, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 65, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 427, in _url_open
+    raise response_error
+minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: The request signature we calculated does not match the signature you provided. Check your key and signing method., resource: /temporal-zone, request_id: 1872E159876950F4, host_id: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8, bucket_name: temporal-zone
+
+2025-10-29 07:18:15,417 - __main__ - ERROR - run_script:361 - persistent_landing failed: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 290, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 254, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 53, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 427, in _url_open
+    raise response_error
+minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: The request signature we calculated does not match the signature you provided. Check your key and signing method., resource: /temporal-zone, request_id: 1872E1D09A05DED0, host_id: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8, bucket_name: temporal-zone
+
+2025-10-29 07:18:15,418 - __main__ - ERROR - run_script:373 - persistent_landing execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 290, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 254, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 53, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 427, in _url_open
+    raise response_error
+minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: The request signature we calculated does not match the signature you provided. Check your key and signing method., resource: /temporal-zone, request_id: 1872E1D09A05DED0, host_id: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8, bucket_name: temporal-zone
+
+2025-10-29 07:18:15,425 - __main__ - ERROR - _execute_choice:863 - Choice execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 290, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 254, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 53, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 427, in _url_open
+    raise response_error
+minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: The request signature we calculated does not match the signature you provided. Check your key and signing method., resource: /temporal-zone, request_id: 1872E1D09A05DED0, host_id: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8, bucket_name: temporal-zone
+
+2025-10-29 07:35:50,872 - __main__ - ERROR - run_script:361 - persistent_landing failed: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 290, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 254, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 53, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 427, in _url_open
+    raise response_error
+minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: The request signature we calculated does not match the signature you provided. Check your key and signing method., resource: /temporal-zone, request_id: 1872E2C657EE7F87, host_id: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8, bucket_name: temporal-zone
+
+2025-10-29 07:35:50,872 - __main__ - ERROR - run_script:373 - persistent_landing execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 290, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 254, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 53, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 427, in _url_open
+    raise response_error
+minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: The request signature we calculated does not match the signature you provided. Check your key and signing method., resource: /temporal-zone, request_id: 1872E2C657EE7F87, host_id: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8, bucket_name: temporal-zone
+
+2025-10-29 07:35:50,893 - __main__ - ERROR - _execute_choice:863 - Choice execution error: Execution error: Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 290, in <module>
+    process_landing_zone();
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 254, in process_landing_zone
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Persistent_Landing.py", line 53, in setup_minio_client_and_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 427, in _url_open
+    raise response_error
+minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: The request signature we calculated does not match the signature you provided. Check your key and signing method., resource: /temporal-zone, request_id: 1872E2C657EE7F87, host_id: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8, bucket_name: temporal-zone
+
+2025-10-29 07:42:57,463 - __main__ - ERROR - run_script:361 - persistent_landing failed: Script failed with return code 1: None
+2025-10-29 07:42:57,463 - __main__ - ERROR - run_script:373 - persistent_landing execution error: Execution error: Script failed with return code 1: None
+2025-10-29 07:42:57,474 - __main__ - ERROR - _execute_choice:863 - Choice execution error: Execution error: Script failed with return code 1: None
+2025-10-29 07:44:14,195 - __main__ - ERROR - run_script:361 - persistent_landing failed: Script failed with return code 1: None
+2025-10-29 07:44:14,196 - __main__ - ERROR - run_script:373 - persistent_landing execution error: Execution error: Script failed with return code 1: None
+2025-10-29 07:44:14,201 - __main__ - ERROR - _execute_choice:863 - Choice execution error: Execution error: Script failed with return code 1: None
+2025-10-29 07:47:22,913 - __main__ - ERROR - run_script:361 - persistent_landing failed: Script failed with return code 1: None
+2025-10-29 07:47:22,915 - __main__ - ERROR - run_script:373 - persistent_landing execution error: Execution error: Script failed with return code 1: None
+2025-10-29 07:47:22,916 - __main__ - ERROR - _execute_choice:863 - Choice execution error: Execution error: Script failed with return code 1: None
+2025-10-29 07:47:45,704 - __main__ - ERROR - run_script:371 - persistent_landing failed: Script failed with return code 1: None
+2025-10-29 07:47:45,704 - __main__ - ERROR - run_script:383 - persistent_landing execution error: Execution error: Script failed with return code 1: None
+2025-10-29 07:47:45,714 - __main__ - ERROR - _execute_choice:873 - Choice execution error: Execution error: Script failed with return code 1: None
+2025-10-29 07:53:48,057 - __main__ - INFO - run_complete_data_pipeline:455 - Starting complete data pipeline with 9 scripts
+2025-10-29 07:54:04,243 - __main__ - ERROR - run_script:371 - temporal_landing failed: Script failed with return code 1
+2025-10-29 07:54:04,244 - __main__ - ERROR - run_script:383 - temporal_landing execution error: Execution error: Script failed with return code 1
+2025-10-29 07:54:04,251 - __main__ - ERROR - _execute_choice:873 - Choice execution error: Execution error: Script failed with return code 1
+2025-10-29 07:55:12,715 - __main__ - ERROR - run_script:371 - temporal_landing failed: Script failed with return code 1
+2025-10-29 07:55:12,715 - __main__ - ERROR - run_script:383 - temporal_landing execution error: Execution error: Script failed with return code 1
+2025-10-29 07:55:12,719 - __main__ - ERROR - _execute_choice:873 - Choice execution error: Execution error: Script failed with return code 1
+2025-10-29 07:56:16,277 - __main__ - ERROR - run_script:371 - temporal_landing failed: Script failed with return code 1
+2025-10-29 07:56:16,277 - __main__ - ERROR - run_script:383 - temporal_landing execution error: Execution error: Script failed with return code 1
+2025-10-29 07:56:16,283 - __main__ - ERROR - _execute_choice:873 - Choice execution error: Execution error: Script failed with return code 1
+2025-10-29 07:57:23,786 - __main__ - ERROR - run_script:371 - temporal_landing failed: Script failed with return code 1
+2025-10-29 07:57:23,787 - __main__ - ERROR - run_script:383 - temporal_landing execution error: Execution error: Script failed with return code 1
+2025-10-29 07:57:23,791 - __main__ - ERROR - _execute_choice:873 - Choice execution error: Execution error: Script failed with return code 1
+2025-10-29 08:00:14,555 - __main__ - ERROR - run_script:371 - persistent_landing failed: Script failed with return code 1: None
+2025-10-29 08:00:14,556 - __main__ - ERROR - run_script:383 - persistent_landing execution error: Execution error: Script failed with return code 1: None
+2025-10-29 08:00:14,559 - __main__ - ERROR - _execute_choice:873 - Choice execution error: Execution error: Script failed with return code 1: None
+2025-10-29 08:00:30,744 - __main__ - ERROR - run_script:371 - temporal_landing failed: Script failed with return code 1
+2025-10-29 08:00:30,747 - __main__ - ERROR - run_script:383 - temporal_landing execution error: Execution error: Script failed with return code 1
+2025-10-29 08:00:30,754 - __main__ - ERROR - _execute_choice:873 - Choice execution error: Execution error: Script failed with return code 1
+2025-10-29 08:04:20,086 - __main__ - ERROR - run_script:377 - persistent_landing failed: Script failed with return code 1: None
+2025-10-29 08:04:20,087 - __main__ - ERROR - run_script:389 - persistent_landing execution error: Execution error: Script failed with return code 1: None
+2025-10-29 08:04:20,089 - __main__ - ERROR - _execute_choice:879 - Choice execution error: Execution error: Script failed with return code 1: None
+2025-10-29 08:06:48,633 - __main__ - ERROR - run_script:377 - persistent_landing failed: Script failed with return code 1: None
+2025-10-29 08:06:48,633 - __main__ - ERROR - run_script:389 - persistent_landing execution error: Execution error: Script failed with return code 1: None
+2025-10-29 08:06:48,633 - __main__ - ERROR - _execute_choice:879 - Choice execution error: Execution error: Script failed with return code 1: None
+2025-10-29 08:07:00,821 - __main__ - INFO - run_complete_data_pipeline:461 - Starting complete data pipeline with 9 scripts
+2025-10-29 08:07:42,760 - __main__ - INFO - run_complete_data_pipeline:471 - Script temporal_landing completed successfully
+2025-10-29 08:07:51,361 - __main__ - INFO - run_complete_data_pipeline:471 - Script persistent_landing completed successfully
+2025-10-29 08:07:59,723 - __main__ - ERROR - run_script:377 - formatted_metadata failed: Script failed with return code 1: None
+2025-10-29 08:07:59,724 - __main__ - ERROR - run_script:389 - formatted_metadata execution error: Execution error: Script failed with return code 1: None
+2025-10-29 08:07:59,732 - __main__ - ERROR - _execute_choice:879 - Choice execution error: Execution error: Script failed with return code 1: None
+2025-10-29 08:08:16,886 - __main__ - ERROR - run_script:377 - formatted_metadata failed: Script failed with return code 1: None
+2025-10-29 08:08:16,887 - __main__ - ERROR - run_script:389 - formatted_metadata execution error: Execution error: Script failed with return code 1: None
+2025-10-29 08:08:16,891 - __main__ - ERROR - _execute_choice:879 - Choice execution error: Execution error: Script failed with return code 1: None
+2025-10-29 08:13:27,892 - __main__ - ERROR - run_script:368 - formatted_metadata failed: Script failed with return code 1: None
+2025-10-29 08:13:27,892 - __main__ - ERROR - run_script:380 - formatted_metadata execution error: Execution error: Script failed with return code 1: None
+2025-10-29 08:13:27,897 - __main__ - ERROR - _execute_choice:870 - Choice execution error: Execution error: Script failed with return code 1: None
+2025-10-29 08:15:43,761 - __main__ - ERROR - run_script:368 - exploitation_metadata failed: Script failed with return code 1: None
+2025-10-29 08:15:46,913 - __main__ - ERROR - run_script:380 - exploitation_metadata execution error: Execution error: Script failed with return code 1: None
+2025-10-29 08:15:46,924 - __main__ - ERROR - _execute_choice:870 - Choice execution error: Execution error: Script failed with return code 1: None

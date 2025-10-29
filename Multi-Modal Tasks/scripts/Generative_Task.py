@@ -407,7 +407,7 @@ def display_image_from_trusted_zone(client, trusted_bucket, image_id, species_na
                 os.remove(temp_image_path)
                 return True
             except Exception as e:
-                print(f" Failed to load from metadata path → {e}")
+                print(f" Failed to load from metadata path -> {e}")
                 # continue to fallback
 
         # Fallback: Search for image using image_id
@@ -773,7 +773,7 @@ def setup_chromadb_and_images(chroma_db, collection_name, query_images):
         print(f" Collection contains {collection_count} items")
         
     except Exception as e:
-        sys.exit(f" ERROR: Could not connect to collection '{collection_name}' → {e}")
+        sys.exit(f" ERROR: Could not connect to collection '{collection_name}' -> {e}")
     
     # Check query images directory
     if not os.path.exists(query_images):

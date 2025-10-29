@@ -19,12 +19,31 @@ import io, os, shutil
 from datetime import datetime
 
 # -----------------------
+#    Functions
+# -----------------------
+def get_minio_config():
+    # Load MinIO configuration from environment variables (set by orchestrator).
+    
+    import os
+    
+    # Get configuration from environment variables (set by orchestrator)
+    endpoint = os.getenv('MINIO_ENDPOINT', 'localhost:9000')
+    access_key = os.getenv('MINIO_ACCESS_KEY', 'admin')
+    secret_key = os.getenv('MINIO_SECRET_KEY', 'admin123')
+    
+    print(f"Using MinIO configuration from environment variables: endpoint={endpoint}, access_key={access_key[:3]}***")
+    return endpoint, access_key, secret_key
+
+# -----------------------
 #    Configuration
 # -----------------------
 def process_trusted_metadata(
     MINIO = "localhost:9000",
     ACCESS_KEY = "admin",
     SECRET_KEY = "password123"):
+
+    # Get MinIO configuration from environment variables (set by orchestrator)
+    MINIO, ACCESS_KEY, SECRET_KEY = get_minio_config()
 
     FORMATTED_ZONE = "formatted-zone"
     TRUSTED_ZONE = "trusted-zone"

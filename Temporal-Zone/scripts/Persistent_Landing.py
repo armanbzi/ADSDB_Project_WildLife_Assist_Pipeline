@@ -26,6 +26,19 @@ import sys
 #          Functions
 # ==============================
 
+def get_minio_config():
+    # Load MinIO configuration from environment variables (set by orchestrator).
+    
+    import os
+    
+    # Get configuration from environment variables (set by orchestrator)
+    endpoint = os.getenv('MINIO_ENDPOINT', 'localhost:9000')
+    access_key = os.getenv('MINIO_ACCESS_KEY', 'admin')
+    secret_key = os.getenv('MINIO_SECRET_KEY', 'admin123')
+    
+    print(f"Using MinIO configuration from environment variables: endpoint={endpoint}, access_key={access_key[:3]}***")
+    return endpoint, access_key, secret_key
+
 def setup_minio_client_and_buckets(minio, access_key, secret_key, root_bucket, temp_prefix, persist_prefix):
     # Setup MinIO client and validate/create buckets.
     
@@ -73,7 +86,7 @@ def load_metadata_from_temporal(client, root_bucket, temp_prefix):
     try:
         client.fget_object(root_bucket, temp_metadata_path, local_metadata)
     except Exception as e:
-        sys.exit(f" ERROR: Failed to find metadata at {temp_metadata_path} → {e}")
+        sys.exit(f" ERROR: Failed to find metadata at {temp_metadata_path} -> {e}")
     
     metadata_df = pd.read_csv(local_metadata)
     print(f" Loaded metadata with {len(metadata_df)} records.")
@@ -134,7 +147,7 @@ def move_single_image(client, root_bucket, persist_prefix, row, existing_persist
         )
         
         existing_persistent_uuids.add(img_uuid)
-        print(f" Moved {src_path} → {dest_path}")
+        print(f" Moved {src_path} -> {dest_path}")
         
         return dest_path, True
         
@@ -193,7 +206,7 @@ def process_metadata_group(client, root_bucket, persist_prefix, kingdom_name, cl
     )
     
     os.remove(local_metadata_file)
-    print(f" Updated/uploaded metadata for '{kingdom_safe}-{cls_safe}' → {persistent_metadata_path_new}")
+    print(f" Updated/uploaded metadata for '{kingdom_safe}-{cls_safe}' -> {persistent_metadata_path_new}")
 
 def cleanup_temporal_landing(client, root_bucket, temp_prefix):
     # Cleanup Temporal Landing.
@@ -217,7 +230,7 @@ def cleanup_temporal_landing(client, root_bucket, temp_prefix):
             
             print(f" Cleaned up {deleted_count} files from Temporal-Landing (folders kept).")
     except Exception as e:
-        print(f" Warning: Failed to fully clean Temporal_Landing → {e}")
+        print(f" Warning: Failed to fully clean Temporal_Landing -> {e}")
 
 # ==============================
 #       Configuration
@@ -227,12 +240,18 @@ def process_landing_zone(
     access_key="admin",
     secret_key="password123"): 
     
+    print("Starting Persistent Landing Process...")
+    
+    # Get MinIO configuration from saved config or environment
+    minio_endpoint, access_key, secret_key = get_minio_config()
+    
     root_bucket="temporal-zone" # main bucket
     temp_prefix="temporal-landing" # source bucket
     persist_prefix="persistent_landing" # destination bucket
     
+    print("Initializing MinIO connection...")
     # Setup MinIO client and buckets
-    client = setup_minio_client_and_buckets(minio, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
+    client = setup_minio_client_and_buckets(minio_endpoint, access_key, secret_key, root_bucket, temp_prefix, persist_prefix)
     
     # Load metadata from Temporal_Landing
     metadata_df, local_metadata = load_metadata_from_temporal(client, root_bucket, temp_prefix)
