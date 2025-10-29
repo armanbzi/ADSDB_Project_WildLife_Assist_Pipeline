@@ -313,7 +313,8 @@ class PipelineOrchestrator:
                     [sys.executable, str(full_path)],
                     env=env,
                     text=True,
-                    capture_output=True  # Capture output to prevent GIL issues
+                    capture_output=True,  # Capture output to prevent GIL issues
+                    timeout=300  # Add 5-minute timeout to prevent infinite hanging
                 )
                 
                 # Stop monitoring when script execution completes
@@ -329,7 +330,7 @@ class PipelineOrchestrator:
                 # Process execution results and update monitoring data
                 if result.returncode == 0:
                     if attempt > 0:
-                        print(f" ✓ {script_name} succeeded on retry attempt {attempt + 1}")
+                        print(f" + {script_name} succeeded on retry attempt {attempt + 1}")
                     return True, f"Success: {script_name} completed in {duration:.2f}s"
                 else:
                     error_msg = f"Script failed with return code {result.returncode}: {result.stderr}"
@@ -434,7 +435,7 @@ class PipelineOrchestrator:
             Boolean indicating overall pipeline success
         """
         print("\n Starting Complete Data Pipeline...")
-        print("Workflow: Temporal → Persistent → Formatted → Trusted → Exploitation")
+        print("Workflow: Temporal -> Persistent -> Formatted -> Trusted -> Exploitation")
         
         # Initialize pipeline monitoring
         self.monitoring_data["start_time"] = datetime.now().isoformat()
@@ -453,11 +454,11 @@ class PipelineOrchestrator:
             success, message = self.run_script(script_path, script_name)
             
             if success:
-                print(f" ✓ {script_name} completed successfully")
+                print(f" + {script_name} completed successfully")
                 successful_scripts.append(script_name)
                 logger.info(f"Script {script_name} completed successfully")
             else:
-                print(f" ✗ {script_name} failed: {message}")
+                print(f" X {script_name} failed: {message}")
                 failed_scripts.append((script_name, message))
                 logger.warning(f"Script {script_name} failed: {message}")
                 print(f" Continuing with next script...")
@@ -470,10 +471,10 @@ class PipelineOrchestrator:
         print(f" Failed scripts: {len(failed_scripts)}/{len(self.recommended_workflow)}")
         
         if successful_scripts:
-            print(f" ✓ Successfully completed: {', '.join(successful_scripts)}")
+            print(f" + Successfully completed: {', '.join(successful_scripts)}")
         
         if failed_scripts:
-            print(f" ✗ Failed scripts:")
+            print(f" X Failed scripts:")
             for script_name, error_msg in failed_scripts:
                 print(f"   - {script_name}: {error_msg}")
         

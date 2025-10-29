@@ -2,3 +2,233 @@
 2025-10-28 05:26:06,117 - ERROR - Choice execution error: 'charmap' codec can't encode character '\u2192' in position 19: character maps to <undefined>
 2025-10-28 05:38:23,398 - ERROR - Choice execution error: 'charmap' codec can't encode character '\u2192' in position 19: character maps to <undefined>
 2025-10-29 03:05:54,116 - __main__ - ERROR - _execute_choice:923 - Choice execution error: 'charmap' codec can't encode character '\u2192' in position 19: character maps to <undefined>
+2025-10-29 03:21:11,242 - __main__ - ERROR - _execute_choice:900 - Choice execution error: 'charmap' codec can't encode character '\u2192' in position 19: character maps to <undefined>
+2025-10-29 03:24:00,710 - __main__ - ERROR - run_script:337 - temporal_landing failed (attempt 1): Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\util\connection.py", line 85, in create_connection
+    raise err
+  File "C:\Python312\Lib\site-packages\urllib3\util\connection.py", line 73, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 493, in _make_request
+    conn.request(
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 445, in request
+    self.endheaders()
+  File "C:\Python312\Lib\http\client.py", line 1331, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\Python312\Lib\http\client.py", line 1091, in _send_output
+    self.send(msg)
+  File "C:\Python312\Lib\http\client.py", line 1035, in send
+    self.connect()
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 276, in connect
+    self.sock = self._new_conn()
+                ^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 213, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x000001C2042BA3C0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 451, in <module>
+    process_temporal();
+    ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 428, in process_temporal
+    setup_minio_buckets(client, ROOT_BUCKET, TEMP_PREFIX)
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 124, in setup_minio_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 306, in _url_open
+    response = self._http.urlopen(
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\poolmanager.py", line 443, in urlopen
+    response = conn.urlopen(method, u.request_uri, **kw)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 871, in urlopen
+    return self.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 871, in urlopen
+    return self.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 871, in urlopen
+    return self.urlopen(
+           ^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='localhost', port=9000): Max retries exceeded with url: /temporal-zone?location= (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001C2042BA3C0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))
+
+2025-10-29 03:24:41,242 - __main__ - ERROR - run_script:337 - temporal_landing failed (attempt 2): Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\util\connection.py", line 85, in create_connection
+    raise err
+  File "C:\Python312\Lib\site-packages\urllib3\util\connection.py", line 73, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 493, in _make_request
+    conn.request(
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 445, in request
+    self.endheaders()
+  File "C:\Python312\Lib\http\client.py", line 1331, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\Python312\Lib\http\client.py", line 1091, in _send_output
+    self.send(msg)
+  File "C:\Python312\Lib\http\client.py", line 1035, in send
+    self.connect()
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 276, in connect
+    self.sock = self._new_conn()
+                ^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 213, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x000001081AFEA2A0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 451, in <module>
+    process_temporal();
+    ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 428, in process_temporal
+    setup_minio_buckets(client, ROOT_BUCKET, TEMP_PREFIX)
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 124, in setup_minio_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 306, in _url_open
+    response = self._http.urlopen(
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\poolmanager.py", line 443, in urlopen
+    response = conn.urlopen(method, u.request_uri, **kw)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 871, in urlopen
+    return self.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 871, in urlopen
+    return self.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 871, in urlopen
+    return self.urlopen(
+           ^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='localhost', port=9000): Max retries exceeded with url: /temporal-zone?location= (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001081AFEA2A0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))
+
+2025-10-29 03:25:23,232 - __main__ - ERROR - run_script:337 - temporal_landing failed (attempt 3): Script failed with return code 1: Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\util\connection.py", line 85, in create_connection
+    raise err
+  File "C:\Python312\Lib\site-packages\urllib3\util\connection.py", line 73, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 493, in _make_request
+    conn.request(
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 445, in request
+    self.endheaders()
+  File "C:\Python312\Lib\http\client.py", line 1331, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\Python312\Lib\http\client.py", line 1091, in _send_output
+    self.send(msg)
+  File "C:\Python312\Lib\http\client.py", line 1035, in send
+    self.connect()
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 276, in connect
+    self.sock = self._new_conn()
+                ^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connection.py", line 213, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x000001E25CC7A1E0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 451, in <module>
+    process_temporal();
+    ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 428, in process_temporal
+    setup_minio_buckets(client, ROOT_BUCKET, TEMP_PREFIX)
+  File "C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Temporal-Zone\scripts\Temporal_Landing.py", line 124, in setup_minio_buckets
+    if not client.bucket_exists(root_bucket):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 700, in bucket_exists
+    self._execute("HEAD", bucket_name)
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 441, in _execute
+    region = self._get_region(bucket_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 498, in _get_region
+    response = self._url_open(
+               ^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\minio\api.py", line 306, in _url_open
+    response = self._http.urlopen(
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\poolmanager.py", line 443, in urlopen
+    response = conn.urlopen(method, u.request_uri, **kw)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 871, in urlopen
+    return self.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 871, in urlopen
+    return self.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 871, in urlopen
+    return self.urlopen(
+           ^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+  File "C:\Python312\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='localhost', port=9000): Max retries exceeded with url: /temporal-zone?location= (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001E25CC7A1E0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))
+
+2025-10-29 03:25:23,234 - __main__ - ERROR - _execute_choice:891 - Choice execution error: 'charmap' codec can't encode character '\u2717' in position 1: character maps to <undefined>
