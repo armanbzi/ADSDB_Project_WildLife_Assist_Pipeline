@@ -464,6 +464,9 @@ def cleanup_threads():
     except Exception as e:
         print(f" Warning during thread cleanup: {e}")
 
+# Ensure cleanup runs at interpreter shutdown as early as possible
+atexit.register(cleanup_threads)
+
 # ==============================
 #        Configuration
 # ==============================
@@ -540,16 +543,26 @@ def process_temporal():
     print("Temporal Landing Process completed successfully!")
 
 if __name__ == "__main__":
+    exit_code = 0
     try:
         process_temporal()
         print(" Temporal processing completed successfully")
     except KeyboardInterrupt:
         print("\n Process interrupted by user")
+        exit_code = 130
     except Exception as e:
         print(f"\n Error in temporal processing: {e}")
-        raise  # Re-raise the exception so orchestrator can handle it
+        exit_code = 1
+        # Re-raise in interactive mode so the user sees the traceback
+        if not _is_non_interactive_mode():
+            raise
     finally:
         # Ensure cleanup happens even if there's an error
         cleanup_threads()
+        # In non-interactive/orchestrated runs, exit the process immediately to avoid
+        # PyGILState_Release errors from library atexit handlers running on other threads
+        if _is_non_interactive_mode():
+            import os
+            os._exit(exit_code)
 
 
