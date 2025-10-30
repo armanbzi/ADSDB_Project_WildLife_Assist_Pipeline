@@ -831,19 +831,29 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
             print(f"  ... and {len(issues) - 10} more issues (see web dashboard for full details)")
 
 
-    def show_pipeline_status(self):
-        """
-        Display collection statistics and available images in trusted-zone.
-        """
+    def _aggregate_metadata_counts(self, metadatas):
+        """Aggregate counts from metadata by kingdom, class, and family."""
+        kingdoms, classes, families = {}, {}, {}
+        for meta in metadatas:
+            if not isinstance(meta, dict):
+                continue
+            k = (meta.get("kingdom") or "Unknown")
+            c = (meta.get("class") or "Unknown")
+            f = (meta.get("family") or "Unknown")
+            kingdoms[k] = kingdoms.get(k, 0) + 1
+            classes[c] = classes.get(c, 0) + 1
+            families[f] = families.get(f, 0) + 1
+        return kingdoms, classes, families
+
+    def _display_collection_statistics(self):
+        """Display collection statistics from ChromaDB."""
         # Lazy imports to avoid adding global dependencies
         try:
             import chromadb
-            from minio import Minio
         except Exception as e:
             print(f"\n Error loading dependencies for status view: {e}")
-            return
+            return False
 
-        # 1) Collection statistics from image embeddings
         print("\n COLLECTION STATISTICS")
         print("\n" + "=" * 60)
 
@@ -853,26 +863,14 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
             client = chromadb.PersistentClient(path=str(chroma_db_path))
             collection = client.get_collection(name="image_embeddings")
 
-            # Fetch metadatas (ids are returned by default)
-            data = collection.get(include=["metadatas"])  # returns dict with lists
+            data = collection.get(include=["metadatas"])
             ids = data.get("ids", []) or []
             metadatas = data.get("metadatas", []) or []
 
             print(f" Total items: {len(ids)}")
 
-            # Aggregate counts
-            kingdoms, classes, families = {}, {}, {}
-            for meta in metadatas:
-                if not isinstance(meta, dict):
-                    continue
-                k = (meta.get("kingdom") or "Unknown")
-                c = (meta.get("class") or "Unknown")
-                f = (meta.get("family") or "Unknown")
-                kingdoms[k] = kingdoms.get(k, 0) + 1
-                classes[c] = classes.get(c, 0) + 1
-                families[f] = families.get(f, 0) + 1
+            kingdoms, classes, families = self._aggregate_metadata_counts(metadatas)
 
-            # Print sections
             print("\n By Kingdom:")
             for k, cnt in sorted(kingdoms.items(), key=lambda x: x[1], reverse=True)[:10]:
                 print(f"  {k}: {cnt}")
@@ -886,8 +884,18 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
                 print(f"  {f}: {cnt}")
         except Exception as e:
             print(f" Error reading collection statistics: {e}")
+        
+        return True
 
-        # 2) Available images in trusted-zone
+    def _display_minio_images(self):
+        """Display image count from MinIO trusted-zone."""
+        # Lazy imports to avoid adding global dependencies
+        try:
+            from minio import Minio
+        except Exception as e:
+            print(f"\n Error loading dependencies for status view: {e}")
+            return
+
         try:
             endpoint = os.getenv('MINIO_ENDPOINT', self.minio_config.get("endpoint", "localhost:9000"))
             access_key = os.getenv('MINIO_ACCESS_KEY', self.minio_config.get("access_key", "admin"))
@@ -904,6 +912,13 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
                 print(f"\n Bucket '{bucket}' does not exist.")
         except Exception as e:
             print(f" Error counting images in trusted-zone: {e}")
+
+    def show_pipeline_status(self):
+        """
+        Display collection statistics and available images in trusted-zone.
+        """
+        self._display_collection_statistics()
+        self._display_minio_images()
 
     def run(self, non_interactive=False, auto_choice=None, auto_sub_choice=None):
         # Main orchestration

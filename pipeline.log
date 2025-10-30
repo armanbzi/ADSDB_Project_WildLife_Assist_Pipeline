@@ -11194,3 +11194,30 @@ minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: 
 2025-10-30 03:38:27,375 - __main__ - INFO - run_complete_data_pipeline:524 - Pipeline execution completed. All scripts successful.
 2025-10-30 04:53:34,130 - chromadb.telemetry.product.posthog - INFO - __init__:22 - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
 2025-10-30 04:54:38,092 - chromadb.telemetry.product.posthog - INFO - __init__:22 - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-10-30 14:53:48,874 - __main__ - INFO - run_complete_data_pipeline:501 - Starting complete data pipeline with 9 scripts
+2025-10-30 15:01:36,952 - __main__ - INFO - run_complete_data_pipeline:511 - Script temporal_landing completed successfully
+2025-10-30 15:01:47,572 - __main__ - INFO - run_complete_data_pipeline:511 - Script persistent_landing completed successfully
+2025-10-30 15:01:53,170 - __main__ - INFO - run_complete_data_pipeline:511 - Script formatted_metadata completed successfully
+2025-10-30 15:02:06,055 - __main__ - INFO - run_complete_data_pipeline:511 - Script formatted_images completed successfully
+2025-10-30 15:02:11,346 - __main__ - INFO - run_complete_data_pipeline:511 - Script trusted_metadata completed successfully
+2025-10-30 15:02:34,946 - __main__ - INFO - run_complete_data_pipeline:511 - Script trusted_images completed successfully
+2025-10-30 15:02:45,955 - __main__ - INFO - run_complete_data_pipeline:511 - Script exploitation_metadata completed successfully
+2025-10-30 15:02:55,995 - __main__ - INFO - run_complete_data_pipeline:511 - Script exploitation_images completed successfully
+2025-10-30 15:03:53,665 - __main__ - INFO - run_complete_data_pipeline:511 - Script exploitation_multimodal completed successfully
+2025-10-30 15:03:55,679 - __main__ - INFO - run_complete_data_pipeline:523 - Pipeline completed successfully with 100%% success rate
+2025-10-30 15:03:55,680 - __main__ - INFO - run_complete_data_pipeline:525 - Pipeline execution completed. All scripts successful.
+2025-10-30 17:54:18,947 - __main__ - INFO - run_complete_data_pipeline:501 - Starting complete data pipeline with 9 scripts
+2025-10-30 18:19:45,201 - __main__ - INFO - run_complete_data_pipeline:511 - Script temporal_landing completed successfully
+2025-10-30 18:20:12,323 - __main__ - INFO - run_complete_data_pipeline:511 - Script persistent_landing completed successfully
+2025-10-30 18:20:19,369 - __main__ - INFO - run_complete_data_pipeline:511 - Script formatted_metadata completed successfully
+2025-10-30 18:20:59,763 - __main__ - INFO - run_complete_data_pipeline:511 - Script formatted_images completed successfully
+2025-10-30 18:21:05,887 - __main__ - INFO - run_complete_data_pipeline:511 - Script trusted_metadata completed successfully
+2025-10-30 18:22:18,650 - __main__ - INFO - run_complete_data_pipeline:511 - Script trusted_images completed successfully
+2025-10-30 18:22:50,106 - __main__ - INFO - run_complete_data_pipeline:511 - Script exploitation_metadata completed successfully
+2025-10-30 18:24:19,878 - __main__ - INFO - run_complete_data_pipeline:511 - Script exploitation_images completed successfully
+2025-10-30 18:26:43,989 - __main__ - INFO - run_complete_data_pipeline:511 - Script exploitation_multimodal completed successfully
+2025-10-30 18:26:46,117 - __main__ - INFO - run_complete_data_pipeline:523 - Pipeline completed successfully with 100%% success rate
+2025-10-30 18:26:46,117 - __main__ - INFO - run_complete_data_pipeline:525 - Pipeline execution completed. All scripts successful.
+2025-10-30 18:55:51,753 - __main__ - ERROR - run_script:423 - multimodal_similarity execution timeout: Execution timeout after 302.3s: Command '['C:\\Python312\\python.exe', 'C:\\Users\\Arman\\OneDrive\\Desktop\\sss\\ADSDB\\pr\\WildLife\\Multi-Modal-Tasks\\scripts\\Multimodal_Similarity_Task.py']' timed out after 300.0 seconds
+2025-10-30 18:55:51,759 - __main__ - ERROR - _execute_choice:991 - Choice execution error: Execution timeout after 302.3s: Command '['C:\\Python312\\python.exe', 'C:\\Users\\Arman\\OneDrive\\Desktop\\sss\\ADSDB\\pr\\WildLife\\Multi-Modal-Tasks\\scripts\\Multimodal_Similarity_Task.py']' timed out after 300.0 seconds
+2025-10-30 18:59:33,779 - chromadb.telemetry.product.posthog - INFO - __init__:22 - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.

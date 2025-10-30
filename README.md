@@ -97,6 +97,21 @@ chmod +x setup.sh
 setup.bat
 ```
 
+### Interactive usage:
+
+ - By shoosing option 1(run complete data processing scripts), starts data retrieving, formatting, storing, embedding, 
+   and provide all necessary data to apply similarity and identification tasks
+ - By choosing option 2, can choose each script separately one by one.
+ - By choosing option 3, can apply an analysis using SonarQube on all code, 
+   and see result printed and available in SonarQube dashboard.
+ - For applying analysis test, a token must be provided from SonarQube.
+ - For applying generative task using external AI models, a token from HuggingFace must be provided with the permission to read. 
+ - For data storing and processing, MinIO configurations (server endpoint, username, password) must be provided.
+
+
+
+
+
 ### CI/CD Usage
 
 The pipeline supports automated execution for continuous integration environments:
@@ -280,13 +295,6 @@ GitLab CI configuration (`.gitlab-ci.yml`) provides:
 - **OpenAI**: AI generation capabilities (for Generative Tasks using models 
     "Qwen/Qwen3-VL-8B" & as fallback "Llama-4-Scout-17B-16E")
 
-## 🤝 Contributing
-
-1. Follow the existing code structure and naming conventions
-2. Add appropriate error handling and logging
-3. Include comprehensive docstrings for functions
-4. Update documentation as needed
-5. Ensure all scripts work with the orchestration system
 
 ## 📄 License
 

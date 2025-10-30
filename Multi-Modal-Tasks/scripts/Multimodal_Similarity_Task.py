@@ -262,7 +262,7 @@ def display_results(results, query_type="text", query_value="", n_results=5, is_
     # Display results in simple format (description first, then image)
     display_result_items(result_data)
 
-def cluster_based_search(collection, chroma_client, query_text="", query_image=None, n_results=15, return_count=3):
+def cluster_based_search(collection, query_text="", query_image=None, n_results=15, return_count=3):
     # Perform cluster-based search showing top species representatives.
     print("\n CLUSTER-BASED SEARCH")
     print(f"Analyzing top-{n_results} results for most frequent species...")
@@ -277,7 +277,7 @@ def cluster_based_search(collection, chroma_client, query_text="", query_image=N
             
             print(f" Text cluster search: '{query_text}'")
         elif query_image is not None:
-            results = perform_image_cluster_search(collection, chroma_client, query_image, n_results)
+            results = perform_image_cluster_search(collection, query_image, n_results)
             if results is None:
                 return None
         else:
@@ -323,7 +323,7 @@ def cluster_based_search(collection, chroma_client, query_text="", query_image=N
         print(f" Error during cluster-based search: {e}")
         return None
 
-def perform_image_cluster_search(collection, chroma_client, query_image, n_results):
+def perform_image_cluster_search(collection, query_image, n_results):
     # Perform image-based cluster search using embeddings.
     try:
         # Generate embedding for the query image using OpenCLIP
@@ -421,13 +421,13 @@ def _is_non_interactive_mode():
         not sys.stdin.isatty()
     )
 
-def _execute_search_by_input(collection, chroma_client, user_input, query_images, 
+def _execute_search_by_input(collection, user_input, query_images, 
                              query_images_path, client, trusted_bucket, image_paths):
     """Execute search based on user input (text or image)."""
     if user_input.lower() == 'image':
         query_image, image_name = get_random_query_image(query_images, query_images_path)
         if query_image:
-            search_by_image(collection, chroma_client, query_image, image_name,
+            search_by_image(collection, query_image, image_name,
                           client=client, trusted_bucket=trusted_bucket, image_paths=image_paths)
         else:
             print(" No query images available!")
@@ -435,7 +435,7 @@ def _execute_search_by_input(collection, chroma_client, user_input, query_images
         search_by_text(collection, user_input, n_results=5, client=client,
                       trusted_bucket=trusted_bucket, image_paths=image_paths)
 
-def _handle_non_interactive_search(collection, chroma_client, query_images, 
+def _handle_non_interactive_search(collection, query_images, 
                                    query_images_path, client, trusted_bucket, image_paths):
     """Handle non-interactive mode search using environment variable."""
     import os
@@ -448,10 +448,10 @@ def _handle_non_interactive_search(collection, chroma_client, query_images,
         print("No query provided in environment variable")
         return
     
-    _execute_search_by_input(collection, chroma_client, user_input, query_images,
+    _execute_search_by_input(collection, user_input, query_images,
                             query_images_path, client, trusted_bucket, image_paths)
 
-def _handle_interactive_search_loop(collection, chroma_client, query_images, 
+def _handle_interactive_search_loop(collection, query_images, 
                                     query_images_path, client, trusted_bucket, image_paths):
     """Handle interactive search loop."""
     print("\n MULTIMODAL WILDLIFE SEARCH")
@@ -471,7 +471,7 @@ def _handle_interactive_search_loop(collection, chroma_client, query_images,
                 break
             
             elif user_input.lower() == 'image' or user_input:
-                _execute_search_by_input(collection, chroma_client, user_input, query_images,
+                _execute_search_by_input(collection, user_input, query_images,
                                         query_images_path, client, trusted_bucket, image_paths)
             else:
                 print(" Please enter a search query, 'image', or 'quit'")
@@ -502,7 +502,7 @@ def search_by_text(collection, query_text, n_results=5, client=None, trusted_buc
         print(f" Error during text search: {e}")
         return None
 
-def search_by_image(collection, chroma_client, query_image, image_name="", 
+def search_by_image(collection, query_image, image_name="", 
                    client=None, trusted_bucket=None, image_paths=None):
     # Perform image-based similarity search using cluster-based approach.
     print(f"\n Searching with image: '{image_name}'")
@@ -521,7 +521,7 @@ def search_by_image(collection, chroma_client, query_image, image_name="",
             print(f" Query image displayed: {image_name}")
         
         # Use cluster-based search for images 
-        results = cluster_based_search(collection, chroma_client, query_image=query_image, n_results=15, return_count=3)
+        results = cluster_based_search(collection, query_image=query_image, n_results=15, return_count=3)
         
         if results:
             display_results(results, query_type="image", query_value=image_name, n_results=3, 
@@ -536,17 +536,17 @@ def search_by_image(collection, chroma_client, query_image, image_name="",
         print(f" Error during image search: {e}")
         return None
 
-def interactive_search(collection, chroma_client, query_images, query_images_path, 
+def interactive_search(collection, query_images, query_images_path, 
                       client, trusted_bucket, image_paths):
     # Interactive search interface for user input
     # Supports both interactive and non-interactive (CI/CD) modes.
     
     if _is_non_interactive_mode():
-        _handle_non_interactive_search(collection, chroma_client, query_images,
+        _handle_non_interactive_search(collection, query_images,
                                       query_images_path, client, trusted_bucket, image_paths)
         return
     
-    _handle_interactive_search_loop(collection, chroma_client, query_images,
+    _handle_interactive_search_loop(collection, query_images,
                                    query_images_path, client, trusted_bucket, image_paths)
 
 def get_collection_statistics(collection):
@@ -629,7 +629,7 @@ def process_multimodal_task():
     
     # Start the interactive search
     print(" Starting Multimodal Wildlife Search...")
-    interactive_search(collection, collection._client, query_images, query_images_path, 
+    interactive_search(collection, query_images, query_images_path, 
                      client, trusted_bucket, image_paths)
     
     # Display collection statistics
