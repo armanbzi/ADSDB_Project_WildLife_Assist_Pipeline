@@ -73,6 +73,7 @@ class PipelineOrchestrator:
         """
         self.minio_config = {}
         self.scripts_dir = Path(__file__).parent
+        self.force_non_interactive = False
         
         self.workflow_scripts = {
             "temporal_landing": "Temporal-Zone/scripts/Temporal_Landing.py",
@@ -272,7 +273,8 @@ class PipelineOrchestrator:
         is_orchestrator_interactive = not (
             os.getenv('CI') == 'true' or 
             os.getenv('GITHUB_ACTIONS') == 'true' or 
-            os.getenv('GITLAB_CI') == 'true'
+            os.getenv('GITLAB_CI') == 'true' or
+            self.force_non_interactive
         )
         
         if script_name == "temporal_landing" and not is_orchestrator_interactive:
@@ -308,8 +310,9 @@ class PipelineOrchestrator:
             )
         else:
             print(f"Running {script_name} in non-interactive mode - using provided parameters (timeout: {timeout_str})")
+            cmd = [sys.executable, str(full_path), '--non-interactive']
             result = subprocess.run(
-                [sys.executable, str(full_path)],
+                cmd,
                 env=env,
                 text=True,
                 capture_output=True,
@@ -656,9 +659,16 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
 
     def _build_docker_command(self, sonar_url: str, sonar_token: str):
         # Build Docker command for SonarQube analysis
-        # Fix localhost URL for Docker container access
+        # Fix localhost URL for Docker container access (only when resolvable)
         if 'localhost' in sonar_url:
-            sonar_url = sonar_url.replace('localhost', 'host.docker.internal')
+            try:
+                import socket
+                # On Linux CI runners, host.docker.internal may not resolve
+                socket.gethostbyname('host.docker.internal')
+                sonar_url = sonar_url.replace('localhost', 'host.docker.internal')
+            except Exception:
+                # Keep localhost if host.docker.internal is not available
+                pass
         
         docker_cmd = [
             'docker', 'run', '--rm',
@@ -919,6 +929,9 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
         # Non-interactive mode for CI/CD
         if non_interactive:
             print(" Running in non-interactive mode for CI/CD")
+            # Ensure downstream scripts detect non-interactive
+            self.force_non_interactive = True
+            os.environ['CI'] = os.getenv('CI', 'true')
             if auto_choice:
                 choice = str(auto_choice)
             else:
