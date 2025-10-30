@@ -310,6 +310,9 @@ def process_sample(sample, snake_families, limits, client, root_bucket, temp_pre
                 print(f"Skipping image download for {species} (failed): {download_error}")
                 # Continue without the image - don't crash the entire process
                 return metadata_df
+        else:
+            # Image already exists in MinIO; set expected object path for metadata
+            object_name = f"{temp_prefix}/images/{img_id}.jpg"
         
         # Save metadata
         minio_config = {
@@ -563,6 +566,13 @@ if __name__ == "__main__":
         # PyGILState_Release errors from library atexit handlers running on other threads
         if _is_non_interactive_mode():
             import os
+            try:
+                # Ensure all logs are flushed before hard-exit
+                import sys
+                sys.stdout.flush()
+                sys.stderr.flush()
+            except Exception:
+                pass
             os._exit(exit_code)
 
 

@@ -109,6 +109,15 @@ class PipelineOrchestrator:
             "system_metrics": []
         }
 
+    def _is_non_interactive(self) -> bool:
+        """Determine if orchestrator should run in non-interactive mode."""
+        return (
+            os.getenv('CI') == 'true' or
+            os.getenv('GITHUB_ACTIONS') == 'true' or
+            os.getenv('GITLAB_CI') == 'true' or
+            self.force_non_interactive
+        )
+
     def get_minio_config(self) -> Dict[str, str]:
         # Configure MinIO connection parameters.
         import json
@@ -686,6 +695,76 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
         
         return docker_cmd
 
+    def _ensure_sonarqube_running(self) -> Optional[str]:
+        """Start a local SonarQube server via Docker if not already running.
+
+        Returns the SonarQube URL if successful, otherwise None.
+        """
+        try:
+            # Check Docker availability first
+            if not self._check_docker_availability():
+                return None
+
+            # Determine desired local URL and container name/port mapping
+            local_url = os.getenv('SONAR_HOST_URL', 'http://localhost:9002')
+            container_name = 'wildlife-sonarqube'
+            host_port = '9002'  # host port
+            container_port = '9000'  # Sonar internal port
+
+            # Check if container is already running
+            ps = subprocess.run(['docker', 'ps', '--filter', f'name={container_name}', '--format', '{{.Names}}'],
+                                capture_output=True, text=True)
+            if container_name not in ps.stdout.split():
+                # Also check if an exited container exists and remove it
+                ps_all = subprocess.run(['docker', 'ps', '-a', '--filter', f'name={container_name}', '--format', '{{.Names}}'],
+                                        capture_output=True, text=True)
+                if container_name in ps_all.stdout.split():
+                    subprocess.run(['docker', 'rm', '-f', container_name], capture_output=True, text=True)
+
+                # Pull latest image quietly (best-effort)
+                subprocess.run(['docker', 'pull', 'sonarqube:latest'], capture_output=True, text=True)
+
+                # Start SonarQube container
+                run_cmd = [
+                    'docker', 'run', '-d', '--name', container_name,
+                    '-p', f'{host_port}:{container_port}',
+                    'sonarqube:latest'
+                ]
+                result = subprocess.run(run_cmd, capture_output=True, text=True)
+                if result.returncode != 0:
+                    logger.error(f"Failed to start SonarQube: {result.stderr}")
+                    return None
+
+            # Wait for SonarQube to become healthy
+            print(" Waiting for SonarQube to become ready (this can take ~60-120s)...")
+            import time
+            start = time.time()
+            timeout = 240  # seconds
+            health_url = local_url.replace('host.docker.internal', 'localhost') + '/api/system/health'
+            while time.time() - start < timeout:
+                try:
+                    r = requests.get(health_url, timeout=5)
+                    if r.status_code == 200:
+                        # Some versions return JSON with status
+                        try:
+                            status = r.json().get('status', '').upper()
+                            if status in ('GREEN', 'YELLOW'):
+                                print(" SonarQube is up")
+                                return local_url
+                        except Exception:
+                            # If not JSON, assume OK when 200
+                            print(" SonarQube responded OK")
+                            return local_url
+                except Exception:
+                    pass
+                time.sleep(3)
+
+            logger.warning("SonarQube did not become ready within timeout; continuing anyway")
+            return local_url
+        except Exception as e:
+            logger.error(f"Error ensuring SonarQube is running: {e}")
+            return None
+
     def _display_analysis_results(self, result, sonar_url=None, sonar_token=None):
         
         # Display comprehensive SonarQube analysis results with detailed reporting.
@@ -739,6 +818,12 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
             
             print(" Docker found. Starting SonarQube analysis...")
             print(" Analyzing Python files only in the WildLife project...")
+
+            # In non-interactive mode, auto-start a local SonarQube server if needed
+            if self._is_non_interactive():
+                url = self._ensure_sonarqube_running() or 'http://localhost:9002'
+                # Ensure environment variable is set to avoid prompts
+                os.environ.setdefault('SONAR_HOST_URL', url)
             
             # Configure SonarQube URL and authentication
             sonar_url, sonar_token = self.get_sonar_config()
@@ -752,7 +837,8 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
             
             
             # SonarQube server should be running externally
-            print(" Make sure your SonarQube server is running and accessible.")
+            if not self._is_non_interactive():
+                print(" Make sure your SonarQube server is running and accessible.")
             
             # Create SonarQube configuration file
             self._create_sonar_config()
