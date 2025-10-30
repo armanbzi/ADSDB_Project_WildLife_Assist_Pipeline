@@ -222,7 +222,7 @@ jobs:
   quality-control:
     runs-on: ubuntu-latest
     needs: setup
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Run on all workflow triggers (push, PR, manual)
     
     steps:
     - uses: actions/checkout@v4
@@ -281,7 +281,7 @@ jobs:
   deploy-pipeline:
     runs-on: ubuntu-latest
     needs: [setup, test-scripts]
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    # Run on all workflow triggers (push, PR, manual)
     
     steps:
     - uses: actions/checkout@v4
