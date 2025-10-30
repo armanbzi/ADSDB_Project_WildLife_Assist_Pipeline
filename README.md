@@ -99,7 +99,7 @@ setup.bat
 
 ### Interactive usage:
 
- - By shoosing option 1(run complete data processing scripts), starts data retrieving, formatting, storing, embedding, 
+ - By choosing option 1 (run complete data processing scripts), starts data retrieving, formatting, storing, embedding, 
    and provide all necessary data to apply similarity and identification tasks
  - By choosing option 2, can choose each script separately one by one.
  - By choosing option 3, can apply an analysis using SonarQube on all code, 
