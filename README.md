@@ -55,7 +55,7 @@ A comprehensive DataOps orchestration system for wildlife data processing, featu
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/<your_username>/ADSDB_Project_WildLife_Assist_Pipeline.git
+   git clone https://github.com/armanbzi/ADSDB_Project_WildLife_Assist_Pipeline.git
    cd ADSDB_Project_WildLife_Assist_Pipeline/WildLife
    ```
 
