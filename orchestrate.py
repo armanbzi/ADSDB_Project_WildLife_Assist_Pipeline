@@ -12,6 +12,7 @@ Key Features:
 - Complete pipeline orchestration with real-time monitoring
 - Running full workflow scripts to store data completely
 - Individual script execution with system resource tracking
+- Display of current status of existing data in database(by choosing option 4)
 - SonarQube code quality analysis with detailed reporting
 - saves only error logs in a file in root project
 
@@ -87,9 +88,9 @@ class PipelineOrchestrator:
         
         # Define task scripts for advanced operations
         self.task_scripts = {
-            "same_modality_search": "Multi-Modal Tasks/scripts/Same_Modality_Search.py",
-            "multimodal_similarity": "Multi-Modal Tasks/scripts/Multimodal_Similarity_Task.py",
-            "generative_task": "Multi-Modal Tasks/scripts/Generative_Task.py"
+            "same_modality_search": "Multi-Modal-Tasks/scripts/Same_Modality_Search.py",
+            "multimodal_similarity": "Multi-Modal-Tasks/scripts/Multimodal_Similarity_Task.py",
+            "generative_task": "Multi-Modal-Tasks/scripts/Generative_Task.py"
         }
         
         # Recommended execution order for complete pipeline
@@ -198,7 +199,7 @@ class PipelineOrchestrator:
                 if sonar_url:
                     print(" SonarQube configuration found in consolidated environment variable")
                     return sonar_url, sonar_token
-            except Exception as e:
+            except Exception:
                 print(f" Warning: Invalid SONAR_CONFIG format: {sonar_config_str}")
         
         # Check for existing URL and token in environment variables
@@ -254,6 +255,123 @@ class PipelineOrchestrator:
         print("5. Exit")
         print("="*60)
 
+    def _prepare_environment(self, script_name):
+        """Prepare environment variables for script execution."""
+        env = os.environ.copy()
+        
+        minio_endpoint = os.getenv('MINIO_ENDPOINT', self.minio_config.get("endpoint", "localhost:9000"))
+        minio_access_key = os.getenv('MINIO_ACCESS_KEY', self.minio_config.get("access_key", "admin"))
+        minio_secret_key = os.getenv('MINIO_SECRET_KEY', self.minio_config.get("secret_key", "password123"))
+        
+        env.update({
+            "MINIO_ENDPOINT": minio_endpoint,
+            "MINIO_ACCESS_KEY": minio_access_key,
+            "MINIO_SECRET_KEY": minio_secret_key
+        })
+        
+        is_orchestrator_interactive = not (
+            os.getenv('CI') == 'true' or 
+            os.getenv('GITHUB_ACTIONS') == 'true' or 
+            os.getenv('GITLAB_CI') == 'true'
+        )
+        
+        if script_name == "temporal_landing" and not is_orchestrator_interactive:
+            env.update({
+                "TEMPORAL_PARAMS": "30,11,300000",
+                "TEMPORAL_MAX_RUNTIME": "1500"  # 25 minutes
+            })
+        
+        return env, is_orchestrator_interactive
+    
+    def _execute_subprocess(self, full_path, env, is_orchestrator_interactive, script_name):
+        """Execute subprocess with appropriate configuration based on mode."""
+        # Set different timeouts based on script type
+        # None means no timeout limit
+        timeout_map = {
+            "temporal_landing": None,  # No timeout for data processing
+            "trusted_metadata": 600,   # 10 minutes for metadata processing
+            "trusted_images": 1200,    # 20 minutes for image processing
+            "generative_task": 900,    # 15 minutes for generative tasks
+        }
+        timeout = timeout_map.get(script_name, 300)  # Default 5 minutes
+        
+        timeout_str = "no timeout" if timeout is None else f"{timeout}s"
+        
+        if is_orchestrator_interactive:
+            print(f"Running {script_name} in interactive mode - user input will be requested (timeout: {timeout_str})")
+            result = subprocess.run(
+                [sys.executable, str(full_path)],
+                env=env,
+                text=True,
+                timeout=timeout,
+                preexec_fn=None if os.name == 'nt' else os.setsid
+            )
+        else:
+            print(f"Running {script_name} in non-interactive mode - using provided parameters (timeout: {timeout_str})")
+            result = subprocess.run(
+                [sys.executable, str(full_path)],
+                env=env,
+                text=True,
+                capture_output=True,
+                timeout=timeout,
+                preexec_fn=None if os.name == 'nt' else os.setsid
+            )
+        return result
+    
+    def _handle_script_result(self, result, script_name, is_orchestrator_interactive, duration):
+        """Handle script execution result and raise exception if failed."""
+        if result.returncode != 0:
+            if is_orchestrator_interactive and script_name == "temporal_landing":
+                error_msg = f"Script failed with return code {result.returncode}"
+            else:
+                error_msg = f"Script failed with return code {result.returncode}: {result.stderr}"
+            logger.error(f"{script_name} failed: {error_msg}")
+            raise RuntimeError(error_msg)
+        return f"Success: {script_name} completed in {duration:.2f}s"
+    
+    def _handle_timeout_error(self, script_name, timeout_duration):
+        """Handle timeout errors with helpful messaging."""
+        timeout_map = {
+            "temporal_landing": "The temporal landing process timed out. This is normal for large datasets. The process will continue with partial results.",
+            "trusted_metadata": "The metadata processing timed out. Check your data source and try again.",
+            "trusted_images": "The image processing timed out. Consider reducing the batch size or processing fewer images.",
+            "generative_task": "The generative task timed out. This may indicate a complex task or resource constraints."
+        }
+        
+        message = timeout_map.get(script_name, f"Script {script_name} timed out after {timeout_duration} seconds")
+        logger.warning(f"Timeout warning: {message}")
+        return message
+    
+    def _setup_monitoring(self, script_name: str, start_time: float):
+        """Setup and start monitoring thread."""
+        monitoring_active = threading.Event()
+        monitoring_active.set()
+        
+        monitor_thread = threading.Thread(
+            target=self._monitor_process, 
+            args=(script_name, start_time, monitoring_active)
+        )
+        monitor_thread.daemon = True
+        monitor_thread.start()
+        
+        return monitoring_active, monitor_thread
+
+    def _stop_monitoring(self, monitoring_active: threading.Event, monitor_thread: threading.Thread):
+        """Stop monitoring thread gracefully."""
+        monitoring_active.clear()
+        if monitor_thread and monitor_thread.is_alive():
+            monitor_thread.join(timeout=2)
+
+    def _execute_script_with_monitoring(self, full_path, env, is_orchestrator_interactive, 
+                                       script_name, monitoring_active, monitor_thread):
+        """Execute script subprocess while monitoring is active."""
+        print(f"Running: {full_path}")
+        
+        result = self._execute_subprocess(full_path, env, is_orchestrator_interactive, script_name)
+        self._stop_monitoring(monitoring_active, monitor_thread)
+        
+        return result
+
     def run_script(self, script_path: str, script_name: str) -> str:
         """
         Execute a single pipeline script with monitoring.
@@ -276,105 +394,36 @@ class PipelineOrchestrator:
             raise FileNotFoundError(f"Script not found: {full_path}")
         
         start_time = time.time()
-        
-        # Initialize monitoring control mechanism
-        monitoring_active = threading.Event()
-        monitoring_active.set()  # Start monitoring immediately
-        monitor_thread = None
+        monitoring_active, monitor_thread = self._setup_monitoring(script_name, start_time)
         
         try:
-            # Configure environment variables for script execution
-            # Always use current environment variables (which may have been updated by user input)
-            env = os.environ.copy()
+            # Prepare environment variables
+            env, is_orchestrator_interactive = self._prepare_environment(script_name)
             
-            # Ensure MinIO environment variables are set (they should be set by get_minio_config)
-            minio_endpoint = os.getenv('MINIO_ENDPOINT', self.minio_config.get("endpoint", "localhost:9000"))
-            minio_access_key = os.getenv('MINIO_ACCESS_KEY', self.minio_config.get("access_key", "admin"))
-            minio_secret_key = os.getenv('MINIO_SECRET_KEY', self.minio_config.get("secret_key", "password123"))
-            
-            env.update({
-                "MINIO_ENDPOINT": minio_endpoint,
-                "MINIO_ACCESS_KEY": minio_access_key,
-                "MINIO_SECRET_KEY": minio_secret_key
-            })
-            
-            # Determine if we should run in interactive mode
-            # Interactive mode: when orchestrator is run interactively (not via CI/CD)
-            is_orchestrator_interactive = not (
-                os.getenv('CI') == 'true' or 
-                os.getenv('GITHUB_ACTIONS') == 'true' or 
-                os.getenv('GITLAB_CI') == 'true'
+            # Execute subprocess with monitoring
+            result = self._execute_script_with_monitoring(
+                full_path, env, is_orchestrator_interactive, 
+                script_name, monitoring_active, monitor_thread
             )
             
-            # For temporal_landing script, only pass parameters in non-interactive mode
-            if script_name == "temporal_landing" and not is_orchestrator_interactive:
-                # Set default parameters for temporal landing only in CI/CD mode
-                env.update({
-                    "TEMPORAL_PARAMS": "30,11,300000"  # max_per_species, max_species_per_family, max_samples
-                })
-            
-            # Execute the target script with configured environment
-            print(f"Running: {full_path}")
-            
-            # Launch monitoring thread for real-time system metrics (after script starts)
-            monitor_thread = threading.Thread(
-                target=self._monitor_process, 
-                args=(script_name, start_time, monitoring_active)
-            )
-            monitor_thread.daemon = True
-            monitor_thread.start()
-            
-            # Choose execution method based on mode
-            if is_orchestrator_interactive:
-                # For interactive mode, allow user input for all scripts
-                print(f"Running {script_name} in interactive mode - user input will be requested")
-                result = subprocess.run(
-                    [sys.executable, str(full_path)],
-                    env=env,
-                    text=True,
-                    timeout=300,  # Add 5-minute timeout to prevent infinite hanging
-                    preexec_fn=None if os.name == 'nt' else os.setsid  # Prevent signal inheritance on Unix
-                )
-            else:
-                # For non-interactive mode (CI/CD), capture output
-                print(f"Running {script_name} in non-interactive mode - using provided parameters")
-                result = subprocess.run(
-                    [sys.executable, str(full_path)],
-                    env=env,
-                    text=True,
-                    capture_output=True,  # Capture output to prevent GIL issues
-                    timeout=300,  # Add 5-minute timeout to prevent infinite hanging
-                    preexec_fn=None if os.name == 'nt' else os.setsid  # Prevent signal inheritance on Unix
-                )
-            
-            # Stop monitoring when script execution completes
-            monitoring_active.clear()
-            
-            # Wait for monitoring thread to finish gracefully
-            if monitor_thread and monitor_thread.is_alive():
-                monitor_thread.join(timeout=2)  # Reduced timeout for faster cleanup
-            
-            end_time = time.time()
-            duration = end_time - start_time
-            
-            # Scripts should always succeed - if they don't, raise an exception
-            if result.returncode != 0:
-                if is_orchestrator_interactive and script_name == "temporal_landing":
-                    # For interactive mode, we don't have stderr captured
-                    error_msg = f"Script failed with return code {result.returncode}"
-                else:
-                    # For non-interactive mode, we have stderr captured
-                    error_msg = f"Script failed with return code {result.returncode}: {result.stderr}"
-                logger.error(f"{script_name} failed: {error_msg}")
-                raise RuntimeError(error_msg)
-            
-            return f"Success: {script_name} completed in {duration:.2f}s"
+            duration = time.time() - start_time
+            return self._handle_script_result(result, script_name, is_orchestrator_interactive, duration)
                         
+        except subprocess.TimeoutExpired as e:
+            self._stop_monitoring(monitoring_active, monitor_thread)
+            duration = time.time() - start_time
+            
+            # Handle timeout gracefully for temporal_landing
+            if script_name == "temporal_landing":
+                timeout_message = self._handle_timeout_error(script_name, duration)
+                logger.warning(f"{script_name} timeout: {timeout_message}")
+                return f"Timeout: {timeout_message}"
+            else:
+                error_msg = f"Execution timeout after {duration:.1f}s: {str(e)}"
+                logger.error(f"{script_name} execution timeout: {error_msg}")
+                raise RuntimeError(error_msg)
         except Exception as e:
-            monitoring_active.clear()  # Ensure monitoring stops on error
-            # Wait for monitoring thread to finish gracefully
-            if monitor_thread and monitor_thread.is_alive():
-                monitor_thread.join(timeout=5)
+            self._stop_monitoring(monitoring_active, monitor_thread)
             
             error_msg = f"Execution error: {str(e)}"
             logger.error(f"{script_name} execution error: {error_msg}")
@@ -457,23 +506,23 @@ class PipelineOrchestrator:
             script_path = self.workflow_scripts[script_name]
             
             # Execute script with monitoring
-            message = self.run_script(script_path, script_name)
+            self.run_script(script_path, script_name)
             print(f" + {script_name} completed successfully")
-            logger.info(f"Script {script_name} completed successfully")
+            logger.info("Script %s completed successfully", script_name)
             
             time.sleep(2)  # Brief pause between scripts for system stability
         
         # Display final results
-        print(f"\n Complete data pipeline finished!")
+        print("\n Complete data pipeline finished!")
         print(f" All {len(self.recommended_workflow)} scripts completed successfully")
         
         # Finalize monitoring data
         self.monitoring_data["end_time"] = datetime.now().isoformat()
         
-        print(f" Pipeline completed with 100% success rate")
-        logger.info(f"Pipeline completed successfully with 100% success rate")
+        print(" Pipeline completed with 100% success rate")
+        logger.info("Pipeline completed successfully with 100%% success rate")
         
-        logger.info(f"Pipeline execution completed. All scripts successful.")
+        logger.info("Pipeline execution completed. All scripts successful.")
 
     def run_individual_script(self, sub_choice=None):
         """Run individual scripts (workflow or tasks)"""
@@ -784,24 +833,77 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
 
     def show_pipeline_status(self):
         """
-        Display current pipeline execution status and performance metrics.
-        
-        This method provides a comprehensive overview of pipeline execution
-        including timing information, monitoring data, and error statistics
-        for operational monitoring and troubleshooting.
+        Display collection statistics and available images in trusted-zone.
         """
-        print("\n Pipeline Status")
-        print("="*50)
-        
-        if self.monitoring_data["start_time"]:
-            print(f" Started: {self.monitoring_data['start_time']}")
-        
-        if self.monitoring_data["end_time"]:
-            print(f" Finished: {self.monitoring_data['end_time']}")
-        else:
-            print(" Pipeline is running...")
-        
-        print(f" Total monitoring samples: {len(self.monitoring_data['system_metrics'])}")
+        # Lazy imports to avoid adding global dependencies
+        try:
+            import chromadb
+            from minio import Minio
+        except Exception as e:
+            print(f"\n Error loading dependencies for status view: {e}")
+            return
+
+        # 1) Collection statistics from image embeddings
+        print("\n COLLECTION STATISTICS")
+        print("\n" + "=" * 60)
+
+        try:
+            scripts_dir = Path(__file__).parent
+            chroma_db_path = scripts_dir / "Exploitation-Zone" / "exploitation_db"
+            client = chromadb.PersistentClient(path=str(chroma_db_path))
+            collection = client.get_collection(name="image_embeddings")
+
+            # Fetch metadatas (ids are returned by default)
+            data = collection.get(include=["metadatas"])  # returns dict with lists
+            ids = data.get("ids", []) or []
+            metadatas = data.get("metadatas", []) or []
+
+            print(f" Total items: {len(ids)}")
+
+            # Aggregate counts
+            kingdoms, classes, families = {}, {}, {}
+            for meta in metadatas:
+                if not isinstance(meta, dict):
+                    continue
+                k = (meta.get("kingdom") or "Unknown")
+                c = (meta.get("class") or "Unknown")
+                f = (meta.get("family") or "Unknown")
+                kingdoms[k] = kingdoms.get(k, 0) + 1
+                classes[c] = classes.get(c, 0) + 1
+                families[f] = families.get(f, 0) + 1
+
+            # Print sections
+            print("\n By Kingdom:")
+            for k, cnt in sorted(kingdoms.items(), key=lambda x: x[1], reverse=True)[:10]:
+                print(f"  {k}: {cnt}")
+
+            print("\n By Class:")
+            for c, cnt in sorted(classes.items(), key=lambda x: x[1], reverse=True)[:10]:
+                print(f"  {c}: {cnt}")
+
+            print("\n Top Families:")
+            for f, cnt in sorted(families.items(), key=lambda x: x[1], reverse=True)[:10]:
+                print(f"  {f}: {cnt}")
+        except Exception as e:
+            print(f" Error reading collection statistics: {e}")
+
+        # 2) Available images in trusted-zone
+        try:
+            endpoint = os.getenv('MINIO_ENDPOINT', self.minio_config.get("endpoint", "localhost:9000"))
+            access_key = os.getenv('MINIO_ACCESS_KEY', self.minio_config.get("access_key", "admin"))
+            secret_key = os.getenv('MINIO_SECRET_KEY', self.minio_config.get("secret_key", "password123"))
+
+            minio_client = Minio(endpoint, access_key=access_key, secret_key=secret_key, secure=False)
+            bucket = "trusted-zone"
+            images_prefix = "images/"
+
+            if minio_client.bucket_exists(bucket):
+                count = sum(1 for _ in minio_client.list_objects(bucket, prefix=images_prefix, recursive=True))
+                print(f"\n Available images in trusted-zone: {count}")
+            else:
+                print(f"\n Bucket '{bucket}' does not exist.")
+        except Exception as e:
+            print(f" Error counting images in trusted-zone: {e}")
 
     def run(self, non_interactive=False, auto_choice=None, auto_sub_choice=None):
         # Main orchestration

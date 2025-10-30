@@ -11159,3 +11159,38 @@ minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: 
 2025-10-29 08:15:43,761 - __main__ - ERROR - run_script:368 - exploitation_metadata failed: Script failed with return code 1: None
 2025-10-29 08:15:46,913 - __main__ - ERROR - run_script:380 - exploitation_metadata execution error: Execution error: Script failed with return code 1: None
 2025-10-29 08:15:46,924 - __main__ - ERROR - _execute_choice:870 - Choice execution error: Execution error: Script failed with return code 1: None
+2025-10-30 01:01:48,653 - __main__ - INFO - run_complete_data_pipeline:461 - Starting complete data pipeline with 9 scripts
+2025-10-30 01:06:51,082 - __main__ - ERROR - run_script:389 - temporal_landing execution error: Execution error: Command '['C:\\Python312\\python.exe', 'C:\\Users\\Arman\\OneDrive\\Desktop\\sss\\ADSDB\\pr\\WildLife\\Temporal-Zone\\scripts\\Temporal_Landing.py']' timed out after 300.0 seconds
+2025-10-30 01:06:51,092 - __main__ - ERROR - _execute_choice:883 - Choice execution error: Execution error: Command '['C:\\Python312\\python.exe', 'C:\\Users\\Arman\\OneDrive\\Desktop\\sss\\ADSDB\\pr\\WildLife\\Temporal-Zone\\scripts\\Temporal_Landing.py']' timed out after 300.0 seconds
+2025-10-30 01:15:56,915 - __main__ - INFO - run_complete_data_pipeline:500 - Starting complete data pipeline with 9 scripts
+2025-10-30 01:41:19,384 - __main__ - INFO - run_complete_data_pipeline:510 - Script temporal_landing completed successfully
+2025-10-30 01:41:49,260 - __main__ - INFO - run_complete_data_pipeline:510 - Script persistent_landing completed successfully
+2025-10-30 01:41:55,756 - __main__ - INFO - run_complete_data_pipeline:510 - Script formatted_metadata completed successfully
+2025-10-30 01:42:42,849 - __main__ - INFO - run_complete_data_pipeline:510 - Script formatted_images completed successfully
+2025-10-30 01:42:49,639 - __main__ - INFO - run_complete_data_pipeline:510 - Script trusted_metadata completed successfully
+2025-10-30 01:44:16,428 - __main__ - INFO - run_complete_data_pipeline:510 - Script trusted_images completed successfully
+2025-10-30 01:44:32,344 - __main__ - INFO - run_complete_data_pipeline:510 - Script exploitation_metadata completed successfully
+2025-10-30 01:44:46,902 - __main__ - INFO - run_complete_data_pipeline:510 - Script exploitation_images completed successfully
+2025-10-30 01:46:18,720 - __main__ - INFO - run_complete_data_pipeline:510 - Script exploitation_multimodal completed successfully
+2025-10-30 01:46:21,147 - __main__ - INFO - run_complete_data_pipeline:522 - Pipeline completed successfully with 100%% success rate
+2025-10-30 01:46:21,147 - __main__ - INFO - run_complete_data_pipeline:524 - Pipeline execution completed. All scripts successful.
+2025-10-30 03:14:43,808 - __main__ - ERROR - _execute_choice:922 - Choice execution error: Script not found: C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Multi-Modal Tasks\scripts\Same_Modality_Search.py
+2025-10-30 03:15:13,625 - __main__ - ERROR - _execute_choice:922 - Choice execution error: Script not found: C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Multi-Modal Tasks\scripts\Same_Modality_Search.py
+2025-10-30 03:17:36,479 - __main__ - ERROR - _execute_choice:922 - Choice execution error: Script not found: C:\Users\Arman\OneDrive\Desktop\sss\ADSDB\pr\WildLife\Multi-Modal Tasks\scripts\Same_Modality_Search.py
+2025-10-30 03:18:10,707 - __main__ - ERROR - _handle_script_result:327 - same_modality_search failed: Script failed with return code 1: None
+2025-10-30 03:18:10,708 - __main__ - ERROR - run_script:428 - same_modality_search execution error: Execution error: Script failed with return code 1: None
+2025-10-30 03:18:10,709 - __main__ - ERROR - _execute_choice:922 - Choice execution error: Execution error: Script failed with return code 1: None
+2025-10-30 03:19:51,296 - __main__ - INFO - run_complete_data_pipeline:500 - Starting complete data pipeline with 9 scripts
+2025-10-30 03:35:50,260 - __main__ - INFO - run_complete_data_pipeline:510 - Script temporal_landing completed successfully
+2025-10-30 03:36:06,729 - __main__ - INFO - run_complete_data_pipeline:510 - Script persistent_landing completed successfully
+2025-10-30 03:36:12,929 - __main__ - INFO - run_complete_data_pipeline:510 - Script formatted_metadata completed successfully
+2025-10-30 03:36:39,743 - __main__ - INFO - run_complete_data_pipeline:510 - Script formatted_images completed successfully
+2025-10-30 03:36:45,260 - __main__ - INFO - run_complete_data_pipeline:510 - Script trusted_metadata completed successfully
+2025-10-30 03:37:34,478 - __main__ - INFO - run_complete_data_pipeline:510 - Script trusted_images completed successfully
+2025-10-30 03:37:44,576 - __main__ - INFO - run_complete_data_pipeline:510 - Script exploitation_metadata completed successfully
+2025-10-30 03:37:55,263 - __main__ - INFO - run_complete_data_pipeline:510 - Script exploitation_images completed successfully
+2025-10-30 03:38:25,357 - __main__ - INFO - run_complete_data_pipeline:510 - Script exploitation_multimodal completed successfully
+2025-10-30 03:38:27,375 - __main__ - INFO - run_complete_data_pipeline:522 - Pipeline completed successfully with 100%% success rate
+2025-10-30 03:38:27,375 - __main__ - INFO - run_complete_data_pipeline:524 - Pipeline execution completed. All scripts successful.
+2025-10-30 04:53:34,130 - chromadb.telemetry.product.posthog - INFO - __init__:22 - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-10-30 04:54:38,092 - chromadb.telemetry.product.posthog - INFO - __init__:22 - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.

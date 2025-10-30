@@ -21,7 +21,7 @@ from chromadb.utils import embedding_functions
 import pandas as pd
 import io
 import os
-import random
+import secrets
 import re
 from minio import Minio
 import sys
@@ -568,7 +568,7 @@ def get_random_query_image(query_images_list, query_images):
     if not query_images_list:
         return None, None
     
-    random_image = random.choice(query_images_list)
+    random_image = secrets.choice(query_images_list)
     image_path = os.path.join(query_images, random_image)
     
     try:
@@ -647,92 +647,112 @@ def handle_text_query(client, trusted_bucket, collection, parsed_query):
     response = generate_text_with_qwen3(prompt)
     return response
 
-def interactive_generative_interface(client, trusted_bucket, collection, query_images_list, query_images):
-    # Interactive interface for all generative tasks.
-    # Supports both interactive and non-interactive (CI/CD) modes.
-    
+# Helper functions for interactive_generative_interface
+def _is_non_interactive_mode_generative():
+    """Check if running in non-interactive mode."""
     import os
     import sys
     
-    # Check if running in non-interactive mode (CI/CD)
-    is_non_interactive = (
-        os.getenv('CI') == 'true' or  # GitHub Actions
-        os.getenv('GITHUB_ACTIONS') == 'true' or  # GitHub Actions
-        os.getenv('GITLAB_CI') == 'true' or  # GitLab CI
-        '--non-interactive' in sys.argv or  # Command line flag
-        not sys.stdin.isatty()  # No TTY (piped input)
+    return (
+        os.getenv('CI') == 'true' or
+        os.getenv('GITHUB_ACTIONS') == 'true' or
+        os.getenv('GITLAB_CI') == 'true' or
+        '--non-interactive' in sys.argv or
+        not sys.stdin.isatty()
     )
+
+def _execute_query_generative(client, trusted_bucket, collection, query_images_list, query_images, parsed_query):
+    """Execute query based on workflow type (image or text)."""
+    if parsed_query['has_take_image']:
+        return handle_image_query(client, trusted_bucket, collection, query_images_list, query_images, parsed_query)
+    else:
+        return handle_text_query(client, trusted_bucket, collection, parsed_query)
+
+def _display_response_generative(response, prefix=""):
+    """Display response with formatting."""
+    if response:
+        print(f"\n{prefix}RESPONSE:")
+        print("=" * 60)
+        print(response)
+        print("=" * 60)
+
+def _handle_non_interactive_generative(client, trusted_bucket, collection, query_images_list, query_images):
+    """Handle non-interactive mode for generative tasks."""
+    import os
     
-    if is_non_interactive:
-        # Non-interactive mode - use environment variable for query
-        print("Running in non-interactive mode - using environment variable for query")
-        user_query = os.getenv('USER_QUERY', 'What is a rattlesnake?')
-        print(f"Using query: {user_query}")
-        
-        if not user_query:
-            print("No query provided in environment variable")
-            return
-        
-        # Parse the query
-        parsed_query = parse_user_query(user_query)
-        print(f"\nParsed query: {parsed_query['clean_query']}")
-        
-        # Execute based on workflow type
-        if parsed_query['has_take_image']:
-            response = handle_image_query(client, trusted_bucket, collection, query_images_list, query_images, parsed_query)
-        else:
-            response = handle_text_query(client, trusted_bucket, collection, parsed_query)
-        
-        if response:
-            print("\nRESPONSE:")
-            print("=" * 60)
-            print(response)
-            print("=" * 60)
-        
+    print("Running in non-interactive mode - using environment variable for query")
+    user_query = os.getenv('USER_QUERY', 'What is a rattlesnake?')
+    print(f"Using query: {user_query}")
+    
+    if not user_query:
+        print("No query provided in environment variable")
         return
     
-    # Interactive mode
+    parsed_query = parse_user_query(user_query)
+    print(f"\nParsed query: {parsed_query['clean_query']}")
+    
+    response = _execute_query_generative(client, trusted_bucket, collection, query_images_list, query_images, parsed_query)
+    _display_response_generative(response)
+
+def _display_welcome_message():
+    """Display welcome message for interactive mode."""
     print("Welcome to the Multimodal Generative Wildlife System!")
     print("\n Query Examples:")
     print("• 'What is a rattlesnake?' - Text generation with database context")
     print("• 'take image what species is this?' - Multimodal analysis with image + text + database")
     print("\nType 'quit' to exit")
     print("=" * 60)
+
+def _process_user_query_input():
+    """Get and validate user input."""
+    user_query = input("\n Enter your query: ").strip()
+    if user_query.lower() == 'quit':
+        return None
+    if not user_query:
+        print(" Please enter a query")
+        return ""
+    return user_query
+
+def _execute_and_display_query(client, trusted_bucket, collection, query_images_list, query_images, user_query):
+    """Execute query and display response."""
+    parsed_query = parse_user_query(user_query)
+    print(f"\n Parsed query: {parsed_query['clean_query']}")
+    
+    response = _execute_query_generative(client, trusted_bucket, collection, query_images_list, query_images, parsed_query)
+    _display_response_generative(response, prefix=" ")
+
+def _handle_interactive_generative_loop(client, trusted_bucket, collection, query_images_list, query_images):
+    """Handle interactive generative loop."""
+    _display_welcome_message()
     
     while True:
         try:
-            # Get user query
-            user_query = input("\n Enter your query: ").strip()
+            user_query = _process_user_query_input()
             
-            if user_query.lower() == 'quit':
+            if user_query is None:
                 print(" Goodbye!")
                 break
             
             if not user_query:
-                print(" Please enter a query")
                 continue
             
-            # Parse the query
-            parsed_query = parse_user_query(user_query)
-            print(f"\n Parsed query: {parsed_query['clean_query']}")
-            
-            # Execute based on workflow type
-            if parsed_query['has_take_image']:
-                response = handle_image_query(client, trusted_bucket, collection, query_images_list, query_images, parsed_query)
-            else:
-                response = handle_text_query(client, trusted_bucket, collection, parsed_query)
-            
-            if response:
-                print("\n RESPONSE:")
-                print("=" * 60)
-                print(response)
-                print("=" * 60)
+            _execute_and_display_query(client, trusted_bucket, collection, query_images_list, query_images, user_query)
                
         except KeyboardInterrupt:
             print("\n Goodbye!")
             break
         except Exception as e:
             print(f" Error: {e}")
+
+def interactive_generative_interface(client, trusted_bucket, collection, query_images_list, query_images):
+    # Interactive interface for all generative tasks.
+    # Supports both interactive and non-interactive (CI/CD) modes.
+    
+    if _is_non_interactive_mode_generative():
+        _handle_non_interactive_generative(client, trusted_bucket, collection, query_images_list, query_images)
+        return
+    
+    _handle_interactive_generative_loop(client, trusted_bucket, collection, query_images_list, query_images)
 
 # ==============================
 #          Functions

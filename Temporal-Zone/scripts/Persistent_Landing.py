@@ -235,10 +235,7 @@ def cleanup_temporal_landing(client, root_bucket, temp_prefix):
 # ==============================
 #       Configuration
 # ==============================
-def process_landing_zone(
-    minio="localhost:9000", # default configurations
-    access_key="admin",
-    secret_key="password123"): 
+def process_landing_zone(): 
     
     print("Starting Persistent Landing Process...")
     

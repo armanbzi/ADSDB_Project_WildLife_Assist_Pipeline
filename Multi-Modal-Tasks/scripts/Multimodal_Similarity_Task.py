@@ -21,7 +21,7 @@ from chromadb.utils import embedding_functions
 import pandas as pd
 import io
 import os
-import random
+import secrets
 from minio import Minio
 import sys
 from PIL import Image
@@ -126,7 +126,7 @@ def get_random_query_image(query_images, query_images_path):
     if not query_images:
         return None, None
     # selecting a random image
-    random_image = random.choice(query_images)
+    random_image = secrets.choice(query_images)
     image_path = os.path.join(query_images_path, random_image)
     
     try:
@@ -326,9 +326,6 @@ def cluster_based_search(collection, chroma_client, query_text="", query_image=N
 def perform_image_cluster_search(collection, chroma_client, query_image, n_results):
     # Perform image-based cluster search using embeddings.
     try:
-        # Get the multimodal collection
-        multimodal_collection = chroma_client.get_collection(name="multimodal_embeddings")
-        
         # Generate embedding for the query image using OpenCLIP
         from langchain_experimental.open_clip import OpenCLIPEmbeddings
         clip_embd = OpenCLIPEmbeddings(
@@ -340,7 +337,8 @@ def perform_image_cluster_search(collection, chroma_client, query_image, n_resul
         query_embedding = generate_image_embedding(clip_embd, query_image)
         
         # Query the collection
-        results = multimodal_collection.query(
+        # Use the provided collection (already opened correctly elsewhere)
+        results = collection.query(
             query_embeddings=[query_embedding],
             n_results=n_results
         )
@@ -409,6 +407,81 @@ def filter_results_by_top_species(results, top_species, return_count):
     
     return filtered_results
     
+# Helper functions for interactive_search
+def _is_non_interactive_mode():
+    """Check if running in non-interactive mode."""
+    import os
+    import sys
+    
+    return (
+        os.getenv('CI') == 'true' or
+        os.getenv('GITHUB_ACTIONS') == 'true' or
+        os.getenv('GITLAB_CI') == 'true' or
+        '--non-interactive' in sys.argv or
+        not sys.stdin.isatty()
+    )
+
+def _execute_search_by_input(collection, chroma_client, user_input, query_images, 
+                             query_images_path, client, trusted_bucket, image_paths):
+    """Execute search based on user input (text or image)."""
+    if user_input.lower() == 'image':
+        query_image, image_name = get_random_query_image(query_images, query_images_path)
+        if query_image:
+            search_by_image(collection, chroma_client, query_image, image_name,
+                          client=client, trusted_bucket=trusted_bucket, image_paths=image_paths)
+        else:
+            print(" No query images available!")
+    else:
+        search_by_text(collection, user_input, n_results=5, client=client,
+                      trusted_bucket=trusted_bucket, image_paths=image_paths)
+
+def _handle_non_interactive_search(collection, chroma_client, query_images, 
+                                   query_images_path, client, trusted_bucket, image_paths):
+    """Handle non-interactive mode search using environment variable."""
+    import os
+    
+    print("Running in non-interactive mode - using environment variable for query")
+    user_input = os.getenv('USER_QUERY', 'rattlesnake')
+    print(f"Using query: {user_input}")
+    
+    if not user_input:
+        print("No query provided in environment variable")
+        return
+    
+    _execute_search_by_input(collection, chroma_client, user_input, query_images,
+                            query_images_path, client, trusted_bucket, image_paths)
+
+def _handle_interactive_search_loop(collection, chroma_client, query_images, 
+                                    query_images_path, client, trusted_bucket, image_paths):
+    """Handle interactive search loop."""
+    print("\n MULTIMODAL WILDLIFE SEARCH")
+    print("=" * 60)
+    print("Instructions:")
+    print("• Enter any text to search for similar wildlife")
+    print("• Enter 'image' to search using a random image")
+    print("• Enter 'quit' to exit")
+    print("=" * 60)
+    
+    while True:
+        try:
+            user_input = input("\n Enter your search query (or 'image'/'quit'): ").strip()
+            
+            if user_input.lower() == 'quit':
+                print(" Goodbye!")
+                break
+            
+            elif user_input.lower() == 'image' or user_input:
+                _execute_search_by_input(collection, chroma_client, user_input, query_images,
+                                        query_images_path, client, trusted_bucket, image_paths)
+            else:
+                print(" Please enter a search query, 'image', or 'quit'")
+                
+        except KeyboardInterrupt:
+            print("\n Goodbye!")
+            break
+        except Exception as e:
+            print(f" Error: {e}")
+
 # search functions
 def search_by_text(collection, query_text, n_results=5, client=None, trusted_bucket=None, image_paths=None):
      # erform text-based similarity search.
@@ -468,83 +541,13 @@ def interactive_search(collection, chroma_client, query_images, query_images_pat
     # Interactive search interface for user input
     # Supports both interactive and non-interactive (CI/CD) modes.
     
-    import os
-    import sys
-    
-    # Check if running in non-interactive mode (CI/CD)
-    is_non_interactive = (
-        os.getenv('CI') == 'true' or  # GitHub Actions
-        os.getenv('GITHUB_ACTIONS') == 'true' or  # GitHub Actions
-        os.getenv('GITLAB_CI') == 'true' or  # GitLab CI
-        '--non-interactive' in sys.argv or  # Command line flag
-        not sys.stdin.isatty()  # No TTY (piped input)
-    )
-    
-    if is_non_interactive:
-        # Non-interactive mode - use environment variable for query
-        print("Running in non-interactive mode - using environment variable for query")
-        user_input = os.getenv('USER_QUERY', 'rattlesnake')
-        print(f"Using query: {user_input}")
-        
-        if not user_input:
-            print("No query provided in environment variable")
-            return
-        
-        # Execute search based on input
-        if user_input.lower() == 'image':
-            # Random image search with cluster approach
-            query_image, image_name = get_random_query_image(query_images, query_images_path)
-            if query_image:
-                search_by_image(collection, chroma_client, query_image, image_name,
-                              client=client, trusted_bucket=trusted_bucket, image_paths=image_paths)
-            else:
-                print(" No query images available!")
-        else:
-            # Text-based search
-            search_by_text(collection, user_input, n_results=5, client=client, 
-                          trusted_bucket=trusted_bucket, image_paths=image_paths)
-        
+    if _is_non_interactive_mode():
+        _handle_non_interactive_search(collection, chroma_client, query_images,
+                                      query_images_path, client, trusted_bucket, image_paths)
         return
     
-    # Interactive mode
-    print("\n MULTIMODAL WILDLIFE SEARCH")
-    print("=" * 60)
-    print("Instructions:")
-    print("• Enter any text to search for similar wildlife")
-    print("• Enter 'image' to search using a random image")
-    print("• Enter 'quit' to exit")
-    print("=" * 60)
-    
-    while True:
-        try:
-            user_input = input("\n Enter your search query (or 'image'/'quit'): ").strip()
-            
-            if user_input.lower() == 'quit':
-                print(" Goodbye!")
-                break
-                
-            elif user_input.lower() == 'image':
-                # Random image search with cluster approach
-                query_image, image_name = get_random_query_image(query_images, query_images_path)
-                if query_image:
-                    search_by_image(collection, chroma_client, query_image, image_name,
-                                  client=client, trusted_bucket=trusted_bucket, image_paths=image_paths)
-                else:
-                    print(" No query images available!")
-                    
-            elif user_input:
-                # Text-based search 
-                search_by_text(collection, user_input, n_results=5, client=client, 
-                              trusted_bucket=trusted_bucket, image_paths=image_paths)
-                
-            else:
-                print(" Please enter a search query, 'image', or 'quit'")
-                
-        except KeyboardInterrupt:
-            print("\n Goodbye!")
-            break
-        except Exception as e:
-            print(f" Error: {e}")
+    _handle_interactive_search_loop(collection, chroma_client, query_images,
+                                   query_images_path, client, trusted_bucket, image_paths)
 
 def get_collection_statistics(collection):
     # Get statistics about the multimodal_embedding collection.
@@ -593,10 +596,7 @@ def get_collection_statistics(collection):
 # ==============================
 #        Main Function
 # ==============================
-def process_multimodal_task(
-    minio_endpoint = "localhost:9000",
-    access_key = "admin",
-    secret_key = "password123"):
+def process_multimodal_task():
     
     # Get MinIO configuration from environment variables (set by orchestrator)
     minio_endpoint, access_key, secret_key = get_minio_config()

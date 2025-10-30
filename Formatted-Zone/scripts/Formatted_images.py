@@ -126,10 +126,7 @@ def process_single_image(client, landing_zone, persistent_prefix, formatted_pref
 # ==============================
 #        Configuration
 # ==============================
-def process_formatted_images(   
-    minio = "localhost:9000",
-    access_key = "admin",
-    secret_key = "password123"):
+def process_formatted_images():
 
     # Get MinIO configuration from environment variables (set by orchestrator)
     minio, access_key, secret_key = get_minio_config()

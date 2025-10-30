@@ -17,57 +17,21 @@ from minio import Minio
 import pandas as pd
 import io, os, shutil
 from datetime import datetime
+from shared_utils import get_minio_config, setup_minio_client_and_bucket, get_trusted_zone_config
 
 # -----------------------
 #    Functions
 # -----------------------
-def get_minio_config():
-    # Load MinIO configuration from environment variables (set by orchestrator).
-    
-    import os
-    
-    # Get configuration from environment variables (set by orchestrator)
-    endpoint = os.getenv('MINIO_ENDPOINT', 'localhost:9000')
-    access_key = os.getenv('MINIO_ACCESS_KEY', 'admin')
-    secret_key = os.getenv('MINIO_SECRET_KEY', 'admin123')
-    
-    print(f"Using MinIO configuration from environment variables: endpoint={endpoint}, access_key={access_key[:3]}***")
-    return endpoint, access_key, secret_key
 
 # -----------------------
 #    Configuration
 # -----------------------
-def process_trusted_metadata(
-    MINIO = "localhost:9000",
-    ACCESS_KEY = "admin",
-    SECRET_KEY = "password123"):
 
-    # Get MinIO configuration from environment variables (set by orchestrator)
-    MINIO, ACCESS_KEY, SECRET_KEY = get_minio_config()
 
-    FORMATTED_ZONE = "formatted-zone"
-    TRUSTED_ZONE = "trusted-zone"
-    
-    META_PREFIX = "metadata/"
-    
-    TARGET_COLUMNS = [
-        "uuid", "kingdom", "phylum", "class", "order", "family",
-        "genus", "species", "scientific_name", "common",
-        "persistent_path", "formatted_path", "image_url"
-    ]
-    
-    
-    #  Connect to MinIO
-    client = Minio(MINIO, access_key=ACCESS_KEY, secret_key=SECRET_KEY, secure=False)
-    if not client.bucket_exists(TRUSTED_ZONE):
-        client.make_bucket(TRUSTED_ZONE)
-        print(f" Created trusted zone bucket: {TRUSTED_ZONE}")
-    
-    # -------------------------------------
-    #   Read all formatted metadata files
-    # -------------------------------------
+def _load_formatted_metadata(client, formatted_zone, meta_prefix):
+    """Load all formatted metadata files from MinIO and concatenate them."""
     metadata_objs = [
-        obj.object_name for obj in client.list_objects(FORMATTED_ZONE, prefix=META_PREFIX, recursive=True)
+        obj.object_name for obj in client.list_objects(formatted_zone, prefix=meta_prefix, recursive=True)
         if obj.object_name.lower().endswith(".csv")
     ]
     
@@ -76,88 +40,87 @@ def process_trusted_metadata(
     
     all_dfs = []
     for obj_name in metadata_objs:
-        resp = client.get_object(FORMATTED_ZONE, obj_name)
+        resp = client.get_object(formatted_zone, obj_name)
         data = resp.read()
         resp.close()
         resp.release_conn()
         df = pd.read_csv(io.BytesIO(data))
         all_dfs.append(df)
     
-    #  all formatted metadata
-    metadata_df = pd.concat(all_dfs, ignore_index=True)
-    
-    # --------------------------
-    #    Trusted Zone cleaning
-    # --------------------------
-    
+    return pd.concat(all_dfs, ignore_index=True)
+
+def _clean_metadata(metadata_df, target_columns):
+    """Clean metadata: keep target columns, remove duplicates, remove missing values, normalize strings."""
     # Keep only target columns
-    for col in TARGET_COLUMNS:
+    for col in target_columns:
         if col not in metadata_df.columns:
             metadata_df[col] = pd.NA
-    metadata_df = metadata_df[TARGET_COLUMNS]
+    metadata_df = metadata_df[target_columns]
     
-    #  Remove duplicates by uuid
+    # Remove duplicates by uuid
     before_dupe = len(metadata_df)
     metadata_df = metadata_df.drop_duplicates(subset=["uuid"], keep="first").reset_index(drop=True)
     after_dupe = len(metadata_df)
     print(f"Removed {before_dupe - after_dupe} duplicate rows by uuid.")
     
-    #  Remove rows missing uuid or formatted_path
+    # Remove rows missing uuid or formatted_path
     before_missing = len(metadata_df)
     metadata_df = metadata_df[metadata_df["uuid"].notna()]
     metadata_df = metadata_df[metadata_df["formatted_path"].notna()]
     after_missing = len(metadata_df)
     print(f"Removed {before_missing - after_missing} rows missing uuid or formatted_path.")
     
-    #  Normalize strings
+    # Normalize strings
     str_cols = ["kingdom","phylum","class","order","family","genus","species","scientific_name","common","persistent_path","formatted_path","image_url"]
     for col in str_cols:
         metadata_df[col] = metadata_df[col].astype("string").str.strip().replace({"": pd.NA})
     
-    #  "None" strings with pd.NA
+    # Replace "None" strings with pd.NA
     metadata_df.replace({"NA": pd.NA, "None": pd.NA}, inplace=True)
     
-    
-    # -----------------------
-    #  Merge with existing trusted metadata (avoid duplicates)
-    # -----------------------
+    return metadata_df
+
+def _merge_with_existing_trusted(client, trusted_zone, meta_prefix, metadata_df):
+    """Merge new metadata with existing trusted metadata to avoid duplicates."""
     trusted_metadata_files = [
-        obj.object_name for obj in client.list_objects(TRUSTED_ZONE, prefix=META_PREFIX, recursive=True)
+        obj.object_name for obj in client.list_objects(trusted_zone, prefix=meta_prefix, recursive=True)
         if obj.object_name.lower().endswith(".csv") and "trusted_metadata_" in obj.object_name
     ]
     
-    if trusted_metadata_files:
-        # Take the latest trusted metadata CSV
-        trusted_metadata_files.sort(reverse=True)
-        latest_file = trusted_metadata_files[0]
-        local_existing = "temp_existing_trusted_metadata.csv"
-    
-        # Download existing trusted metadata
-        client.fget_object(TRUSTED_ZONE, latest_file, local_existing)
-        existing_trusted_df = pd.read_csv(local_existing)
-    
-        # Remove old trusted metadata files 
-        for obj in client.list_objects(TRUSTED_ZONE, prefix=META_PREFIX, recursive=True):
-            if obj.object_name.startswith("metadata/trusted_metadata_"):
-                client.remove_object(TRUSTED_ZONE, obj.object_name)
-                print(f" Removed old trusted metadata file: {obj.object_name}")
-    
-        # Merge only new rows 
-        new_rows = metadata_df[~metadata_df["uuid"].isin(existing_trusted_df["uuid"])]
-        if not new_rows.empty:
-            metadata_df = pd.concat([existing_trusted_df, new_rows], ignore_index=True)
-            print(f" Added {len(new_rows)} new rows to trusted metadata, total now: {len(metadata_df)}")
-        else:
-            print(" No new rows to add; trusted metadata is up to date.")
-    
-        # Cleanup local temp
-        os.remove(local_existing)
-    else:
+    if not trusted_metadata_files:
         print(" No existing trusted metadata found; creating new one.")
+        return metadata_df
     
-    # -----------------------
-    #    Save cleaned metadata to Trusted Zone
-    # -----------------------
+    # Take the latest trusted metadata CSV
+    trusted_metadata_files.sort(reverse=True)
+    latest_file = trusted_metadata_files[0]
+    local_existing = "temp_existing_trusted_metadata.csv"
+    
+    # Download existing trusted metadata
+    client.fget_object(trusted_zone, latest_file, local_existing)
+    existing_trusted_df = pd.read_csv(local_existing)
+    
+    # Remove old trusted metadata files 
+    for obj in client.list_objects(trusted_zone, prefix=meta_prefix, recursive=True):
+        if obj.object_name.startswith("metadata/trusted_metadata_"):
+            client.remove_object(trusted_zone, obj.object_name)
+            print(f" Removed old trusted metadata file: {obj.object_name}")
+    
+    # Merge only new rows 
+    new_rows = metadata_df[~metadata_df["uuid"].isin(existing_trusted_df["uuid"])]
+    if not new_rows.empty:
+        metadata_df = pd.concat([existing_trusted_df, new_rows], ignore_index=True)
+        print(f" Added {len(new_rows)} new rows to trusted metadata, total now: {len(metadata_df)}")
+    else:
+        print(" No new rows to add; trusted metadata is up to date.")
+        metadata_df = existing_trusted_df
+    
+    # Cleanup local temp
+    os.remove(local_existing)
+    return metadata_df
+
+def _save_and_cleanup(client, trusted_zone, meta_prefix, metadata_df):
+    """Save cleaned metadata to Trusted Zone and cleanup temp files."""
     timestamp = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     local_file = f"trusted_metadata_{timestamp}.csv"
     os.makedirs("temp_trusted", exist_ok=True)
@@ -165,12 +128,49 @@ def process_trusted_metadata(
     metadata_df.to_csv(local_path, index=False)
     
     # Upload to MinIO trusted-zone/metadata/
-    client.fput_object(TRUSTED_ZONE, f"{META_PREFIX}{local_file}", local_path, content_type="text/csv")
-    print(f" Trusted metadata uploaded: {META_PREFIX}{local_file}")
+    client.fput_object(trusted_zone, f"{meta_prefix}{local_file}", local_path, content_type="text/csv")
+    print(f" Trusted metadata uploaded: {meta_prefix}{local_file}")
     
     # Cleanup
     os.remove(local_path)
     shutil.rmtree("temp_trusted")
+
+def _get_configuration():
+    """Get configuration constants."""
+    config = get_trusted_zone_config()
+    target_columns = [
+        "uuid", "kingdom", "phylum", "class", "order", "family",
+        "genus", "species", "scientific_name", "common",
+        "persistent_path", "formatted_path", "image_url"
+    ]
+    return config['formatted_zone'], config['trusted_zone'], config['meta_prefix'], target_columns
+
+def _process_metadata_pipeline(client, formatted_zone, trusted_zone, meta_prefix, target_columns):
+    """Execute the full metadata processing pipeline."""
+    metadata_df = _load_formatted_metadata(client, formatted_zone, meta_prefix)
+    metadata_df = _clean_metadata(metadata_df, target_columns)
+    metadata_df = _merge_with_existing_trusted(client, trusted_zone, meta_prefix, metadata_df)
+    return metadata_df
+
+# -----------------------
+#    Configuration
+# -----------------------
+def process_trusted_metadata():
+
+    # Get MinIO configuration from environment variables (set by orchestrator)
+    minio, access_key, secret_key = get_minio_config()
+
+    # Get configuration constants
+    formatted_zone, trusted_zone, meta_prefix, target_columns = _get_configuration()
+    
+    # Setup MinIO client and bucket
+    client = setup_minio_client_and_bucket(minio, access_key, secret_key, trusted_zone)
+    
+    # Process metadata pipeline
+    metadata_df = _process_metadata_pipeline(client, formatted_zone, trusted_zone, meta_prefix, target_columns)
+    
+    # Save and cleanup
+    _save_and_cleanup(client, trusted_zone, meta_prefix, metadata_df)
     print(" Trusted metadata processing complete.")
 
 process_trusted_metadata();

@@ -40,99 +40,81 @@ import signal
 import sys
 
 # ==============================
+#       Constants
+# ==============================
+ERR_POSITIVE_NUMBER = " Please enter a positive number greater than 0."
+ERR_VALID_NUMBER = " Please enter a valid number."
+
+# ==============================
 #          Functions
 # ==============================
+
+def _parse_temporal_params(temporal_params_str, default_samples=300000):
+    """Parse temporal parameters from comma-separated string."""
+    try:
+        params = temporal_params_str.split(',')
+        return int(params[0].strip()), int(params[1].strip()), int(params[2].strip())
+    except (ValueError, IndexError):
+        print(f"Warning: Invalid TEMPORAL_PARAMS format '{temporal_params_str}', using defaults")
+        return 30, 11, default_samples
+
+def _get_non_interactive_params():
+    """Get parameters for non-interactive mode (orchestrator/CI/CD)."""
+    import os
+    import sys
+    
+    temporal_params = os.getenv('TEMPORAL_PARAMS')
+    
+    if temporal_params:
+        print("Running in orchestrator mode - using provided parameters")
+        return _parse_temporal_params(temporal_params, default_samples=300000)
+    else:
+        print("Running in CI/CD mode - using environment variables or defaults")
+        temporal_params_str = os.getenv('TEMPORAL_PARAMS', '30,11,300000')
+        return _parse_temporal_params(temporal_params_str, default_samples=300000)
+
+def _get_interactive_param(prompt, param_name):
+    """Get a single parameter from user input with validation."""
+    while True:
+        try:
+            value = int(input(f"{param_name} (e.g., {prompt}): "))
+            if value > 0:
+                return value
+            else:
+                print(ERR_POSITIVE_NUMBER)
+        except ValueError:
+            print(ERR_VALID_NUMBER)
+
+def _is_non_interactive_mode():
+    """Check if running in non-interactive mode."""
+    import os
+    import sys
+    
+    temporal_params = os.getenv('TEMPORAL_PARAMS')
+    return (
+        temporal_params is not None or
+        os.getenv('CI') == 'true' or
+        os.getenv('GITHUB_ACTIONS') == 'true' or
+        os.getenv('GITLAB_CI') == 'true' or
+        '--non-interactive' in sys.argv
+    )
 
 def get_user_parameters():
     # Get user input parameters for data processing with validation control.
     # Supports both interactive and non-interactive (CI/CD) modes.
     
     import os
-    import sys
     
-    # Check if running in non-interactive mode (CI/CD)
-    # When TEMPORAL_PARAMS is set, use those parameters (orchestrator mode)
-    # When CI/GITHUB_ACTIONS/GITLAB_CI is set, use defaults (true CI/CD mode)
-    temporal_params = os.getenv('TEMPORAL_PARAMS')
-    
-    is_non_interactive = (
-        temporal_params is not None or  # Orchestrator passed parameters
-        os.getenv('CI') == 'true' or  # GitHub Actions
-        os.getenv('GITHUB_ACTIONS') == 'true' or  # GitHub Actions
-        os.getenv('GITLAB_CI') == 'true' or  # GitLab CI
-        '--non-interactive' in sys.argv  # Command line flag
-    )
-    
-    # Don't check sys.stdin.isatty() as it can cause issues in some environments
-    
-    if is_non_interactive:
-        # Use environment variables or defaults for CI/CD
-        if temporal_params:
-            print("Running in orchestrator mode - using provided parameters")
-            try:
-                params = temporal_params.split(',')
-                max_per_species = int(params[0].strip())
-                max_species_per_family = int(params[1].strip())
-                max_samples = int(params[2].strip())
-            except (ValueError, IndexError):
-                print(f"Warning: Invalid TEMPORAL_PARAMS format '{temporal_params}', using defaults")
-                max_per_species = 30
-                max_species_per_family = 11
-                max_samples = 300000
-        else:
-            print("Running in CI/CD mode - using environment variables or defaults")
-            # Parse consolidated temporal parameters
-            temporal_params_str = os.getenv('TEMPORAL_PARAMS', '30,11,3000000')
-            try:
-                params = temporal_params_str.split(',')
-                max_per_species = int(params[0].strip())
-                max_species_per_family = int(params[1].strip())
-                max_samples = int(params[2].strip())
-            except (ValueError, IndexError):
-                print(f"Warning: Invalid TEMPORAL_PARAMS format '{temporal_params_str}', using defaults")
-                max_per_species = 30
-                max_species_per_family = 11
-                max_samples = 3000000
-        
+    if _is_non_interactive_mode():
+        max_per_species, max_species_per_family, max_samples = _get_non_interactive_params()
         print(f"Using parameters: MAX_PER_SPECIES={max_per_species}, MAX_SPECIES_PER_FAMILY={max_species_per_family}, MAX_SAMPLES={max_samples}")
-        
         return max_per_species, max_species_per_family, max_samples
     
     # Interactive mode - get user input
     print("Running in interactive mode - please enter the following parameters:")
-    
-    # Get MAX_PER_SPECIES with validation
-    while True:
-        try:
-            max_per_species = int(input("MAX_PER_SPECIES (e.g., 30): "))
-            if max_per_species > 0:
-                break
-            else:
-                print(" Please enter a positive number greater than 0.")
-        except ValueError:
-            print(" Please enter a valid number.")
-    
-    # Get MAX_SPECIES_PER_FAMILY with validation
-    while True:
-        try:
-            max_species_per_family = int(input("MAX_SPECIES_PER_FAMILY (e.g., 11): "))
-            if max_species_per_family > 0:
-                break
-            else:
-                print(" Please enter a positive number greater than 0.")
-        except ValueError:
-            print(" Please enter a valid number.")
-    
-    # Get MAX_SAMPLES with validation
-    while True:
-        try:
-            max_samples = int(input("MAX_SAMPLES (e.g., 300000): "))
-            if max_samples > 0:
-                break
-            else:
-                print(" Please enter a positive number greater than 0.")
-        except ValueError:
-            print(" Please enter a valid number.")
+    max_per_species = _get_interactive_param("30", "MAX_PER_SPECIES")
+    max_species_per_family = _get_interactive_param("11", "MAX_SPECIES_PER_FAMILY")
+    max_samples = _get_interactive_param("300000", "MAX_SAMPLES")
     
     return max_per_species, max_species_per_family, max_samples
 
@@ -240,15 +222,10 @@ def download_and_save_image(image_url, img_id, client, root_bucket, temp_prefix,
     # Download and save image to MinIO.
     
     try:
-        # Configure requests to handle SSL certificate issues
-        import ssl
-        import urllib3
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        
         response = requests.get(
             image_url, 
             timeout=10,
-            verify=False,  # Disable SSL verification to handle certificate issues
+            verify=True,  # Enable SSL certificate validation
             headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
         )
         response.raise_for_status()
@@ -358,6 +335,13 @@ def process_streaming_data(snake_families, limits, max_samples, client, root_buc
     
     print(" Processing streaming data...")
     
+    # Add time-based early termination
+    import time
+    import os
+    start_time = time.time()
+    # Get max runtime from environment or use default (25 minutes)
+    max_runtime = int(os.getenv('TEMPORAL_MAX_RUNTIME', '1500'))  # 25 minutes default
+    
     try:
         # Stream the dataset (no full download)
         dataset = load_dataset(
@@ -369,6 +353,7 @@ def process_streaming_data(snake_families, limits, max_samples, client, root_buc
         
         # Use user-provided max_samples limit
         print(f" Processing up to {max_samples} samples from the dataset...")
+        print(f" Maximum runtime: {max_runtime} seconds (25 minutes)")
         
     except Exception as e:
         print(f" Error loading dataset: {e}")
@@ -376,12 +361,29 @@ def process_streaming_data(snake_families, limits, max_samples, client, root_buc
     
     # Process samples in stream with error handling
     processed_count = 0
+    last_progress_time = start_time
+    progress_interval = 30  # Print progress every 30 seconds
     
     try:
-        for i, sample in enumerate(tqdm(dataset)):
+        for i, sample in enumerate(tqdm(dataset, desc="Processing samples")):
+            # Check time limit
+            current_time = time.time()
+            if current_time - start_time > max_runtime:
+                print(f"\n⏰ Time limit reached ({max_runtime}s). Stopping processing early.")
+                print(f"   Processed {processed_count} samples in {current_time - start_time:.1f} seconds")
+                break
+            
             # Stop after processing max_samples
             if i >= max_samples:
+                print(f"\n📊 Sample limit reached ({max_samples}). Stopping processing.")
                 break
+            
+            # Print progress every 30 seconds
+            if current_time - last_progress_time >= progress_interval:
+                elapsed = current_time - start_time
+                rate = processed_count / elapsed if elapsed > 0 else 0
+                print(f"\n📈 Progress: {processed_count} samples processed in {elapsed:.1f}s (rate: {rate:.2f} samples/s)")
+                last_progress_time = current_time
             
             try:
                 metadata_df = process_sample(
@@ -402,10 +404,12 @@ def process_streaming_data(snake_families, limits, max_samples, client, root_buc
         # Ensure dataset cleanup happens
         try:
             del dataset
-        except:
+        except Exception:
             pass
     
-    print(f"Processing completed: {processed_count} samples processed")
+    total_time = time.time() - start_time
+    print(f"\n✅ Processing completed: {processed_count} samples processed in {total_time:.1f} seconds")
+    print(f"   Average rate: {processed_count/total_time:.2f} samples/second")
     
     return metadata_df, False
 
@@ -446,14 +450,14 @@ def cleanup_threads():
             # Clean up any remaining requests sessions
             import requests
             requests.Session().close()
-        except:
+        except Exception:
             pass
         
         try:
             # Clean up PIL/Pillow resources
             from PIL import Image
             Image._show = lambda *args, **kwargs: None  # Disable image display
-        except:
+        except Exception:
             pass
         
         print(" Thread cleanup completed successfully")
@@ -463,10 +467,7 @@ def cleanup_threads():
 # ==============================
 #        Configuration
 # ==============================
-def process_temporal(
-    minio_endpoint = "localhost:9000",
-    access_key = "admin",
-    secret_key = "password123"):
+def process_temporal():
 
     print("Starting Temporal Landing Process...")
     

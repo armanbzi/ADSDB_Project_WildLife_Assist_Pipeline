@@ -214,10 +214,7 @@ def save_unified_outputs(client, formatted_zone, updated_df, schema_summary):
 # ==============================
 #        Configuration
 # ==============================
-def process_formatted_metadata(
-    minio_endpoint = "localhost:9000",
-    access_key = "admin",
-    secret_key = "password123"):
+def process_formatted_metadata():
 
     # Get MinIO configuration from environment variables (set by orchestrator)
     minio_endpoint, access_key, secret_key = get_minio_config()

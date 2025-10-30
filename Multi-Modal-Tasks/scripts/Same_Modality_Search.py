@@ -19,7 +19,7 @@ from langchain_experimental.open_clip import OpenCLIPEmbeddings
 import chromadb
 from PIL import Image
 import matplotlib.pyplot as plt
-import os, random, tempfile
+import os, secrets, tempfile
 from minio import Minio
 import io
 
@@ -123,7 +123,7 @@ def _setup_query_processing():
     if not all_images:
         raise SystemExit(" No images found in query_images folder.")
     
-    query_image = random.choice(all_images)
+    query_image = secrets.choice(all_images)
     print(f" Selected query image: {query_image}")
     
     return clip_embd, query_image
