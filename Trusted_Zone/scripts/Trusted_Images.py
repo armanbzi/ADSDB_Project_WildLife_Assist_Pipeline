@@ -23,17 +23,13 @@ from tqdm import tqdm
 import pandas as pd
 from shared_utils import get_minio_config, setup_minio_client_and_bucket, get_trusted_zone_config
 
-# -----------------------
-#     Functions
-# -----------------------
 
 # -----------------------
-#     Helper Functions
+#      Functions
 # -----------------------
-
 
 def _load_trusted_metadata(client, trusted_zone, meta_prefix):
-    """Load trusted metadata and extract valid UUIDs."""
+    # Load trusted metadata and extract valid UUIDs.
     trusted_meta_files = [
         o.object_name for o in client.list_objects(trusted_zone, prefix=meta_prefix, recursive=True)
         if o.object_name.lower().endswith(".csv") and "trusted_metadata_" in o.object_name]
@@ -53,7 +49,7 @@ def _load_trusted_metadata(client, trusted_zone, meta_prefix):
     return valid_uuids
 
 def _scan_existing_images(client, trusted_zone, img_prefix):
-    """Scan existing images in trusted zone to avoid duplicates."""
+    # Scan existing images in trusted zone to avoid duplicates.
     existing_trusted_uuids = set()
     for o in client.list_objects(trusted_zone, prefix=img_prefix, recursive=True):
         m = re.match(r".*/([a-f0-9\-]+)\.jpg$", o.object_name, re.IGNORECASE)
@@ -63,7 +59,7 @@ def _scan_existing_images(client, trusted_zone, img_prefix):
     return existing_trusted_uuids
 
 def _anonymize_license_plates(img, plate_cascade):
-    """Anonymize license plates in image using OpenCV."""
+    # Anonymize license plates in image using OpenCV.
     cv_img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
     gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
     plates = plate_cascade.detectMultiScale(gray, 1.1, 3, minSize=(50, 15))
@@ -75,14 +71,14 @@ def _anonymize_license_plates(img, plate_cascade):
     return Image.fromarray(cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB))
 
 def _extract_image_uuid(obj):
-    """Extract UUID from image object name."""
+    # Extract UUID from image object name.
     m = re.match(r".*/([a-f0-9\-]+)\.\w+$", obj.object_name)
     if not m:
         return None
     return m.group(1)
 
 def _is_valid_image_for_processing(img_uuid, valid_uuids, existing_trusted_uuids):
-    """Check if image should be processed based on UUID validation."""
+    # Check if image should be processed based on UUID validation.
     if not img_uuid:
         return False
     if img_uuid not in valid_uuids:
@@ -93,7 +89,7 @@ def _is_valid_image_for_processing(img_uuid, valid_uuids, existing_trusted_uuids
 
 def _process_and_upload_image(client, obj, formatted_zone, trusted_zone, img_prefix, 
                               plate_cascade, existing_trusted_uuids):
-    """Process a single image: download, normalize, anonymize, compress, and upload."""
+    # Process a single image: download, normalize, anonymize, compress, and upload.
     # Download image
     data = client.get_object(formatted_zone, obj.object_name)
     img_bytes = data.read()
@@ -132,7 +128,7 @@ def _process_and_upload_image(client, obj, formatted_zone, trusted_zone, img_pre
 
 def _process_single_image_safe(client, obj, formatted_zone, trusted_zone, img_prefix,
                                 plate_cascade, valid_uuids, existing_trusted_uuids):
-    """Process a single image with error handling and validation."""
+    # Process a single image with error handling and validation.
     img_uuid = _extract_image_uuid(obj)
     
     if not _is_valid_image_for_processing(img_uuid, valid_uuids, existing_trusted_uuids):

@@ -86,6 +86,15 @@ class PipelineOrchestrator:
             "exploitation_multimodal": "Exploitation-Zone/scripts/Exploitation_Multimodal.py"
         }
         
+        # Define fine-tuning scripts
+        self.fine_tuning_scripts = {
+            "fine_tuning_clip": "Fine-Tuning-Zone/scripts/Fine_Tuning_CLIP.py",
+            "checkpoint_manager": "Fine-Tuning-Zone/scripts/Checkpoint_Manager.py",
+            "ab_evaluation": "Fine-Tuning-Zone/scripts/AB_Evaluation.py",
+            "augmentation_text": "Fine-Tuning-Zone/scripts/augmentation_text.py",
+            "augmentation_image": "Fine-Tuning-Zone/scripts/augmentation_image.py"
+        }
+        
         # Define task scripts for advanced operations
         self.task_scripts = {
             "same_modality_search": "Multi-Modal-Tasks/scripts/Same_Modality_Search.py",
@@ -98,6 +107,7 @@ class PipelineOrchestrator:
             "temporal_landing", "persistent_landing", "formatted_metadata",
             "formatted_images", "trusted_metadata", "trusted_images",
             "exploitation_metadata", "exploitation_images", "exploitation_multimodal"
+            # Note: fine_tuning_clip is optional and should be run after exploitation zone
         ]
         
         # Initialize monitoring data structure for system resource tracking
@@ -250,9 +260,10 @@ class PipelineOrchestrator:
         print("="*60)
         print("1. Complete Data Pipeline (Store All Data)")
         print("2. Individual Scripts (Choose specific scripts)")
-        print("3. Quality Control & Code Analysis")
-        print("4. View Pipeline Status")
-        print("5. Exit")
+        print("3. Run Fine-tune")
+        print("4. Quality Control & Code Analysis")
+        print("5. View Pipeline Status")
+        print("6. Exit")
         print("="*60)
 
     def _prepare_environment(self, script_name):
@@ -524,6 +535,58 @@ class PipelineOrchestrator:
         
         logger.info("Pipeline execution completed. All scripts successful.")
 
+    def run_fine_tune_workflow(self):
+        """
+        Execute the fine-tuning workflow with monitoring.
+        
+        This method orchestrates the fine-tuning workflow in the correct sequence:
+        1. Text augmentation
+        2. Image augmentation
+        3. Fine-tuning CLIP
+        4. Checkpoint management
+        5. Evaluation
+        """
+        print("\n Starting Fine-Tune Workflow...")
+        print("Workflow: Augmentation (Text) -> Augmentation (Image) -> Fine-Tuning -> Checkpoint Manager -> Evaluation")
+        
+        # Initialize pipeline monitoring
+        self.monitoring_data["start_time"] = datetime.now().isoformat()
+        
+        # Define fine-tuning workflow sequence
+        fine_tune_workflow = [
+            "augmentation_text",
+            "augmentation_image",
+            "fine_tuning_clip",
+            "checkpoint_manager",
+            "ab_evaluation"
+        ]
+        
+        logger.info(f"Starting fine-tune workflow with {len(fine_tune_workflow)} scripts")
+        
+        # Execute scripts in sequence
+        for i, script_name in enumerate(fine_tune_workflow, 1):
+            print(f"\n Step {i}/{len(fine_tune_workflow)}: {script_name}")
+            script_path = self.fine_tuning_scripts[script_name]
+            
+            # Execute script with monitoring
+            self.run_script(script_path, script_name)
+            print(f" + {script_name} completed successfully")
+            logger.info("Script %s completed successfully", script_name)
+            
+            time.sleep(2)  # Brief pause between scripts for system stability
+        
+        # Display final results
+        print("\n Fine-tune workflow finished!")
+        print(f" All {len(fine_tune_workflow)} scripts completed successfully")
+        
+        # Finalize monitoring data
+        self.monitoring_data["end_time"] = datetime.now().isoformat()
+        
+        print(" Fine-tune workflow completed with 100% success rate")
+        logger.info("Fine-tune workflow completed successfully with 100%% success rate")
+        
+        logger.info("Fine-tune workflow execution completed. All scripts successful.")
+
     def run_individual_script(self, sub_choice=None):
         """Run individual scripts (workflow or tasks)"""
         if sub_choice:
@@ -556,19 +619,27 @@ class PipelineOrchestrator:
         for i, (name, path) in enumerate(self.workflow_scripts.items(), 1):
             print(f"{i:2d}. {name.replace('_', ' ').title()}")
         
+        # Show fine-tuning scripts
+        print("\n Fine-Tuning:")
+        fine_tuning_start = len(self.workflow_scripts) + 1
+        for i, (name, path) in enumerate(self.fine_tuning_scripts.items(), fine_tuning_start):
+            print(f"{i:2d}. {name.replace('_', ' ').title()}")
+        
         # Show task scripts
         print("\n Task Scripts :")
-        task_start = len(self.workflow_scripts) + 1
+        task_start = len(self.workflow_scripts) + len(self.fine_tuning_scripts) + 1
         for i, (name, path) in enumerate(self.task_scripts.items(), task_start):
             print(f"{i:2d}. {name.replace('_', ' ').title()}")
         
-        print(f"\n{len(self.workflow_scripts) + len(self.task_scripts) + 1:2d}. Back to Main Menu")
+        total_scripts = len(self.workflow_scripts) + len(self.fine_tuning_scripts) + len(self.task_scripts)
+        print(f"\n{total_scripts + 1:2d}. Back to Main Menu")
 
     def _get_user_script_choice(self):
         # Get user script choice
 
         try:
-            choice = int(input(f"\nSelect script (1-{len(self.workflow_scripts) + len(self.task_scripts) + 1}): ")) - 1
+            total_scripts = len(self.workflow_scripts) + len(self.fine_tuning_scripts) + len(self.task_scripts)
+            choice = int(input(f"\nSelect script (1-{total_scripts + 1}): ")) - 1
             return choice
         except ValueError:
             print(" Please enter a valid number")
@@ -579,17 +650,23 @@ class PipelineOrchestrator:
         if choice is None:
             return False
         
+        total_scripts = len(self.workflow_scripts) + len(self.fine_tuning_scripts) + len(self.task_scripts)
+        
         # Check if back option selected
-        if choice == len(self.workflow_scripts) + len(self.task_scripts):
+        if choice == total_scripts:
             print(" Returning to main menu...")
             return True
         
         # Check if workflow script selected
         elif 0 <= choice < len(self.workflow_scripts):
             return self._run_workflow_script(choice)
+        
+        # Check if fine-tuning script selected
+        elif len(self.workflow_scripts) <= choice < len(self.workflow_scripts) + len(self.fine_tuning_scripts):
+            return self._run_fine_tuning_script(choice)
             
         # Check if task script selected
-        elif len(self.workflow_scripts) <= choice < len(self.workflow_scripts) + len(self.task_scripts):
+        elif len(self.workflow_scripts) + len(self.fine_tuning_scripts) <= choice < total_scripts:
             return self._run_task_script(choice)
         else:
             print(" Invalid selection")
@@ -605,9 +682,20 @@ class PipelineOrchestrator:
         print(f"\nSuccess: {message}")
         return False
 
+    def _run_fine_tuning_script(self, choice):
+        # Run selected fine-tuning script
+        fine_tuning_idx = choice - len(self.workflow_scripts)
+        script_names = list(self.fine_tuning_scripts.keys())
+        script_name = script_names[fine_tuning_idx]
+        script_path = self.fine_tuning_scripts[script_name]
+        
+        message = self.run_script(script_path, script_name)
+        print(f"\nSuccess: {message}")
+        return False
+
     def _run_task_script(self, choice):
         # Run selected task script
-        task_idx = choice - len(self.workflow_scripts)
+        task_idx = choice - len(self.workflow_scripts) - len(self.fine_tuning_scripts)
         script_names = list(self.task_scripts.keys())
         script_name = script_names[task_idx]
         script_path = self.task_scripts[script_name]
@@ -952,7 +1040,7 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
             self.display_menu()
             
             try:
-                choice = input("\nSelect option (1-5): ").strip()
+                choice = input("\nSelect option (1-6): ").strip()
                 if self._execute_choice(choice):
                     break
                     
@@ -976,16 +1064,19 @@ sonar.exclusions=**/__pycache__/**,**/.*,**/node_modules/**,**/venv/**,**/env/**
                 else:
                     self.run_individual_script()
             elif choice == "3":
+                # Execute fine-tune workflow
+                self.run_fine_tune_workflow()
+            elif choice == "4":
                 # Perform comprehensive code quality analysis
                 self.run_quality_control()
-            elif choice == "4":
+            elif choice == "5":
                 # Display current pipeline status and metrics
                 self.show_pipeline_status()
-            elif choice == "5":
+            elif choice == "6":
                 print("\n Goodbye!")
                 return True
             else:
-                print(" Invalid option. Please select 1-5.")
+                print(" Invalid option. Please select 1-6.")
         except Exception as e:
             print(f" Error executing choice {choice}: {e}")
             logger.error(f"Choice execution error: {e}")
@@ -998,10 +1089,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='WildLife Data Management Pipeline Orchestrator')
     parser.add_argument('--non-interactive', action='store_true', 
                        help='Run in non-interactive mode for CI/CD')
-    parser.add_argument('--choice', type=int, choices=[1,2,3,4,5],
-                       help='Predefined choice for non-interactive mode (1-5)')
-    parser.add_argument('--sub-choice', type=int, choices=list(range(1, 13)),
-                       help='Sub-choice for option 2 (individual scripts) (1-12)')
+    parser.add_argument('--choice', type=int, choices=[1,2,3,4,5,6],
+                       help='Predefined choice for non-interactive mode (1-6)')
+    parser.add_argument('--sub-choice', type=int, choices=list(range(1, 19)),
+                       help='Sub-choice for option 2 (individual scripts) (1-18)')
     
     args = parser.parse_args()
     

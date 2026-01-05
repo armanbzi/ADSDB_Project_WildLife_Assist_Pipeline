@@ -12,6 +12,8 @@
  - we take 3 most frequent to have more precise detection.
  - we must use the same model we used for embedding them to check for similarities
 
+  Updated to let user to set which model to use(baseline or fine tuned)
+
 """
 
 
@@ -22,6 +24,8 @@ import matplotlib.pyplot as plt
 import os, secrets, tempfile
 from minio import Minio
 import io
+import sys
+import importlib.util
 
 # -----------------------
 #    Configuration
@@ -100,12 +104,229 @@ def _setup_connections(minio_endpoint, access_key, secret_key):
     
     return minio_client, chroma_client, image_collection
 
+def _get_active_checkpoint():
+    """Get active checkpoint from Checkpoint_Manager."""
+    try:
+        try:
+            SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+        except NameError:
+            SCRIPT_DIR = os.getcwd()
+        
+        # Try to find Checkpoint_Manager
+        checkpoint_manager_path = None
+        possible_paths = [
+            os.path.join(SCRIPT_DIR, "../../Fine-Tuning-Zone/scripts/Checkpoint_Manager.py"),
+            os.path.join(SCRIPT_DIR, "../Fine-Tuning-Zone/scripts/Checkpoint_Manager.py"),
+            "Fine-Tuning-Zone/scripts/Checkpoint_Manager.py"
+        ]
+        
+        for path in possible_paths:
+            if os.path.exists(path):
+                checkpoint_manager_path = path
+                break
+        
+        if checkpoint_manager_path:
+            spec = importlib.util.spec_from_file_location("Checkpoint_Manager", checkpoint_manager_path)
+            checkpoint_manager = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(checkpoint_manager)
+            return checkpoint_manager.get_active_checkpoint()
+    except Exception as e:
+        pass
+    return None
+
+def _select_model():
+    """Let user choose between baseline and fine-tuned model."""
+    active_checkpoint = _get_active_checkpoint()
+    
+    if active_checkpoint:
+        checkpoint_name = active_checkpoint.get('checkpoint_name', 'Unknown')
+        print(f"\n Active fine-tuned checkpoint found: {checkpoint_name}")
+        print(" Choose model to use:")
+        print(" 1. Baseline model (ViT-B-32)")
+        print(f" 2. Fine-tuned model ({checkpoint_name})")
+        
+        # Check if non-interactive mode
+        is_non_interactive = (
+            os.getenv('CI') == 'true' or
+            os.getenv('GITHUB_ACTIONS') == 'true' or
+            os.getenv('GITLAB_CI') == 'true' or
+            '--non-interactive' in sys.argv or
+            not sys.stdin.isatty()
+        )
+        
+        if is_non_interactive:
+            choice = "1"
+            print(" Non-interactive mode: using baseline model")
+        else:
+            while True:
+                choice = input("\n Enter choice (1 or 2): ").strip()
+                if choice in ["1", "2"]:
+                    break
+                print(" Invalid choice. Please enter 1 or 2.")
+        
+        if choice == "2":
+            return "fine_tuned", active_checkpoint
+        else:
+            return "baseline", None
+    else:
+        print("\n No active fine-tuned checkpoint found. Using baseline model.")
+        return "baseline", None
+
+def _load_embedding_model(model_type, checkpoint_info=None):
+    """Load embedding model (baseline or fine-tuned)."""
+    if model_type == "baseline":
+        print(" Loading baseline model (ViT-B-32)...")
+        return OpenCLIPEmbeddings(
+            model_name="ViT-B-32",
+            checkpoint="laion2b_s34b_b79k"
+        )
+    else:
+        # Load fine-tuned model
+        print(" Loading fine-tuned model...")
+        try:
+            import torch
+            from transformers import CLIPModel, CLIPProcessor
+            from peft import PeftModel
+            
+            checkpoint_path = checkpoint_info.get("checkpoint_path")
+            if not checkpoint_path or not os.path.exists(checkpoint_path):
+                print(" Warning: Checkpoint path not found. Falling back to baseline.")
+                return OpenCLIPEmbeddings(
+                    model_name="ViT-B-32",
+                    checkpoint="laion2b_s34b_b79k"
+                )
+            
+            # Load base model
+            model_name = "openai/clip-vit-base-patch32"
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model = CLIPModel.from_pretrained(model_name)
+            processor = CLIPProcessor.from_pretrained(model_name)
+            
+            # Load LoRA adapters with wrappers to filter invalid kwargs
+            text_encoder_path = os.path.join(checkpoint_path, "text_encoder")
+            vision_encoder_path = os.path.join(checkpoint_path, "vision_encoder")
+            
+            # Wrapper classes to filter invalid kwargs
+            class VisionModelWrapper(torch.nn.Module):
+                """Wrapper for vision model to filter kwargs while preserving LoRA functionality."""
+                def __init__(self, peft_model):
+                    super().__init__()
+                    self.peft_model = peft_model
+                    if hasattr(peft_model, 'config'):
+                        self.config = peft_model.config
+                    if hasattr(peft_model, 'base_model') and hasattr(peft_model.base_model, 'model'):
+                        self._lora_model = peft_model.base_model.model
+                    elif hasattr(peft_model, 'base_model'):
+                        self._lora_model = peft_model.base_model
+                    else:
+                        self._lora_model = peft_model
+                
+                def forward(self, *args, **kwargs):
+                    """Filter kwargs and call model with LoRA adapters active."""
+                    pixel_values = kwargs.get("pixel_values", None)
+                    if pixel_values is None and len(args) > 0:
+                        pixel_values = args[0]
+                    valid_kwargs = {}
+                    valid_keys = ['pixel_values', 'output_attentions', 'output_hidden_states', 
+                                 'interpolate_pos_encoding', 'return_dict']
+                    for key in valid_keys:
+                        if key in kwargs:
+                            valid_kwargs[key] = kwargs[key]
+                    if pixel_values is not None:
+                        valid_kwargs['pixel_values'] = pixel_values
+                    return self._lora_model(**valid_kwargs)
+            
+            class TextModelWrapper(torch.nn.Module):
+                """Wrapper for text model to filter kwargs while preserving LoRA functionality."""
+                def __init__(self, peft_model):
+                    super().__init__()
+                    self.peft_model = peft_model
+                    if hasattr(peft_model, 'config'):
+                        self.config = peft_model.config
+                    if hasattr(peft_model, 'base_model') and hasattr(peft_model.base_model, 'model'):
+                        self._lora_model = peft_model.base_model.model
+                    elif hasattr(peft_model, 'base_model'):
+                        self._lora_model = peft_model.base_model
+                    else:
+                        self._lora_model = peft_model
+                
+                def forward(self, *args, **kwargs):
+                    """Filter kwargs and call model with LoRA adapters active."""
+                    valid_kwargs = {}
+                    valid_keys = ['input_ids', 'attention_mask', 'position_ids', 
+                                 'output_attentions', 'output_hidden_states', 'return_dict']
+                    for key in valid_keys:
+                        if key in kwargs:
+                            valid_kwargs[key] = kwargs[key]
+                    if 'input_ids' not in valid_kwargs and len(args) > 0:
+                        valid_kwargs['input_ids'] = args[0]
+                    return self._lora_model(**valid_kwargs)
+            
+            if os.path.exists(text_encoder_path):
+                peft_text_model = PeftModel.from_pretrained(model.text_model, text_encoder_path)
+                peft_text_model.eval()
+                model.text_model = TextModelWrapper(peft_text_model)
+            
+            if os.path.exists(vision_encoder_path):
+                peft_vision_model = PeftModel.from_pretrained(model.vision_model, vision_encoder_path)
+                peft_vision_model.eval()
+                model.vision_model = VisionModelWrapper(peft_vision_model)
+            
+            model.eval()
+            model = model.to(device)
+            
+            # Create wrapper class that mimics OpenCLIPEmbeddings interface
+            class FineTunedCLIPEmbeddings:
+                def __init__(self, model, processor, device):
+                    self.model = model
+                    self.processor = processor
+                    self.device = device
+                
+                def embed_image(self, images):
+                    """Embed images using fine-tuned model. Returns list of embeddings."""
+                    import torch
+                    from PIL import Image
+                    
+                    # Handle single image or list of images
+                    if isinstance(images, str):
+                        images = [images]
+                    elif not isinstance(images, list):
+                        images = [images]
+                    
+                    pil_images = []
+                    for img in images:
+                        if isinstance(img, str):
+                            pil_images.append(Image.open(img).convert("RGB"))
+                        elif isinstance(img, Image.Image):
+                            pil_images.append(img.convert("RGB"))
+                        else:
+                            raise ValueError(f"Unsupported image type: {type(img)}")
+                    
+                    inputs = self.processor(images=pil_images, return_tensors="pt").to(self.device)
+                    with torch.no_grad():
+                        image_features = self.model.get_image_features(**inputs)
+                        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+                    
+                    # Return list of embeddings (one per image)
+                    return image_features.cpu().numpy().tolist()
+            
+            return FineTunedCLIPEmbeddings(model, processor, device)
+            
+        except Exception as e:
+            print(f" Error loading fine-tuned model: {e}")
+            print(" Falling back to baseline model.")
+            import traceback
+            traceback.print_exc()
+            return OpenCLIPEmbeddings(
+                model_name="ViT-B-32",
+                checkpoint="laion2b_s34b_b79k"
+            )
+
 def _setup_query_processing():
     # Setup embedding model and select query image.
-    # Initialize the same embedding model (must be the same embedding model)
-    clip_embd = OpenCLIPEmbeddings(
-        model_name="ViT-B-32", # same model
-        checkpoint="laion2b_s34b_b79k")
+    # Let user choose between baseline and fine-tuned model
+    model_type, checkpoint_info = _select_model()
+    clip_embd = _load_embedding_model(model_type, checkpoint_info)
     
     # Pick a random query image from the local folder
     try:

@@ -46,6 +46,31 @@ A comprehensive DataOps orchestration system for wildlife data processing, featu
 9. **Exploitation Multimodal** - Multimodal data integration
    - Combines text and image embeddings for multimodal search
 
+### Fine-Tuning Zone:
+The fine-tuning zone provides model enhancement capabilities. Scripts are available in the "Run Individual scripts" menu under the "Fine-Tuning" section:
+
+- **Fine Tuning CLIP** (option 10) - Model fine-tuning
+  - Parameter-efficient fine-tuning using LoRA/QLoRA
+  - Adapts CLIP model to domain-specific wildlife data
+  - Saves checkpoints after each training epoch
+
+- **Checkpoint Manager** (option 11) - Checkpoint management
+  - Manages fine-tuned model checkpoints
+  - Sets active checkpoint for downstream tasks
+
+- **AB Evaluation** (option 12) - Model comparison
+  - Compares baseline vs fine-tuned model performance
+  - Computes retrieval metrics (top-k accuracy, MRR)
+  - Generates performance visualizations
+
+- **Augmentation Text** (option 13) - Text data augmentation
+  - Generates natural language variations from metadata
+  - Template-based augmentation for reproducibility
+
+- **Augmentation Image** (option 14) - Image data augmentation
+  - Geometric and photometric transformations
+  - Increases training data diversity
+
 ### AI/ML Task Options:
 - **Same Modality Search** - Similarity search within data types (text-to-text, image-to-image)
 - **Multimodal Similarity** - Cross-modal similarity analysis (text-to-image&text, image-to-text&image)
@@ -55,7 +80,7 @@ A comprehensive DataOps orchestration system for wildlife data processing, featu
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/<your_username>/ADSDB_Project_WildLife_Assist_Pipeline.git
+   git clone https://github.com/armanbzi/ADSDB_Project_WildLife_Assist_Pipeline.git
    cd ADSDB_Project_WildLife_Assist_Pipeline/WildLife
    ```
 
@@ -209,6 +234,16 @@ WildLife/notebook/
 │   │   └── Exploitation_Multimodal.py  # Multimodal integration
 │   ├── notebooks/
 │   └── exploitation_db/       # ChromaDB vector database
+├── Fine-Tuning-Zone/          # Model fine-tuning (LoRA/QLoRA)
+│   ├── scripts/
+│   │   ├── augmentation_text.py       # Text augmentation
+│   │   ├── augmentation_image.py      # Image augmentation
+│   │   ├── Fine_Tuning_CLIP.py         # CLIP fine-tuning
+│   │   ├── Checkpoint_Manager.py      # Checkpoint management
+│   │   └── AB_Evaluation.py            # A/B evaluation
+│   ├── notebooks/
+│   ├── checkpoints/           # Fine-tuned model checkpoints
+│   └── README.md              # Fine-tuning documentation
 └── Multi-Modal Tasks/         # AI/ML tasks
     ├── scripts/
     │   ├── Same_Modality_Search.py      # Single-modality similarity
@@ -290,10 +325,48 @@ GitLab CI configuration (`.gitlab-ci.yml`) provides:
 
 - **MinIO**: Distributed object storage for data persistence
 - **ChromaDB**: Vector database for embeddings and similarity search
-- **HuggingFace**: TreeOfLife-200M dataset access
+- **HuggingFace**: TreeOfLife-200M dataset access and model downloads
 - **SonarQube**: Code quality analysis (optional, requires Docker)
 - **OpenAI**: AI generation capabilities (for Generative Tasks using models 
     "Qwen/Qwen3-VL-8B" & as fallback "Llama-4-Scout-17B-16E")
+- **PyTorch**: Deep learning framework for model training and inference
+- **Transformers**: Hugging Face Transformers library for CLIP models
+- **PEFT**: Parameter-Efficient Fine-Tuning (LoRA/QLoRA) for model adaptation
+
+## 🎯 Fine-Tuning Zone
+
+The Fine-Tuning Zone provides optional model enhancement capabilities to improve retrieval performance on domain-specific wildlife data.
+
+### Overview
+Fine-tune CLIP models using parameter-efficient methods (LoRA/QLoRA) to adapt them to your specific wildlife dataset. This improves image-text alignment and retrieval accuracy for wildlife species identification.
+
+### Quick Start
+1. **Run the complete fine-tuning workflow** via the orchestrator:
+   - Select "Run Fine-tune" from the main menu
+   - This executes: Text Augmentation → Image Augmentation → Fine-Tuning → Checkpoint Management → A/B Evaluation
+
+2. **Or run individual scripts** from "Run Individual scripts" → "Fine-Tuning" section:
+   - Fine Tuning CLIP (option 10)
+   - Checkpoint Manager (option 11)
+   - AB Evaluation (option 12)
+   - Augmentation Text (option 13)
+   - Augmentation Image (option 14)
+
+### Key Features
+- **Parameter-Efficient**: LoRA/QLoRA reduces trainable parameters to <1% of original model
+- **Memory Efficient**: QLoRA enables fine-tuning on consumer GPUs (4GB+ VRAM)
+- **Automatic Fallback**: QLoRA automatically falls back to LoRA on CPU systems
+- **Checkpoint Management**: Save and select best-performing checkpoints
+- **A/B Evaluation**: Compare baseline vs fine-tuned model performance
+- **Integration**: Fine-tuned models automatically used in task scripts when active
+
+### Technical Details
+- **LoRA**: Low-Rank Adaptation adds trainable matrices to attention layers
+- **QLoRA**: Combines 4-bit quantization with LoRA for memory efficiency
+- **Training Data**: Uses both original (trusted-zone) and augmented (augmentation-zone) data
+- **Checkpoints**: Saved after each epoch in `Fine-Tuning-Zone/checkpoints/`
+
+For detailed documentation, see [Fine-Tuning-Zone/README.md](Fine-Tuning-Zone/README.md).
 
 
 ## 📄 License

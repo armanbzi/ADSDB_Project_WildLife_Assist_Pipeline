@@ -11221,3 +11221,37 @@ minio.error.S3Error: S3 operation failed; code: SignatureDoesNotMatch, message: 
 2025-10-30 18:55:51,753 - __main__ - ERROR - run_script:423 - multimodal_similarity execution timeout: Execution timeout after 302.3s: Command '['C:\\Python312\\python.exe', 'C:\\Users\\Arman\\OneDrive\\Desktop\\sss\\ADSDB\\pr\\WildLife\\Multi-Modal-Tasks\\scripts\\Multimodal_Similarity_Task.py']' timed out after 300.0 seconds
 2025-10-30 18:55:51,759 - __main__ - ERROR - _execute_choice:991 - Choice execution error: Execution timeout after 302.3s: Command '['C:\\Python312\\python.exe', 'C:\\Users\\Arman\\OneDrive\\Desktop\\sss\\ADSDB\\pr\\WildLife\\Multi-Modal-Tasks\\scripts\\Multimodal_Similarity_Task.py']' timed out after 300.0 seconds
 2025-10-30 18:59:33,779 - chromadb.telemetry.product.posthog - INFO - __init__:22 - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2026-01-05 01:50:13,200 - __main__ - INFO - run_complete_data_pipeline:512 - Starting complete data pipeline with 9 scripts
+2026-01-05 01:51:33,687 - __main__ - INFO - run_complete_data_pipeline:522 - Script temporal_landing completed successfully
+2026-01-05 01:51:48,119 - __main__ - INFO - run_complete_data_pipeline:522 - Script persistent_landing completed successfully
+2026-01-05 01:51:54,253 - __main__ - INFO - run_complete_data_pipeline:522 - Script formatted_metadata completed successfully
+2026-01-05 01:52:14,383 - __main__ - INFO - run_complete_data_pipeline:522 - Script formatted_images completed successfully
+2026-01-05 01:52:20,347 - __main__ - INFO - run_complete_data_pipeline:522 - Script trusted_metadata completed successfully
+2026-01-05 01:52:39,743 - __main__ - INFO - run_complete_data_pipeline:522 - Script trusted_images completed successfully
+2026-01-05 01:52:50,559 - __main__ - INFO - run_complete_data_pipeline:522 - Script exploitation_metadata completed successfully
+2026-01-05 01:53:18,102 - __main__ - INFO - run_complete_data_pipeline:522 - Script exploitation_images completed successfully
+2026-01-05 01:58:22,357 - __main__ - ERROR - run_script:434 - exploitation_multimodal execution timeout: Execution timeout after 302.3s: Command '['C:\\Python312\\python.exe', 'C:\\Users\\Arman\\OneDrive\\Desktop\\sss\\ADSDB\\Arman_Bazarchi_ADSDB_Wildlife_Assist_Project\\WildLife\\Exploitation-Zone\\scripts\\Exploitation_Multimodal.py']' timed out after 300.0 seconds
+2026-01-05 01:58:22,365 - __main__ - ERROR - _execute_choice:1082 - Choice execution error: Execution timeout after 302.3s: Command '['C:\\Python312\\python.exe', 'C:\\Users\\Arman\\OneDrive\\Desktop\\sss\\ADSDB\\Arman_Bazarchi_ADSDB_Wildlife_Assist_Project\\WildLife\\Exploitation-Zone\\scripts\\Exploitation_Multimodal.py']' timed out after 300.0 seconds
+2026-01-05 02:18:38,400 - __main__ - INFO - run_complete_data_pipeline:512 - Starting complete data pipeline with 9 scripts
+2026-01-05 02:43:59,513 - __main__ - INFO - run_complete_data_pipeline:522 - Script temporal_landing completed successfully
+2026-01-05 02:45:34,130 - __main__ - INFO - run_complete_data_pipeline:522 - Script persistent_landing completed successfully
+2026-01-05 02:45:40,385 - __main__ - INFO - run_complete_data_pipeline:522 - Script formatted_metadata completed successfully
+2026-01-05 02:46:25,758 - __main__ - INFO - run_complete_data_pipeline:522 - Script formatted_images completed successfully
+2026-01-05 02:46:31,690 - __main__ - INFO - run_complete_data_pipeline:522 - Script trusted_metadata completed successfully
+2026-01-05 02:47:29,699 - __main__ - INFO - run_complete_data_pipeline:522 - Script trusted_images completed successfully
+2026-01-05 02:47:47,474 - __main__ - INFO - run_complete_data_pipeline:522 - Script exploitation_metadata completed successfully
+2026-01-05 02:49:27,596 - __main__ - INFO - run_complete_data_pipeline:522 - Script exploitation_images completed successfully
+2026-01-05 02:52:46,993 - __main__ - INFO - run_complete_data_pipeline:522 - Script exploitation_multimodal completed successfully
+2026-01-05 02:52:49,011 - __main__ - INFO - run_complete_data_pipeline:534 - Pipeline completed successfully with 100%% success rate
+2026-01-05 02:52:49,011 - __main__ - INFO - run_complete_data_pipeline:536 - Pipeline execution completed. All scripts successful.
+2026-01-05 04:05:14,313 - __main__ - ERROR - _handle_script_result:339 - same_modality_search failed: Script failed with return code 1: None
+2026-01-05 04:05:14,318 - __main__ - ERROR - run_script:440 - same_modality_search execution error: Execution error: Script failed with return code 1: None
+2026-01-05 04:05:14,333 - __main__ - ERROR - _execute_choice:1082 - Choice execution error: Execution error: Script failed with return code 1: None
+2026-01-05 04:07:52,968 - __main__ - ERROR - _handle_script_result:339 - same_modality_search failed: Script failed with return code 1: None
+2026-01-05 04:07:52,969 - __main__ - ERROR - run_script:440 - same_modality_search execution error: Execution error: Script failed with return code 1: None
+2026-01-05 04:07:52,969 - __main__ - ERROR - _execute_choice:1082 - Choice execution error: Execution error: Script failed with return code 1: None
+2026-01-05 04:53:09,127 - __main__ - ERROR - _handle_script_result:339 - same_modality_search failed: Script failed with return code 1: None
+2026-01-05 04:53:09,142 - __main__ - ERROR - run_script:440 - same_modality_search execution error: Execution error: Script failed with return code 1: None
+2026-01-05 04:53:09,142 - __main__ - ERROR - _execute_choice:1082 - Choice execution error: Execution error: Script failed with return code 1: None
+2026-01-05 05:05:03,731 - __main__ - ERROR - run_script:434 - exploitation_multimodal execution timeout: Execution timeout after 302.3s: Command '['C:\\Python312\\python.exe', 'C:\\Users\\Arman\\OneDrive\\Desktop\\sss\\ADSDB\\Arman_Bazarchi_ADSDB_Wildlife_Assist_Project\\WildLife\\Exploitation-Zone\\scripts\\Exploitation_Multimodal.py']' timed out after 300.0 seconds
+2026-01-05 05:05:03,740 - __main__ - ERROR - _execute_choice:1082 - Choice execution error: Execution timeout after 302.3s: Command '['C:\\Python312\\python.exe', 'C:\\Users\\Arman\\OneDrive\\Desktop\\sss\\ADSDB\\Arman_Bazarchi_ADSDB_Wildlife_Assist_Project\\WildLife\\Exploitation-Zone\\scripts\\Exploitation_Multimodal.py']' timed out after 300.0 seconds

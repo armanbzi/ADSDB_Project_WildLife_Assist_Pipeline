@@ -13,6 +13,7 @@ Returns mixed results with both images and text descriptions
 - Displays basic collection statistics (total items, distribution by kingdom, class, and family).
 - Users cannot query with both text and image at same time here, queries are performed one modality at a time.
 
+ Updated to let user to set which model to use(baseline or fine tuned)
 
 """
 
@@ -28,6 +29,241 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
+import importlib.util
+from langchain_experimental.open_clip import OpenCLIPEmbeddings
+
+# ==============================
+#   Model Selection Functions
+# ==============================
+
+def _get_active_checkpoint():
+    """Get active checkpoint from Checkpoint_Manager."""
+    try:
+        try:
+            SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+        except NameError:
+            SCRIPT_DIR = os.getcwd()
+        
+        # Try to find Checkpoint_Manager
+        checkpoint_manager_path = None
+        possible_paths = [
+            os.path.join(SCRIPT_DIR, "../../Fine-Tuning-Zone/scripts/Checkpoint_Manager.py"),
+            os.path.join(SCRIPT_DIR, "../Fine-Tuning-Zone/scripts/Checkpoint_Manager.py"),
+            "Fine-Tuning-Zone/scripts/Checkpoint_Manager.py"
+        ]
+        
+        for path in possible_paths:
+            if os.path.exists(path):
+                checkpoint_manager_path = path
+                break
+        
+        if checkpoint_manager_path:
+            spec = importlib.util.spec_from_file_location("Checkpoint_Manager", checkpoint_manager_path)
+            checkpoint_manager = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(checkpoint_manager)
+            return checkpoint_manager.get_active_checkpoint()
+    except Exception as e:
+        pass
+    return None
+
+def _select_model():
+    """Let user choose between baseline and fine-tuned model."""
+    active_checkpoint = _get_active_checkpoint()
+    
+    if active_checkpoint:
+        checkpoint_name = active_checkpoint.get('checkpoint_name', 'Unknown')
+        print(f"\n Active fine-tuned checkpoint found: {checkpoint_name}")
+        print(" Choose model to use:")
+        print(" 1. Baseline model (ViT-B-32)")
+        print(f" 2. Fine-tuned model ({checkpoint_name})")
+        
+        # Check if non-interactive mode
+        is_non_interactive = (
+            os.getenv('CI') == 'true' or
+            os.getenv('GITHUB_ACTIONS') == 'true' or
+            os.getenv('GITLAB_CI') == 'true' or
+            '--non-interactive' in sys.argv or
+            not sys.stdin.isatty()
+        )
+        
+        if is_non_interactive:
+            choice = "1"
+            print(" Non-interactive mode: using baseline model")
+        else:
+            while True:
+                choice = input("\n Enter choice (1 or 2): ").strip()
+                if choice in ["1", "2"]:
+                    break
+                print(" Invalid choice. Please enter 1 or 2.")
+        
+        if choice == "2":
+            return "fine_tuned", active_checkpoint
+        else:
+            return "baseline", None
+    else:
+        print("\n No active fine-tuned checkpoint found. Using baseline model.")
+        return "baseline", None
+
+def _load_embedding_model(model_type, checkpoint_info=None):
+    """Load embedding model (baseline or fine-tuned)."""
+    if model_type == "baseline":
+        print(" Loading baseline model (ViT-B-32)...")
+        return OpenCLIPEmbeddings(
+            model_name="ViT-B-32",
+            checkpoint="laion2b_s34b_b79k"
+        )
+    else:
+        # Load fine-tuned model
+        print(" Loading fine-tuned model...")
+        try:
+            import torch
+            from transformers import CLIPModel, CLIPProcessor
+            from peft import PeftModel
+            
+            checkpoint_path = checkpoint_info.get("checkpoint_path")
+            if not checkpoint_path or not os.path.exists(checkpoint_path):
+                print(" Warning: Checkpoint path not found. Falling back to baseline.")
+                return OpenCLIPEmbeddings(
+                    model_name="ViT-B-32",
+                    checkpoint="laion2b_s34b_b79k"
+                )
+            
+            # Load base model
+            model_name = "openai/clip-vit-base-patch32"
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model = CLIPModel.from_pretrained(model_name)
+            processor = CLIPProcessor.from_pretrained(model_name)
+            
+            # Load LoRA adapters with wrappers to filter invalid kwargs
+            text_encoder_path = os.path.join(checkpoint_path, "text_encoder")
+            vision_encoder_path = os.path.join(checkpoint_path, "vision_encoder")
+            
+            # Wrapper classes to filter invalid kwargs
+            class VisionModelWrapper(torch.nn.Module):
+                """Wrapper for vision model to filter kwargs while preserving LoRA functionality."""
+                def __init__(self, peft_model):
+                    super().__init__()
+                    self.peft_model = peft_model
+                    if hasattr(peft_model, 'config'):
+                        self.config = peft_model.config
+                    if hasattr(peft_model, 'base_model') and hasattr(peft_model.base_model, 'model'):
+                        self._lora_model = peft_model.base_model.model
+                    elif hasattr(peft_model, 'base_model'):
+                        self._lora_model = peft_model.base_model
+                    else:
+                        self._lora_model = peft_model
+                
+                def forward(self, *args, **kwargs):
+                    """Filter kwargs and call model with LoRA adapters active."""
+                    pixel_values = kwargs.get("pixel_values", None)
+                    if pixel_values is None and len(args) > 0:
+                        pixel_values = args[0]
+                    valid_kwargs = {}
+                    valid_keys = ['pixel_values', 'output_attentions', 'output_hidden_states', 
+                                 'interpolate_pos_encoding', 'return_dict']
+                    for key in valid_keys:
+                        if key in kwargs:
+                            valid_kwargs[key] = kwargs[key]
+                    if pixel_values is not None:
+                        valid_kwargs['pixel_values'] = pixel_values
+                    return self._lora_model(**valid_kwargs)
+            
+            class TextModelWrapper(torch.nn.Module):
+                """Wrapper for text model to filter kwargs while preserving LoRA functionality."""
+                def __init__(self, peft_model):
+                    super().__init__()
+                    self.peft_model = peft_model
+                    if hasattr(peft_model, 'config'):
+                        self.config = peft_model.config
+                    if hasattr(peft_model, 'base_model') and hasattr(peft_model.base_model, 'model'):
+                        self._lora_model = peft_model.base_model.model
+                    elif hasattr(peft_model, 'base_model'):
+                        self._lora_model = peft_model.base_model
+                    else:
+                        self._lora_model = peft_model
+                
+                def forward(self, *args, **kwargs):
+                    """Filter kwargs and call model with LoRA adapters active."""
+                    valid_kwargs = {}
+                    valid_keys = ['input_ids', 'attention_mask', 'position_ids', 
+                                 'output_attentions', 'output_hidden_states', 'return_dict']
+                    for key in valid_keys:
+                        if key in kwargs:
+                            valid_kwargs[key] = kwargs[key]
+                    if 'input_ids' not in valid_kwargs and len(args) > 0:
+                        valid_kwargs['input_ids'] = args[0]
+                    return self._lora_model(**valid_kwargs)
+            
+            if os.path.exists(text_encoder_path):
+                peft_text_model = PeftModel.from_pretrained(model.text_model, text_encoder_path)
+                peft_text_model.eval()
+                model.text_model = TextModelWrapper(peft_text_model)
+            
+            if os.path.exists(vision_encoder_path):
+                peft_vision_model = PeftModel.from_pretrained(model.vision_model, vision_encoder_path)
+                peft_vision_model.eval()
+                model.vision_model = VisionModelWrapper(peft_vision_model)
+            
+            model.eval()
+            model = model.to(device)
+            
+            # Create wrapper class that mimics OpenCLIPEmbeddings interface
+            class FineTunedCLIPEmbeddings:
+                def __init__(self, model, processor, device):
+                    self.model = model
+                    self.processor = processor
+                    self.device = device
+                
+                def embed_image(self, images):
+                    """Embed images using fine-tuned model. Returns list of embeddings."""
+                    import torch
+                    from PIL import Image
+                    
+                    # Handle single image or list of images
+                    if isinstance(images, str):
+                        images = [images]
+                    elif not isinstance(images, list):
+                        images = [images]
+                    
+                    pil_images = []
+                    for img in images:
+                        if isinstance(img, str):
+                            pil_images.append(Image.open(img).convert("RGB"))
+                        elif isinstance(img, Image.Image):
+                            pil_images.append(img.convert("RGB"))
+                        else:
+                            raise ValueError(f"Unsupported image type: {type(img)}")
+                    
+                    inputs = self.processor(images=pil_images, return_tensors="pt").to(self.device)
+                    with torch.no_grad():
+                        image_features = self.model.get_image_features(**inputs)
+                        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+                    
+                    # Return list of embeddings (one per image)
+                    return image_features.cpu().numpy().tolist()
+            
+            return FineTunedCLIPEmbeddings(model, processor, device)
+            
+        except Exception as e:
+            print(f" Error loading fine-tuned model: {e}")
+            print(" Falling back to baseline model.")
+            import traceback
+            traceback.print_exc()
+            return OpenCLIPEmbeddings(
+                model_name="ViT-B-32",
+                checkpoint="laion2b_s34b_b79k"
+            )
+
+# Global variable to store selected model (to avoid re-selecting multiple times)
+_selected_embedding_model = None
+
+def _get_embedding_model():
+    """Get embedding model (with selection if not already done)."""
+    global _selected_embedding_model
+    if _selected_embedding_model is None:
+        model_type, checkpoint_info = _select_model()
+        _selected_embedding_model = _load_embedding_model(model_type, checkpoint_info)
+    return _selected_embedding_model
 
 # ==============================
 #          Functions
@@ -262,22 +498,36 @@ def display_results(results, query_type="text", query_value="", n_results=5, is_
     # Display results in simple format (description first, then image)
     display_result_items(result_data)
 
-def cluster_based_search(collection, query_text="", query_image=None, n_results=15, return_count=3):
+def cluster_based_search(collection, query_text="", query_image=None, n_results=15, return_count=3, clip_embd=None):
     # Perform cluster-based search showing top species representatives.
     print("\n CLUSTER-BASED SEARCH")
     print(f"Analyzing top-{n_results} results for most frequent species...")
     print("=" * 60)
     
     try:
+        # Get model if not provided
+        if clip_embd is None:
+            clip_embd = _get_embedding_model()
+        
         # so that when entered 'image' it should not take also '' empty text to do an extra text query
         if query_text and query_text.strip() != "":
-            results = collection.query(
-                query_texts=[query_text],
-                n_results=n_results)
+            # Generate text embedding using selected model
+            if hasattr(clip_embd, 'embed_query'):
+                query_embedding = clip_embd.embed_query(query_text)
+                if isinstance(query_embedding, list):
+                    query_embedding = query_embedding[0] if len(query_embedding) > 0 else query_embedding
+                results = collection.query(
+                    query_embeddings=[query_embedding],
+                    n_results=n_results)
+            else:
+                # Fallback to collection's default embedder
+                results = collection.query(
+                    query_texts=[query_text],
+                    n_results=n_results)
             
             print(f" Text cluster search: '{query_text}'")
         elif query_image is not None:
-            results = perform_image_cluster_search(collection, query_image, n_results)
+            results = perform_image_cluster_search(collection, query_image, n_results, clip_embd)
             if results is None:
                 return None
         else:
@@ -323,15 +573,15 @@ def cluster_based_search(collection, query_text="", query_image=None, n_results=
         print(f" Error during cluster-based search: {e}")
         return None
 
-def perform_image_cluster_search(collection, query_image, n_results):
+def perform_image_cluster_search(collection, query_image, n_results, clip_embd=None):
     # Perform image-based cluster search using embeddings.
     try:
-        # Generate embedding for the query image using OpenCLIP
-        from langchain_experimental.open_clip import OpenCLIPEmbeddings
-        clip_embd = OpenCLIPEmbeddings(
-            model_name="ViT-B-32",
-            checkpoint="laion2b_s34b_b79k"
-        )
+        # Use provided model or default to baseline
+        if clip_embd is None:
+            clip_embd = OpenCLIPEmbeddings(
+                model_name="ViT-B-32",
+                checkpoint="laion2b_s34b_b79k"
+            )
         
         # check and Convert to embeddable format, handling different types.
         query_embedding = generate_image_embedding(clip_embd, query_image)
@@ -422,21 +672,21 @@ def _is_non_interactive_mode():
     )
 
 def _execute_search_by_input(collection, user_input, query_images, 
-                             query_images_path, client, trusted_bucket, image_paths):
+                             query_images_path, client, trusted_bucket, image_paths, clip_embd=None):
     """Execute search based on user input (text or image)."""
     if user_input.lower() == 'image':
         query_image, image_name = get_random_query_image(query_images, query_images_path)
         if query_image:
             search_by_image(collection, query_image, image_name,
-                          client=client, trusted_bucket=trusted_bucket, image_paths=image_paths)
+                          client=client, trusted_bucket=trusted_bucket, image_paths=image_paths, clip_embd=clip_embd)
         else:
             print(" No query images available!")
     else:
         search_by_text(collection, user_input, n_results=5, client=client,
-                      trusted_bucket=trusted_bucket, image_paths=image_paths)
+                      trusted_bucket=trusted_bucket, image_paths=image_paths, clip_embd=clip_embd)
 
 def _handle_non_interactive_search(collection, query_images, 
-                                   query_images_path, client, trusted_bucket, image_paths):
+                                   query_images_path, client, trusted_bucket, image_paths, clip_embd=None):
     """Handle non-interactive mode search using environment variable."""
     import os
     
@@ -449,10 +699,10 @@ def _handle_non_interactive_search(collection, query_images,
         return
     
     _execute_search_by_input(collection, user_input, query_images,
-                            query_images_path, client, trusted_bucket, image_paths)
+                            query_images_path, client, trusted_bucket, image_paths, clip_embd=clip_embd)
 
 def _handle_interactive_search_loop(collection, query_images, 
-                                    query_images_path, client, trusted_bucket, image_paths):
+                                    query_images_path, client, trusted_bucket, image_paths, clip_embd=None):
     """Handle interactive search loop."""
     print("\n MULTIMODAL WILDLIFE SEARCH")
     print("=" * 60)
@@ -472,7 +722,7 @@ def _handle_interactive_search_loop(collection, query_images,
             
             elif user_input.lower() == 'image' or user_input:
                 _execute_search_by_input(collection, user_input, query_images,
-                                        query_images_path, client, trusted_bucket, image_paths)
+                                        query_images_path, client, trusted_bucket, image_paths, clip_embd=clip_embd)
             else:
                 print(" Please enter a search query, 'image', or 'quit'")
                 
@@ -483,15 +733,29 @@ def _handle_interactive_search_loop(collection, query_images,
             print(f" Error: {e}")
 
 # search functions
-def search_by_text(collection, query_text, n_results=5, client=None, trusted_bucket=None, image_paths=None):
+def search_by_text(collection, query_text, n_results=5, client=None, trusted_bucket=None, image_paths=None, clip_embd=None):
      # erform text-based similarity search.
     print(f"\n Searching with text: '{query_text}'")
     
     try:
-        # query text
-        results = collection.query(
-            query_texts=[query_text],
-            n_results=n_results)
+        # Get model if not provided
+        if clip_embd is None:
+            clip_embd = _get_embedding_model()
+        
+        # Generate text embedding using selected model
+        if hasattr(clip_embd, 'embed_query'):
+            query_embedding = clip_embd.embed_query(query_text)
+            if isinstance(query_embedding, list):
+                query_embedding = query_embedding[0] if len(query_embedding) > 0 else query_embedding
+            # query using embeddings
+            results = collection.query(
+                query_embeddings=[query_embedding],
+                n_results=n_results)
+        else:
+            # Fallback to collection's default embedder
+            results = collection.query(
+                query_texts=[query_text],
+                n_results=n_results)
         
         display_results(results, query_type="text", query_value=query_text, n_results=n_results, 
                        is_cluster_search=False, collection=collection, client=client, 
@@ -503,7 +767,7 @@ def search_by_text(collection, query_text, n_results=5, client=None, trusted_buc
         return None
 
 def search_by_image(collection, query_image, image_name="", 
-                   client=None, trusted_bucket=None, image_paths=None):
+                   client=None, trusted_bucket=None, image_paths=None, clip_embd=None):
     # Perform image-based similarity search using cluster-based approach.
     print(f"\n Searching with image: '{image_name}'")
     
@@ -521,7 +785,7 @@ def search_by_image(collection, query_image, image_name="",
             print(f" Query image displayed: {image_name}")
         
         # Use cluster-based search for images 
-        results = cluster_based_search(collection, query_image=query_image, n_results=15, return_count=3)
+        results = cluster_based_search(collection, query_image=query_image, n_results=15, return_count=3, clip_embd=clip_embd)
         
         if results:
             display_results(results, query_type="image", query_value=image_name, n_results=3, 
@@ -537,17 +801,17 @@ def search_by_image(collection, query_image, image_name="",
         return None
 
 def interactive_search(collection, query_images, query_images_path, 
-                      client, trusted_bucket, image_paths):
+                      client, trusted_bucket, image_paths, clip_embd=None):
     # Interactive search interface for user input
     # Supports both interactive and non-interactive (CI/CD) modes.
     
     if _is_non_interactive_mode():
         _handle_non_interactive_search(collection, query_images,
-                                      query_images_path, client, trusted_bucket, image_paths)
+                                      query_images_path, client, trusted_bucket, image_paths, clip_embd=clip_embd)
         return
     
     _handle_interactive_search_loop(collection, query_images,
-                                   query_images_path, client, trusted_bucket, image_paths)
+                                   query_images_path, client, trusted_bucket, image_paths, clip_embd=clip_embd)
 
 def get_collection_statistics(collection):
     # Get statistics about the multimodal_embedding collection.
@@ -627,10 +891,13 @@ def process_multimodal_task():
     print(" Helper functions defined")
     print("=" * 60)
     
+    # Initialize embedding model (user selects baseline or fine-tuned)
+    clip_embd = _get_embedding_model()
+    
     # Start the interactive search
     print(" Starting Multimodal Wildlife Search...")
     interactive_search(collection, query_images, query_images_path, 
-                     client, trusted_bucket, image_paths)
+                     client, trusted_bucket, image_paths, clip_embd=clip_embd)
     
     # Display collection statistics
     get_collection_statistics(collection)

@@ -351,8 +351,8 @@ def process_streaming_data(snake_families, limits, max_samples, client, root_buc
             trust_remote_code=False  # Disable remote code execution
         )
         
-        # Use user-provided max_samples limit
-        print(f" Processing up to {max_samples} samples from the dataset...")
+        # Use user-provided max_samples limit (number of records to SAVE, not process)
+        print(f" Processing data until {max_samples} records are saved...")
         print(f" Maximum runtime: {max_runtime} seconds (25 minutes)")
         
     except Exception as e:
@@ -360,7 +360,8 @@ def process_streaming_data(snake_families, limits, max_samples, client, root_buc
         return metadata_df, False
     
     # Process samples in stream with error handling
-    processed_count = 0
+    # Track saved records count (not processed count)
+    initial_saved_count = len(metadata_df)
     last_progress_time = start_time
     progress_interval = 30  # Print progress every 30 seconds
     
@@ -369,20 +370,22 @@ def process_streaming_data(snake_families, limits, max_samples, client, root_buc
             # Check time limit
             current_time = time.time()
             if current_time - start_time > max_runtime:
+                saved_count = len(metadata_df) - initial_saved_count
                 print(f"\n⏰ Time limit reached ({max_runtime}s). Stopping processing early.")
-                print(f"   Processed {processed_count} samples in {current_time - start_time:.1f} seconds")
+                print(f"   Saved {saved_count} records in {current_time - start_time:.1f} seconds")
                 break
             
-            # Stop after processing max_samples
-            if i >= max_samples:
-                print(f"\n📊 Sample limit reached ({max_samples}). Stopping processing.")
+            # Check if we've saved enough records
+            saved_count = len(metadata_df) - initial_saved_count
+            if saved_count >= max_samples:
+                print(f"\n📊 Sample limit reached ({max_samples} records saved). Stopping processing.")
                 break
             
             # Print progress every 30 seconds
             if current_time - last_progress_time >= progress_interval:
                 elapsed = current_time - start_time
-                rate = processed_count / elapsed if elapsed > 0 else 0
-                print(f"\n📈 Progress: {processed_count} samples processed in {elapsed:.1f}s (rate: {rate:.2f} samples/s)")
+                rate = saved_count / elapsed if elapsed > 0 else 0
+                print(f"\n📈 Progress: {saved_count} records saved in {elapsed:.1f}s (rate: {rate:.2f} records/s)")
                 last_progress_time = current_time
             
             try:
@@ -391,7 +394,10 @@ def process_streaming_data(snake_families, limits, max_samples, client, root_buc
                     existing_image_ids, existing_uuids, metadata_df, species_counts, 
                     family_species, metadata_local, metadata_remote_path
                 )
-                processed_count += 1
+                
+                # Note: We calculate saved_count from the length of metadata_df
+                # This counts only records that were actually saved, not processed
+                
             except Exception as e:
                 print(f"Skipping sample {i} due to error: {e}")
                 # Continue processing other samples instead of crashing
@@ -408,8 +414,10 @@ def process_streaming_data(snake_families, limits, max_samples, client, root_buc
             pass
     
     total_time = time.time() - start_time
-    print(f"\n✅ Processing completed: {processed_count} samples processed in {total_time:.1f} seconds")
-    print(f"   Average rate: {processed_count/total_time:.2f} samples/second")
+    saved_count = len(metadata_df) - initial_saved_count
+    print(f"\n✅ Processing completed: {saved_count} records saved in {total_time:.1f} seconds")
+    if total_time > 0:
+        print(f"   Average rate: {saved_count/total_time:.2f} records/second")
     
     return metadata_df, False
 

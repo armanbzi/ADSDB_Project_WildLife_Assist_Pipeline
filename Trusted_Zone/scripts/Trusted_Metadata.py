@@ -23,13 +23,8 @@ from shared_utils import get_minio_config, setup_minio_client_and_bucket, get_tr
 #    Functions
 # -----------------------
 
-# -----------------------
-#    Configuration
-# -----------------------
-
-
 def _load_formatted_metadata(client, formatted_zone, meta_prefix):
-    """Load all formatted metadata files from MinIO and concatenate them."""
+    #Load all formatted metadata files from MinIO and concatenate them.
     metadata_objs = [
         obj.object_name for obj in client.list_objects(formatted_zone, prefix=meta_prefix, recursive=True)
         if obj.object_name.lower().endswith(".csv")
@@ -50,7 +45,7 @@ def _load_formatted_metadata(client, formatted_zone, meta_prefix):
     return pd.concat(all_dfs, ignore_index=True)
 
 def _clean_metadata(metadata_df, target_columns):
-    """Clean metadata: keep target columns, remove duplicates, remove missing values, normalize strings."""
+    # Clean metadata: keep target columns, remove duplicates, remove missing values, normalize strings.
     # Keep only target columns
     for col in target_columns:
         if col not in metadata_df.columns:
@@ -81,7 +76,7 @@ def _clean_metadata(metadata_df, target_columns):
     return metadata_df
 
 def _merge_with_existing_trusted(client, trusted_zone, meta_prefix, metadata_df):
-    """Merge new metadata with existing trusted metadata to avoid duplicates."""
+    # Merge new metadata with existing trusted metadata to avoid duplicates.
     trusted_metadata_files = [
         obj.object_name for obj in client.list_objects(trusted_zone, prefix=meta_prefix, recursive=True)
         if obj.object_name.lower().endswith(".csv") and "trusted_metadata_" in obj.object_name
@@ -120,7 +115,7 @@ def _merge_with_existing_trusted(client, trusted_zone, meta_prefix, metadata_df)
     return metadata_df
 
 def _save_and_cleanup(client, trusted_zone, meta_prefix, metadata_df):
-    """Save cleaned metadata to Trusted Zone and cleanup temp files."""
+    # Save cleaned metadata to Trusted Zone and cleanup temp files.
     timestamp = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     local_file = f"trusted_metadata_{timestamp}.csv"
     os.makedirs("temp_trusted", exist_ok=True)
@@ -136,7 +131,7 @@ def _save_and_cleanup(client, trusted_zone, meta_prefix, metadata_df):
     shutil.rmtree("temp_trusted")
 
 def _get_configuration():
-    """Get configuration constants."""
+    # Get configuration constants.
     config = get_trusted_zone_config()
     target_columns = [
         "uuid", "kingdom", "phylum", "class", "order", "family",
@@ -146,15 +141,13 @@ def _get_configuration():
     return config['formatted_zone'], config['trusted_zone'], config['meta_prefix'], target_columns
 
 def _process_metadata_pipeline(client, formatted_zone, trusted_zone, meta_prefix, target_columns):
-    """Execute the full metadata processing pipeline."""
+    # Execute the full metadata processing pipeline.
     metadata_df = _load_formatted_metadata(client, formatted_zone, meta_prefix)
     metadata_df = _clean_metadata(metadata_df, target_columns)
     metadata_df = _merge_with_existing_trusted(client, trusted_zone, meta_prefix, metadata_df)
     return metadata_df
 
-# -----------------------
-#    Configuration
-# -----------------------
+
 def process_trusted_metadata():
 
     # Get MinIO configuration from environment variables (set by orchestrator)
