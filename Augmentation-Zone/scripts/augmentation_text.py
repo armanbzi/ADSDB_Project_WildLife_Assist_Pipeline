@@ -35,7 +35,6 @@ We employ template-based text augmentation rather than neural paraphrasing:
 4. Information queries: "Information about {species}"
 5. Direct name queries: Just common name or scientific name
 
-
 """
 
 import os
